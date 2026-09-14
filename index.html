@@ -90,6 +90,7 @@
 </div>
 </div>
 <!-- Auth Mode Switcher (Interactive Tabs) -->
+<div id="auth-form-wrapper">
 <div class="mt-space-md flex gap-space-xs bg-surface-container p-1">
 <button class="flex-1 py-1.5 px-space-sm text-center font-label-md text-label-md bg-surface-container-lowest text-primary shadow-sm font-semibold transition-all" id="tab-login" onclick="switchAuthTab('login')">
                 Masuk Repositori (Login)
@@ -148,6 +149,7 @@
 </button>
 </div>
 </form>
+</div>
 </article>
 <!-- ========================================== -->
 <!-- SECTION 2: [TAHAP 02] PENGUNGGAHAN BERKAS   -->
@@ -440,8 +442,10 @@
     const statusBadge = document.getElementById('auth-status-badge');
     const sectionUpload = document.getElementById('section-upload');
     const sectionLedger = document.getElementById('section-ledger');
+    const authFormWrapper = document.getElementById('auth-form-wrapper');
 
     if (user) {
+      if (authFormWrapper) authFormWrapper.classList.add('hidden');
       if (headerName) headerName.textContent = user.email;
       if (headerSub) headerSub.textContent = 'SESI AKTIF';
       if (statusBadge) statusBadge.textContent = 'STATUS: TEROTENTIKASI (AKTIF)';
@@ -461,6 +465,7 @@
 
       loadLedger(user.uid);
     } else {
+      if (authFormWrapper) authFormWrapper.classList.remove('hidden');
       if (headerName) headerName.textContent = 'Belum masuk';
       if (headerSub) headerSub.textContent = 'SILAKAN LOGIN';
       if (statusBadge) statusBadge.textContent = 'STATUS: BELUM MASUK';
