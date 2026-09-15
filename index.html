@@ -618,12 +618,26 @@
     return ext ? `${nameNoExt}.${ext}` : nameNoExt;
   }
 
-  // Pake query string fl_attachment biar jalan buat semua tipe file (image/raw/video)
-  function buildDownloadUrl(url, downloadName) {
-    if (!url) return url;
-    const sep = url.includes('?') ? '&' : '?';
-    return `${url}${sep}fl_attachment=${encodeURIComponent(downloadName)}`;
-  }
+  // Tarik file lewat fetch jadi blob, baru dipaksa download pake nama sendiri.
+  // Ini jalan buat semua tipe file (docx/pptx/xlsx/gambar), gak ngandelin Cloudinary.
+  window.downloadFile = async function(url, filename) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('gagal ambil file');
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+    } catch (e) {
+      notifyFeedback('Gagal unduh langsung, dibuka di tab baru.', 'info');
+      window.open(url, '_blank');
+    }
+  };
 
   // Realtime ledger list from Firestore, filtered by owner
   function loadLedger(uid) {
@@ -652,7 +666,6 @@
         const locText = data.locationName ? data.locationName : (data.location ? `${data.location.lat.toFixed(4)}, ${data.location.lng.toFixed(4)}` : 'Lokasi tidak dicatat');
         const safeName = data.name.replace(/'/g, "\\'");
         const dlName = buildDownloadName(data.name, data.createdAt);
-        const dlUrl = buildDownloadUrl(data.url, dlName);
 
         const card = document.createElement('div');
         card.className = 'ledger-item bg-surface-container-low p-space-sm shadow-sm flex flex-col gap-space-xs transition-all hover:bg-surface-container';
@@ -673,10 +686,10 @@
             <span class="truncate">${locText}</span>
           </div>
           <div class="flex items-center justify-between pt-space-xs">
-            <a href="${dlUrl}" target="_blank" class="bg-primary hover:bg-primary-container text-on-primary px-space-sm py-1 font-label-sm text-label-sm uppercase flex items-center gap-1 shadow-sm transition-all">
+            <button onclick="downloadFile('${data.url}', '${dlName.replace(/'/g, "\\'")}')" class="bg-primary hover:bg-primary-container text-on-primary px-space-sm py-1 font-label-sm text-label-sm uppercase flex items-center gap-1 shadow-sm transition-all">
               <span class="material-symbols-outlined text-[15px]">download</span>
               <span>Unduh Berkas</span>
-            </a>
+            </button>
             <button onclick="confirmDeleteLedgerRecord(this, '${id}', '${safeName}')" class="bg-surface-container-high hover:bg-error-container hover:text-on-error-container text-secondary px-space-sm py-1 font-label-sm text-label-sm uppercase flex items-center gap-1 shadow-sm transition-all">
               <span class="material-symbols-outlined text-[15px]">delete_sweep</span>
               <span>Hapus Record</span>
