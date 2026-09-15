@@ -599,8 +599,10 @@
     xhr.send(formData);
   }
 
-  // Bikin nama file download: NAMA_YYYYMMDD_HHMM (tanpa tanda minus)
+  // Bikin nama file download: NAMA_YYYYMMDD_HHMM.ext (tanpa tanda minus)
   function buildDownloadName(originalName, createdAt) {
+    const extMatch = originalName.match(/\.([a-zA-Z0-9]+)$/);
+    const ext = extMatch ? extMatch[1].toLowerCase() : '';
     const base = originalName.replace(/\.[^.]+$/, '');
     const clean = base
       .normalize('NFKD')
@@ -612,13 +614,15 @@
     const d = new Date(createdAt);
     const p = (n) => String(n).padStart(2, '0');
     const stamp = `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`;
-    return `${clean || 'BERKAS'}_${stamp}`;
+    const nameNoExt = `${clean || 'BERKAS'}_${stamp}`;
+    return ext ? `${nameNoExt}.${ext}` : nameNoExt;
   }
 
-  // Sisipin fl_attachment ke URL Cloudinary biar nama file pas diunduh rapi
+  // Pake query string fl_attachment biar jalan buat semua tipe file (image/raw/video)
   function buildDownloadUrl(url, downloadName) {
-    if (!url || !url.includes('/upload/')) return url;
-    return url.replace('/upload/', `/upload/fl_attachment:${encodeURIComponent(downloadName)}/`);
+    if (!url) return url;
+    const sep = url.includes('?') ? '&' : '?';
+    return `${url}${sep}fl_attachment=${encodeURIComponent(downloadName)}`;
   }
 
   // Realtime ledger list from Firestore, filtered by owner
