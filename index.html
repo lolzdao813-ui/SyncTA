@@ -435,6 +435,8 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
   let unsubscribeLedger = null;
   let unsubscribeNotes = null;
   let userFiles = [];
+  let idleTimer = null;
+  const IDLE_LIMIT_MS = 15 * 60 * 1000; // 15 menit gak ada aktivitas -> auto logout
   let pendingDeleteId = null;
   let elementPendingDeletion = null;
 
@@ -446,6 +448,19 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
     'PNG': 'bg-[#a78bfa]', 'JPG': 'bg-[#a78bfa]', 'JPEG': 'bg-[#a78bfa]'
   };
   const MONTHS_ID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+  function resetIdleTimer() {
+    if (!currentUser) return;
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      notifyFeedback('Sesi berakhir otomatis karena 15 menit tidak ada aktivitas.', 'info');
+      window.fb.signOut(window.fb.auth);
+    }, IDLE_LIMIT_MS);
+  }
+
+  ['mousemove', 'keydown', 'click', 'touchstart', 'scroll'].forEach((evt) => {
+    document.addEventListener(evt, resetIdleTimer, { passive: true });
+  });
 
   // Switch between Login and Register tabs
   function switchAuthTab(mode) {
@@ -533,6 +548,7 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
 
       loadLedger(user.uid);
       loadNotes(user.uid);
+      resetIdleTimer();
     } else {
       if (authFormWrapper) authFormWrapper.classList.remove('hidden');
       if (headerName) headerName.textContent = 'Belum masuk';
@@ -544,6 +560,7 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
       if (sectionLedger) { sectionLedger.classList.add('hidden'); sectionLedger.classList.remove('flex'); }
       if (unsubscribeLedger) { unsubscribeLedger(); unsubscribeLedger = null; }
       if (unsubscribeNotes) { unsubscribeNotes(); unsubscribeNotes = null; }
+      if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
     }
   };
 
