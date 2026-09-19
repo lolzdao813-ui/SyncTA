@@ -1,454 +1,315 @@
 <!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SyncTA</title>
+<style>
+  :root {
+    --bg: #10131a;
+    --card: #1a1e28;
+    --card-alt: #20242f;
+    --border: rgba(255,255,255,0.08);
+    --text: #e7e9ee;
+    --muted: #8b91a3;
+    --accent: #2dd4bf;
+    --accent-dark: #14b8a6;
+    --danger: #f87171;
+    --danger-bg: rgba(248,113,113,0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  a { color: var(--accent); }
 
-<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-tertiary-container": "#ffda9e", "on-secondary-fixed": "#3c0800", "on-error": "#ffffff", "surface": "#16191a", "surface-tint": "#026a6a", "surface-variant": "#3a4142", "secondary": "#ff8a65", "tertiary-fixed": "#ffdeaa", "error-container": "#5c1a1a", "primary": "#4fd1d0", "inverse-primary": "#85d4d3", "tertiary": "#f2c14e", "on-error-container": "#ffdad6", "on-primary": "#00201f", "surface-container": "#232829", "surface-container-highest": "#343b3c", "on-primary-fixed-variant": "#004f50", "on-secondary-container": "#611300", "secondary-fixed-dim": "#ffb4a1", "on-primary-fixed": "#002020", "primary-fixed-dim": "#85d4d3", "surface-container-lowest": "#1b1f20", "secondary-container": "#c2410c", "secondary-fixed": "#ffdbd2", "tertiary-container": "#835b00", "on-tertiary": "#ffffff", "inverse-on-surface": "#1c1c15", "surface-container-high": "#2b3132", "surface-container-low": "#1e2223", "on-surface": "#e6e4da", "background": "#101314", "on-secondary": "#3c0800", "outline": "#8b9797", "error": "#ff6b6b", "primary-fixed": "#a1f0f0", "on-primary-container": "#002020", "surface-bright": "#242829", "on-secondary-fixed-variant": "#891f00", "surface-dim": "#0c0f10", "inverse-surface": "#e6e4da", "on-background": "#e6e4da", "on-tertiary-fixed": "#271900", "on-tertiary-fixed-variant": "#5f4100", "tertiary-fixed-dim": "#f5bd58", "outline-variant": "#414b4b", "on-surface-variant": "#b4c0bf", "primary-container": "#2ba8a7" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-lg": "1.5rem", "gutter-mobile": "1rem", "margin-mobile": "1rem", "margin": "2.5rem", "gutter": "1.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "space-md": "1rem", "space-xl": "2.5rem" }, fontFamily: { "body-lg": ["EB Garamond"], "label-md": ["JetBrains Mono"], "headline-lg": ["EB Garamond"], "body-sm": ["EB Garamond"], "headline-xl": ["EB Garamond"], "headline-lg-mobile": ["EB Garamond"], "stamp-code": ["JetBrains Mono"], "label-lg": ["JetBrains Mono"], "headline-sm": ["EB Garamond"], "body-md": ["EB Garamond"], "headline-xl-mobile": ["EB Garamond"], "headline-md": ["EB Garamond"], "label-sm": ["JetBrains Mono"], "title-md": ["EB Garamond"] }, fontSize: { "body-lg": ["19px", { lineHeight: "30px", fontWeight: "400" }], "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "500" }], "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }], "body-sm": ["15px", { lineHeight: "22px", fontWeight: "400" }], "headline-xl": ["40px", { lineHeight: "48px", letterSpacing: "-0.01em", fontWeight: "600" }], "headline-lg-mobile": ["26px", { lineHeight: "34px", fontWeight: "600" }], "stamp-code": ["13px", { lineHeight: "16px", letterSpacing: "0.12em", fontWeight: "700" }], "label-lg": ["14px", { lineHeight: "20px", letterSpacing: "0.04em", fontWeight: "500" }], "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }], "body-md": ["17px", { lineHeight: "26px", fontWeight: "400" }], "headline-xl-mobile": ["30px", { lineHeight: "38px", letterSpacing: "-0.01em", fontWeight: "600" }], "headline-md": ["24px", { lineHeight: "32px", fontWeight: "500" }], "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.08em", fontWeight: "400" }], "title-md": ["18px", { lineHeight: "24px", fontWeight: "600" }] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary">
-<div class="hidden fixed inset-0 z-[100] bg-background overflow-y-auto" id="viewer-page">
-<div class="max-w-3xl mx-auto px-margin-mobile py-space-xl flex flex-col gap-space-md min-h-screen">
-<div class="flex items-center gap-space-sm">
-<img alt="SyncTA Seal Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XSqUNdYIpF73mq13joic8RHG07NcVPa23rZbOtjlCZQiqJjehmsvxKXL7gqNH78J56vJ-xa1FX3ePOiDxbB6lgw0EG0is_msogZ-Kd-53M4mLKUPX7_9ASTYMMDq1QV7s3SD1RTT5HXfheaqqLo7DLajyo-oUf-43_zz85l_HTjzPgtSa8E2jJoQD8boVihbwk5qohRHbBJ98Zdjc0Ee7B12lv-3H8sDjn__IkmVlQnaBx3maElWnWD-Zk"/>
-<span class="font-stamp-code text-stamp-code uppercase text-primary font-bold tracking-wider text-[13px]">SYNCTA / PRATINJAU BERKAS BERSAMA</span>
+  /* Navbar */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--accent); color: #06282a;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px;
+  }
+  .brand-text { font-weight: 700; font-size: 17px; }
+  .tabs { display: flex; gap: 4px; background: var(--card-alt); padding: 4px; border-radius: 10px; }
+  .tab-btn {
+    border: none; background: transparent; color: var(--muted);
+    padding: 7px 14px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer;
+  }
+  .tab-btn.active { background: var(--accent); color: #06282a; }
+  .nav-right { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+  .btn {
+    border: none; border-radius: 8px; padding: 9px 16px; font-size: 14px; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: #06282a; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: #262b38; }
+  .btn-danger { background: var(--danger-bg); color: var(--danger); }
+  .btn-sm { padding: 6px 11px; font-size: 12.5px; }
+
+  main { max-width: 720px; margin: 0 auto; padding: 24px 16px 80px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 { margin: 0 0 14px; font-size: 16px; font-weight: 700; }
+  label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 5px; font-weight: 600; }
+  input[type="email"], input[type="password"], input[type="text"], input[type="file"], textarea, select {
+    width: 100%; background: var(--card-alt); border: 1px solid var(--border);
+    color: var(--text); border-radius: 9px; padding: 10px 12px; font-size: 14.5px;
+    margin-bottom: 14px; font-family: inherit;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 64px; }
+
+  .authtabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .authtab { flex: 1; text-align: center; padding: 9px; border-radius: 9px; background: var(--card-alt); color: var(--muted); font-weight: 600; font-size: 14px; cursor: pointer; }
+  .authtab.active { background: var(--accent); color: #06282a; }
+  #register-fields { display: none; }
+  .msg { font-size: 13px; margin-top: 8px; }
+  .msg.error { color: var(--danger); }
+  .msg.info { color: var(--muted); }
+
+  progress { width: 100%; height: 6px; accent-color: var(--accent); margin-bottom: 10px; border-radius: 4px; }
+
+  #file-preview { display: flex; align-items: center; gap: 8px; background: var(--card-alt); padding: 8px 12px; border-radius: 9px; margin-bottom: 14px; font-size: 13.5px; color: var(--muted); }
+  #file-preview .name { color: var(--text); font-weight: 600; }
+
+  .entry {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+    background: var(--card-alt);
+  }
+  .entry-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .ext-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 7px; }
+  .entry-name { font-weight: 700; font-size: 15px; word-break: break-word; }
+  .entry-time { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .entry-note { font-size: 13.5px; color: var(--muted); margin: 8px 0; font-style: italic; }
+  .entry-note.filled { color: var(--text); }
+  .entry-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .entry-link-file { font-size: 12.5px; color: var(--accent); background: none; border: none; cursor: pointer; padding: 0; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+
+  .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .search-row input { margin-bottom: 0; flex: 1; }
+  .filter-chips { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .chip { font-size: 12px; padding: 5px 11px; border-radius: 999px; background: var(--card-alt); color: var(--muted); cursor: pointer; border: 1px solid var(--border); }
+  .chip.active { background: var(--accent); color: #06282a; border-color: var(--accent); }
+
+  .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 24px 0; font-style: italic; }
+  .hidden { display: none !important; }
+
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--card-alt); border: 1px solid var(--border); color: var(--text);
+    padding: 12px 18px; border-radius: 10px; font-size: 14px; opacity: 0;
+    transition: all .25s ease; z-index: 200; max-width: 90%; box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 150;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal { background: var(--card); border-radius: 14px; padding: 20px; max-width: 380px; border: 1px solid var(--border); }
+  .modal h3 { margin: 0 0 8px; font-size: 16px; }
+  .modal p { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  #viewer-page {
+    position: fixed; inset: 0; background: var(--bg); z-index: 300; overflow-y: auto; display: none;
+  }
+  #viewer-page .inner { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+  #viewer-preview-area { background: var(--card-alt); border-radius: 10px; padding: 10px; min-height: 200px; }
+  #viewer-preview-area img { max-width: 100%; display: block; margin: 0 auto; border-radius: 8px; }
+  #viewer-preview-area iframe { width: 100%; height: 70vh; border: none; border-radius: 8px; background: #fff; }
+
+  @media (max-width: 560px) {
+    .nav-right { display: none; }
+    main { padding: 16px 12px 80px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SHARE VIEWER (Drive-like preview page) -->
+<div id="viewer-page">
+  <div class="inner">
+    <div class="brand" style="margin-bottom:20px;">
+      <div class="brand-logo">TA</div>
+      <div class="brand-text">SyncTA · Pratinjau Berkas</div>
+    </div>
+    <div class="card">
+      <div class="entry-top" style="margin-bottom:14px;">
+        <div class="entry-name" id="viewer-filename">Nama Berkas</div>
+        <button class="btn btn-primary btn-sm" id="viewer-download-btn">Unduh</button>
+      </div>
+      <div id="viewer-preview-area">
+        <p class="empty">Memuat pratinjau...</p>
+      </div>
+      <p class="msg info" style="margin-top:14px;">Berkas ini dibagikan lewat SyncTA. Link ini bisa dibuka siapa saja tanpa login.</p>
+    </div>
+  </div>
 </div>
-<div class="bg-surface-container-lowest shadow-md p-space-md sm:p-space-lg flex flex-col gap-space-md">
-<div class="flex items-start justify-between gap-space-sm flex-wrap">
-<div class="flex items-center gap-space-sm min-w-0">
-<span class="font-stamp-code text-[11px] font-bold px-2 py-1 bg-primary text-on-primary" id="viewer-ext-badge">FILE</span>
-<span class="font-title-md text-title-md font-bold text-on-surface truncate" id="viewer-filename">Nama Berkas</span>
-</div>
-<button class="bg-primary hover:bg-primary-container text-on-primary px-space-md py-2 font-label-sm text-label-sm uppercase flex items-center gap-1 shadow-sm transition-all shrink-0" id="viewer-download-btn">
-<span class="material-symbols-outlined text-[15px]">download</span>
-<span>Unduh Berkas</span>
-</button>
-</div>
-<div class="bg-surface-container p-space-sm min-h-[200px]" id="viewer-preview-area">
-<p class="font-body-sm text-body-sm text-on-surface-variant italic text-center py-space-lg">Memuat pratinjau...</p>
-</div>
-<p class="font-label-sm text-label-sm text-on-surface-variant">Berkas ini dibagikan lewat SyncTA, arsip digital tugas akhir. Link ini bisa dibuka siapa saja tanpa perlu login.</p>
-</div>
-</div>
-</div>
+
 <div id="main-app">
-<!-- Vertical Icon Sidebar -->
-<aside class="fixed left-0 top-0 h-full w-14 bg-surface-container-low border-r border-outline-variant/30 flex flex-col items-center py-space-md gap-space-sm z-[60]">
-<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center mb-space-sm">
-<span class="material-symbols-outlined text-on-primary text-[18px]">history_edu</span>
-</div>
-<button class="w-10 h-10 flex items-center justify-center bg-primary text-on-primary shadow-sm transition-all" id="maintab-upload-btn" onclick="switchMainTab('upload')" title="Upload & Riwayat">
-<span class="material-symbols-outlined text-[20px]">cloud_upload</span>
-</button>
-<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-all" id="maintab-notes-btn" onclick="switchMainTab('notes')" title="Catatan Revisi">
-<span class="material-symbols-outlined text-[20px]">edit_note</span>
-</button>
-</aside><header class="fixed top-0 left-14 w-[calc(100%-3.5rem)] z-50 bg-surface/95 backdrop-blur-md shadow-[0_1px_12px_rgba(0,0,0,0.5)]"><div class="h-20 max-w-[1240px] mx-auto px-margin-mobile lg:px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><img alt="SyncTA Seal Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XSqUNdYIpF73mq13joic8RHG07NcVPa23rZbOtjlCZQiqJjehmsvxKXL7gqNH78J56vJ-xa1FX3ePOiDxbB6lgw0EG0is_msogZ-Kd-53M4mLKUPX7_9ASTYMMDq1QV7s3SD1RTT5HXfheaqqLo7DLajyo-oUf-43_zz85l_HTjzPgtSa8E2jJoQD8boVihbwk5qohRHbBJ98Zdjc0Ee7B12lv-3H8sDjn__IkmVlQnaBx3maElWnWD-Zk"/><div class="flex flex-col"><span class="font-stamp-code text-stamp-code uppercase text-primary font-bold tracking-wider">SYNCTA / REPOSITORI TUGAS AKHIR</span><span class="font-label-sm text-label-sm text-on-surface-variant">ARSIP AKADEMIK TERINTEGRASI KAMPUS DIGITAL</span></div></div><div class="hidden xl:flex items-center gap-space-sm"><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-space-xs"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface font-medium">FIREBASE: AKTIF</span></div><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-space-xs"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface font-medium">CLOUDINARY: TERHUBUNG</span></div></div><div class="flex items-center gap-space-md"><div class="hidden md:flex flex-col text-right"><span class="font-label-md text-label-md text-on-surface font-semibold" id="header-user-name">Belum masuk</span><span class="font-label-sm text-label-sm text-on-surface-variant" id="header-user-sub">SILAKAN LOGIN</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><a class="hidden sm:flex items-center gap-space-xs px-space-sm py-space-xs font-label-md text-label-md text-on-surface-variant hover:text-secondary hover:bg-surface-container transition-all" href="#" onclick="window.fb.signOut(window.fb.auth); return false;"><span class="material-symbols-outlined text-[16px]">logout</span><span>Keluar</span></a></div></div><div class="w-full h-1 bg-gradient-to-r from-primary-container via-tertiary-fixed-dim to-secondary-container"></div></header><main class="w-full pt-20 pl-14 bg-background min-h-screen relative"><div class="flex flex-col w-full">
-<section class="w-full pb-space-xl">
-<div class="max-w-[1240px] mx-auto px-margin-mobile lg:px-margin">
-<!-- Docket Sequence Breadcrumb / Stage Indicator -->
-<nav aria-label="Tahapan Preservasi Berkas" class="mt-space-lg mb-space-xl bg-surface-container-low shadow-sm p-space-xs sm:p-space-sm flex flex-wrap lg:flex-nowrap items-stretch gap-space-xs">
-<div class="flex-1 min-w-[220px] bg-surface-container-lowest p-space-sm shadow-sm flex items-center justify-between">
-<div class="flex items-center gap-space-sm min-w-0">
-<span class="font-stamp-code text-stamp-code bg-primary-container text-on-primary px-space-xs py-0.5">[01]</span>
-<div class="flex flex-col truncate">
-<span class="font-title-md text-title-md text-primary font-bold truncate">Autentikasi Arsip</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Sesi Kredensial Firebase</span>
-</div>
-</div>
-<span class="material-symbols-outlined text-primary text-[20px]">verified</span>
-</div>
-<div class="flex-1 min-w-[220px] bg-surface-container-lowest p-space-sm shadow-sm flex items-center justify-between">
-<div class="flex items-center gap-space-sm min-w-0">
-<span class="font-stamp-code text-stamp-code bg-surface-container-highest text-on-surface-variant px-space-xs py-0.5">[02]</span>
-<div class="flex flex-col truncate">
-<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Pengunggahan Dokumen</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Cloudinary Unsigned &amp; Geotag</span>
-</div>
-</div>
-<span class="material-symbols-outlined text-tertiary text-[20px]">cloud_upload</span>
-</div>
-<div class="flex-1 min-w-[220px] bg-surface-container-lowest p-space-sm shadow-sm flex items-center justify-between">
-<div class="flex items-center gap-space-sm min-w-0">
-<span class="font-stamp-code text-stamp-code bg-surface-container-highest text-on-surface-variant px-space-xs py-0.5">[03]</span>
-<div class="flex flex-col truncate">
-<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Lembar Riwayat Dokumen</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Buku Catatan Ledger Firestore</span>
-</div>
-</div>
-<span class="material-symbols-outlined text-outline text-[20px]">history_edu</span>
-</div>
+
+<nav>
+  <div class="brand">
+    <div class="brand-logo">TA</div>
+    <div class="brand-text">SyncTA</div>
+  </div>
+  <div class="tabs hidden" id="main-tabs">
+    <button class="tab-btn active" id="maintab-upload-btn" onclick="switchMainTab('upload')">Upload &amp; Riwayat</button>
+    <button class="tab-btn" id="maintab-notes-btn" onclick="switchMainTab('notes')">Catatan Revisi</button>
+  </div>
+  <div class="nav-right">
+    <span id="header-user-name">Belum masuk</span>
+    <button class="btn btn-secondary btn-sm hidden" id="header-logout-btn" onclick="window.fb.signOut(window.fb.auth)">Keluar</button>
+  </div>
 </nav>
-<!-- Grid Master Container -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start" id="tab-content-upload">
-<!-- LEFT COLUMN (Stage 01 & Stage 02) -->
-<div class="lg:col-span-7 flex flex-col gap-space-xl">
-<!-- ========================================== -->
-<!-- SECTION 1: [TAHAP 01] AUTENTIKASI REGISTRASI -->
-<!-- ========================================== -->
-<article class="bg-surface-container-lowest shadow-md p-space-md sm:p-space-lg relative overflow-hidden">
-<!-- Archival watermark seal in backdrop -->
-<div class="absolute -right-8 -top-8 w-44 h-44 opacity-5 pointer-events-none select-none">
-<svg class="w-full h-full fill-current text-primary" viewbox="0 0 100 100">
-<circle cx="50" cy="50" fill="none" r="46" stroke="currentColor" stroke-dasharray="4 2" stroke-width="3"></circle>
-<circle cx="50" cy="50" fill="none" r="38" stroke="currentColor" stroke-width="1.5"></circle>
-<path d="M50 20 L50 80 M20 50 L80 50" stroke="currentColor" stroke-width="1"></path>
-</svg>
+
+<main>
+
+  <!-- LOGIN / REGISTER -->
+  <div id="auth-card" class="card" style="max-width:420px; margin:40px auto;">
+    <div class="authtabs">
+      <div class="authtab active" id="tab-login" onclick="switchAuthTab('login')">Masuk</div>
+      <div class="authtab" id="tab-register" onclick="switchAuthTab('register')">Daftar</div>
+    </div>
+    <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="nama@kampus.ac.id" required>
+      <label>Kata Sandi</label>
+      <input type="password" id="auth-password" placeholder="••••••••" required>
+      <div id="register-fields">
+        <label>NIM</label>
+        <input type="text" id="reg-nim" placeholder="Contoh: 2104011823">
+        <label>Program Studi</label>
+        <input type="text" id="reg-prodi" placeholder="Contoh: Teknik Informatika">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;" id="auth-submit-btn">Masuk</button>
+      <p class="msg error" id="auth-msg"></p>
+    </form>
+  </div>
+
+  <!-- TAB 1: UPLOAD & RIWAYAT -->
+  <div id="tab-content-upload" class="hidden">
+    <div class="card">
+      <h2>Unggah Berkas</h2>
+      <label>Pilih File</label>
+      <input type="file" id="file-selector" onchange="handleFileSelected(event)">
+      <div id="file-preview" class="hidden">
+        <span class="name" id="staged-file-name"></span>
+        <span id="staged-file-size"></span>
+      </div>
+      <label>Catatan Revisi (opsional)</label>
+      <textarea id="revision-notes" placeholder="Mis. revisi bab 3 setelah bimbingan..."></textarea>
+      <progress id="progress-bar" value="0" max="100" class="hidden"></progress>
+      <button class="btn btn-primary" onclick="submitUpload()">Upload</button>
+      <button class="btn btn-secondary" onclick="resetUploadForm()">Reset</button>
+      <p class="msg info" id="upload-msg"></p>
+    </div>
+
+    <div class="card">
+      <h2>Riwayat Unggahan</h2>
+      <div class="search-row">
+        <input type="text" id="ledger-search-input" placeholder="Cari nama berkas..." oninput="filterLedgerRecords()">
+      </div>
+      <div class="filter-chips" id="filter-chip-group">
+        <span class="chip active" onclick="setFileFilter('ALL', this)">Semua</span>
+        <span class="chip" onclick="setFileFilter('PDF', this)">PDF</span>
+        <span class="chip" onclick="setFileFilter('DOCX', this)">DOCX</span>
+        <span class="chip" onclick="setFileFilter('PPTX', this)">PPTX</span>
+        <span class="chip" onclick="setFileFilter('XLSX', this)">XLSX</span>
+        <span class="chip" onclick="setFileFilter('IMG', this)">Gambar</span>
+      </div>
+      <div id="ledger-records-list">
+        <p class="empty">Memuat riwayat...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: CATATAN REVISI -->
+  <div id="tab-content-notes" class="hidden">
+    <div class="card">
+      <h2>Tambah Catatan</h2>
+      <label>Tautkan ke berkas (opsional)</label>
+      <select id="note-file-select">
+        <option value="">Tanpa tautan berkas</option>
+      </select>
+      <label>Catatan</label>
+      <textarea id="note-text-input" placeholder="Tulis catatan revisi, saran pembimbing, atau to-do..."></textarea>
+      <button class="btn btn-primary" onclick="addRevisionNote()">Simpan Catatan</button>
+    </div>
+    <div class="card">
+      <h2>Semua Catatan</h2>
+      <div id="notes-list">
+        <p class="empty">Memuat catatan...</p>
+      </div>
+    </div>
+  </div>
+
+</main>
 </div>
-<!-- Header of Section 01 -->
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-sm">
-<div class="flex items-center gap-space-sm">
-<span class="font-stamp-code text-stamp-code uppercase px-space-xs py-0.5 bg-primary-container text-on-primary font-bold">
-                  [TAHAP 01]
-                </span>
-<h2 class="font-headline-sm text-headline-sm text-primary tracking-tight">
-                  Autentikasi &amp; Registrasi Akun
-                </h2>
+
+<!-- Delete confirm modal -->
+<div class="modal-backdrop hidden" id="delete-modal">
+  <div class="modal">
+    <h3>Hapus record?</h3>
+    <p>Hapus catatan <b id="modal-delete-file-name"></b> dari riwayat? File asli di Cloudinary tetap tersimpan.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeDeleteModal()">Batal</button>
+      <button class="btn btn-danger" id="modal-confirm-delete-btn">Hapus</button>
+    </div>
+  </div>
 </div>
-<!-- Vintage Archival Rubber Stamp -->
-<div class="inline-flex items-center gap-1.5 px-space-sm py-1 bg-surface-container-low text-primary shadow-sm transform -rotate-1 self-start sm:self-auto">
-<span class="material-symbols-outlined text-[16px] text-primary">verified_user</span>
-<span class="font-stamp-code text-[11px] font-bold tracking-widest uppercase" id="auth-status-badge">
-                  STATUS: BELUM MASUK
-                </span>
-</div>
-</div>
-<!-- Active User Session Folio Card -->
-<div class="mt-space-sm bg-surface-container-low p-space-sm flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm shadow-sm">
-<div class="flex items-start gap-space-sm">
-<div class="w-10 h-10 bg-primary-container text-on-primary flex items-center justify-center shrink-0">
-<span class="material-symbols-outlined text-[24px]">school</span>
-</div>
-<div class="flex flex-col">
-<span class="font-title-md text-title-md font-bold text-on-surface" id="profile-user-name">Belum ada sesi aktif</span>
-<div class="flex flex-wrap items-center gap-x-space-sm gap-y-0.5 text-on-surface-variant font-label-sm text-label-sm" id="profile-meta-wrap">
-<span>Silakan login atau daftar</span>
-</div>
-</div>
-</div>
-<div class="flex items-center gap-space-xs self-end sm:self-auto">
-<span class="inline-block w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-<span class="font-stamp-code text-stamp-code font-bold text-primary">FIREBASE AUTH: VALID</span>
-</div>
-</div>
-<!-- Auth Mode Switcher (Interactive Tabs) -->
-<div id="auth-form-wrapper">
-<div class="mt-space-md flex gap-space-xs bg-surface-container p-1">
-<button class="flex-1 py-1.5 px-space-sm text-center font-label-md text-label-md bg-surface-container-lowest text-primary shadow-sm font-semibold transition-all" id="tab-login" onclick="switchAuthTab('login')">
-                Masuk Repositori (Login)
-              </button>
-<button class="flex-1 py-1.5 px-space-sm text-center font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-all" id="tab-register" onclick="switchAuthTab('register')">
-                Pendaftaran Mahasiswa Baru (Register)
-              </button>
-</div>
-<!-- Form Wrapper -->
-<form class="mt-space-md flex flex-col gap-space-sm" id="auth-form" onsubmit="handleAuthSubmit(event)">
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
-<div class="flex flex-col gap-1">
-<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
-                    Email Institusi [WAJIB]
-                  </label>
-<div class="relative">
-<input class="w-full bg-surface-container-lowest px-space-sm py-2 font-label-md text-label-md text-on-surface placeholder:text-outline focus:bg-surface focus:outline-none shadow-sm transition-all" id="auth-email" placeholder="nama@kampus.ac.id" required="" type="email"/>
-</div>
-</div>
-<div class="flex flex-col gap-1">
-<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
-                    Kata Sandi [KREDENSIAL]
-                  </label>
-<input class="w-full bg-surface-container-lowest px-space-sm py-2 font-label-md text-label-md text-on-surface placeholder:text-outline focus:bg-surface focus:outline-none shadow-sm transition-all" id="auth-password" placeholder="••••••••" required="" type="password"/>
-</div>
-</div>
-<!-- Extra Registration Fields (Hidden by default, shown via Tab) -->
-<div class="hidden grid-cols-1 sm:grid-cols-2 gap-space-sm pt-space-xs" id="register-fields">
-<div class="flex flex-col gap-1">
-<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
-                    Nomor Induk Mahasiswa (NIM)
-                  </label>
-<input class="w-full bg-surface-container-lowest px-space-sm py-2 font-label-md text-label-md text-on-surface placeholder:text-outline focus:bg-surface focus:outline-none shadow-sm" id="reg-nim" placeholder="Contoh: 2104011823" type="text"/>
-</div>
-<div class="flex flex-col gap-1">
-<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
-                    Program Studi / Jurusan
-                  </label>
-<select class="w-full bg-surface-container-lowest px-space-sm py-2 font-label-md text-label-md text-on-surface focus:bg-surface focus:outline-none shadow-sm" id="reg-prodi">
-<option>Teknik Informatika (S-1)</option>
-<option>Sistem Informasi (S-1)</option>
-<option>Teknik Elektro (S-1)</option>
-<option>Arsitektur &amp; Perencanaan (S-1)</option>
-</select>
-</div>
-</div>
-<!-- Button Actions -->
-<div class="flex flex-wrap items-center justify-between gap-space-sm pt-space-xs">
-<button class="bg-primary hover:bg-primary-container text-on-primary px-space-md py-2.5 font-label-md text-label-md tracking-wider uppercase flex items-center gap-space-xs shadow-md transition-all" id="auth-submit-btn" type="submit">
-<span class="material-symbols-outlined text-[18px]">vpn_key</span>
-<span>Perbarui Sesi Akun</span>
-</button>
-<button class="bg-surface-container hover:bg-surface-container-high text-secondary px-space-md py-2.5 font-label-md text-label-md uppercase tracking-wider flex items-center gap-space-xs shadow-sm transition-all" onclick="window.fb.signOut(window.fb.auth)" type="button">
-<span class="material-symbols-outlined text-[18px]">lock_reset</span>
-<span>Keluar Sesi</span>
-</button>
-</div>
-</form>
-</div>
-</article>
-<!-- ========================================== -->
-<!-- SECTION 2: [TAHAP 02] PENGUNGGAHAN BERKAS   -->
-<!-- ========================================== -->
-<article class="hidden bg-surface-container-lowest shadow-md p-space-md sm:p-space-lg relative flex-col gap-space-md" id="section-upload">
-<!-- Header of Section 02 -->
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-sm">
-<div class="flex items-center gap-space-sm">
-<span class="font-stamp-code text-stamp-code uppercase px-space-xs py-0.5 bg-secondary-container text-on-secondary-container font-bold">
-                  [TAHAP 02]
-                </span>
-<h2 class="font-headline-sm text-headline-sm text-primary tracking-tight">
-                  Pengunggahan Dokumen Naskah TA
-                </h2>
-</div>
-<div class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
-<span class="material-symbols-outlined text-[16px] text-tertiary">folder_special</span>
-<span>ARSIP-SIDANG-2025</span>
-</div>
-</div>
-<div class="text-body-sm font-body-sm text-on-surface-variant">
-              Formulir penyerahan dokumen digital Tugas Akhir terintegrasi penyimpanan permanen Cloudinary CDN dan audit pelacakan koordinat GPS penyerahan melalui Nominatim OpenStreetMap.
-            </div>
-<!-- Upload Zone Mockup -->
-<div class="cursor-pointer bg-surface-container-low hover:bg-surface-container p-space-lg text-center flex flex-col items-center justify-center gap-space-sm shadow-sm transition-all" id="drop-zone" onclick="triggerFileSelect()">
-<input accept=".pdf,.docx,.pptx,.xlsx,.png,.jpg" class="hidden" id="file-selector" onchange="handleFileSelected(event)" type="file"/>
-<div class="w-14 h-14 bg-surface-container-highest flex items-center justify-center shadow-inner">
-<span class="material-symbols-outlined text-primary text-[32px]">upload_file</span>
-</div>
-<div class="flex flex-col gap-0.5 max-w-md">
-<span class="font-title-md text-title-md font-bold text-on-surface">
-                  Pilih atau Tarik Berkas Sidang ke Area Ini
-                </span>
-<span class="font-body-sm text-body-sm text-on-surface-variant">
-                  Format yang didukung: <strong>PDF, DOCX, PPTX, XLSX, JPG, PNG</strong> (Maksimum 50 MB per naskah)
-                </span>
-</div>
-<!-- File Target Preview Card -->
-<div class="mt-space-xs bg-surface-container-lowest px-space-md py-space-xs shadow-sm flex items-center gap-space-sm" id="selected-file-card">
-<span class="font-stamp-code text-[11px] bg-secondary text-on-secondary px-1.5 py-0.5 font-bold" id="staged-file-ext">FILE</span>
-<span class="font-label-md text-label-md text-on-surface font-semibold" id="staged-file-name">Belum ada berkas dipilih</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant" id="staged-file-size"></span>
-<span class="material-symbols-outlined text-primary text-[18px]" id="staged-file-check" style="display:none">check_circle</span>
-</div>
-<!-- Cloudinary Preset Specs Badge -->
-<div class="flex flex-wrap items-center justify-center gap-space-sm font-stamp-code text-[11px] text-on-surface-variant pt-space-xs">
-<span>PRESET: syncta_tugas_akhir</span>
-<span>•</span>
-<span>FOLDER: /arsip_sidang_2025</span>
-<span>•</span>
-<span class="text-primary font-bold">UNSIGNED CDN: AKTIF</span>
-</div>
-</div>
-<!-- Upload Progress Bar State -->
-<div class="flex flex-col gap-1 bg-surface-container p-space-sm shadow-sm">
-<div class="flex justify-between items-center font-label-sm text-label-sm">
-<span class="text-on-surface font-medium">Status Kompresi &amp; Hashing Naskah SHA-256</span>
-<span class="font-stamp-code font-bold text-primary">100% SIAP KIRIM</span>
-</div>
-<div class="w-full bg-surface-container-high h-2 overflow-hidden">
-<div class="bg-primary h-full w-full"></div>
-</div>
-</div>
-<!-- Revision Notes Field -->
-<div class="flex flex-col gap-1">
-<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant flex items-center justify-between" for="revision-notes">
-<span>Catatan Perbaikan / Arahan Dosen Pembimbing (Revisi)</span>
-<span class="text-outline font-normal">[OPSIONAL]</span>
-</label>
-<textarea class="w-full bg-surface-container-lowest p-space-sm font-body-md text-body-md text-on-surface placeholder:text-outline focus:bg-surface focus:outline-none shadow-sm transition-all" id="revision-notes" placeholder="Tuliskan nomor revisi bab, ringkasan saran penguji, atau instruksi pembimbing..." rows="2"></textarea>
-</div>
-<!-- Nominatim Geolocation & Audit Box -->
-<div class="bg-surface-container-low p-space-md shadow-sm flex flex-col gap-space-sm relative">
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
-<div class="flex items-center gap-space-xs">
-<span class="material-symbols-outlined text-secondary text-[20px]">pin_drop</span>
-<span class="font-title-md text-title-md text-on-surface font-bold">
-                    Autentikasi Lokasi Geocoding (Nominatim OpenStreetMap)
-                  </span>
-</div>
-<button class="bg-surface-container-highest hover:bg-surface-variant text-on-surface px-space-sm py-1 font-label-sm text-label-sm uppercase tracking-wider flex items-center gap-1 shadow-sm transition-all" onclick="detectUserLocation()" type="button">
-<span class="material-symbols-outlined text-[16px] text-primary">my_location</span>
-<span>Deteksi Koordinat GPS Saya</span>
-</button>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-space-sm pt-space-xs">
-<div class="bg-surface-container-lowest p-space-sm shadow-sm flex flex-col">
-<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Koordinat Lintang / Bujur</span>
-<span class="font-stamp-code text-stamp-code font-bold text-primary" id="geo-coordinates">
-                    -
-                  </span>
-</div>
-<div class="md:col-span-2 bg-surface-container-lowest p-space-sm shadow-sm flex flex-col">
-<span class="font-label-sm text-[10px] text-on-surface-variant uppercase">Alamat Hasil Reverse-Geocoding Nominatim</span>
-<span class="font-label-sm text-label-sm text-on-surface truncate" id="geo-address">
-                    Klik "Deteksi Koordinat GPS Saya" untuk mengisi lokasi.
-                  </span>
-</div>
-</div>
-<div class="flex items-center justify-between pt-space-xs text-on-surface-variant">
-<div class="inline-flex items-center gap-1.5 px-space-xs py-0.5 bg-surface-container font-stamp-code text-[10px] font-bold text-primary">
-<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                  GEO-TAGGED &amp; TIMESTAMP VERIFIED
-                </div>
-<span class="font-label-sm text-[10px] text-outline">Nominatim OSM Engine v2.4</span>
-</div>
-</div>
-<!-- Upload Execution Actions -->
-<div class="flex flex-wrap items-center gap-space-sm pt-space-xs">
-<button class="bg-primary hover:bg-primary-container text-on-primary px-space-lg py-3 font-label-md text-label-md uppercase tracking-wider flex items-center gap-space-xs shadow-md transition-all" onclick="submitToLedger()" type="button">
-<span class="material-symbols-outlined text-[20px]">cloud_done</span>
-<span>Simpan &amp; Unggah ke Cloudinary</span>
-</button>
-<button class="bg-surface-container hover:bg-surface-container-high text-on-surface px-space-md py-3 font-label-md text-label-md uppercase tracking-wider flex items-center gap-space-xs shadow-sm transition-all" onclick="resetUploadForm()" type="button">
-<span class="material-symbols-outlined text-[18px]">restart_alt</span>
-<span>Reset Formulir</span>
-</button>
-</div>
-</article>
-</div>
-<!-- RIGHT COLUMN (Stage 03: Ledger & Archives) -->
-<div class="hidden lg:col-span-5 flex-col gap-space-xl" id="section-ledger">
-<!-- ========================================== -->
-<!-- SECTION 3: [TAHAP 03] LEMBAR RIWAYAT       -->
-<!-- ========================================== -->
-<article class="bg-surface-container-lowest shadow-md p-space-md sm:p-space-lg relative flex flex-col gap-space-md">
-<!-- Header with Docket Stamp -->
-<div class="flex flex-col gap-space-xs pb-space-xs">
-<div class="flex items-center justify-between">
-<span class="font-stamp-code text-stamp-code uppercase px-space-xs py-0.5 bg-tertiary text-on-tertiary font-bold">
-                  [TAHAP 03]
-                </span>
-<span class="font-stamp-code text-[11px] text-on-surface-variant tracking-wider">
-                  FIRESTORE LEDGER: AKTIF
-                </span>
-</div>
-<h2 class="font-headline-sm text-headline-sm text-primary tracking-tight">
-                Lembar Riwayat Dokumen &amp; Naskah Terakhir
-              </h2>
-<p class="font-body-sm text-body-sm text-on-surface-variant">
-                Buku catatan digital penyerahan berkas yang sah dan terikat secara akademik pada pangkalan repositori institusi.
-              </p>
-</div>
-<!-- Filter & Search Controls -->
-<div class="flex flex-col gap-space-xs bg-surface-container-low p-space-sm shadow-sm">
-<div class="relative">
-<span class="material-symbols-outlined absolute left-2.5 top-2 text-outline text-[18px]">search</span>
-<input class="w-full bg-surface-container-lowest pl-9 pr-3 py-1.5 font-label-sm text-label-sm text-on-surface placeholder:text-outline focus:outline-none shadow-sm" id="ledger-search-input" onkeyup="filterLedgerRecords()" placeholder="Cari naskah berkas TA..." type="text"/>
-</div>
-<div class="flex items-center justify-between gap-space-xs pt-1">
-<span class="font-label-sm text-[10px] text-on-surface-variant uppercase font-medium">Filter Tipe Dokumen:</span>
-<div class="flex flex-wrap gap-1" id="filter-badge-group">
-<button class="filter-btn active-filter px-2 py-0.5 font-stamp-code text-[10px] bg-primary text-on-primary" onclick="setFileFilter('ALL')">SEMUA</button>
-<button class="filter-btn px-2 py-0.5 font-stamp-code text-[10px] bg-surface-container-high text-on-surface" onclick="setFileFilter('PDF')">PDF</button>
-<button class="filter-btn px-2 py-0.5 font-stamp-code text-[10px] bg-surface-container-high text-on-surface" onclick="setFileFilter('DOCX')">DOCX</button>
-<button class="filter-btn px-2 py-0.5 font-stamp-code text-[10px] bg-surface-container-high text-on-surface" onclick="setFileFilter('PPTX')">PPTX</button>
-<button class="filter-btn px-2 py-0.5 font-stamp-code text-[10px] bg-surface-container-high text-on-surface" onclick="setFileFilter('XLSX')">XLSX</button>
-<button class="filter-btn px-2 py-0.5 font-stamp-code text-[10px] bg-surface-container-high text-on-surface" onclick="setFileFilter('IMG')">IMG</button>
-</div>
-</div>
-</div>
-<!-- Ledger Record Stream -->
-<div class="flex flex-col gap-space-sm max-h-[720px] overflow-y-auto pr-1" id="ledger-records-list">
-<p class="font-body-sm text-body-sm text-on-surface-variant italic text-center py-space-md">Memuat riwayat...</p>
-</div>
-<!-- Ledger Preservation Notice -->
-<div class="bg-surface-container p-space-sm shadow-sm flex items-start gap-space-xs">
-<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">policy</span>
-<p class="font-label-sm text-[11px] text-on-surface-variant leading-relaxed">
-                Setiap penghapusan record riwayat hanya akan menghapus pencatatan metadata di Firestore. Naskah fisik biner di Cloudinary dilindungi retensi minimum 6 bulan kalender akademik.
-              </p>
-</div>
-</article>
-</div>
-</div>
-<!-- TAB 2: Catatan Revisi (terpisah dari upload) -->
-<div class="hidden flex-col gap-space-md" id="tab-content-notes">
-<article class="bg-surface-container-lowest shadow-md p-space-md sm:p-space-lg flex flex-col gap-space-md max-w-2xl">
-<div class="flex items-center gap-space-xs">
-<span class="font-stamp-code text-stamp-code bg-secondary-container text-on-secondary-container px-space-xs py-0.5">CATATAN</span>
-<span class="font-title-md text-title-md font-bold text-on-surface">Catatan Revisi</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">
-Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu berkas biar tinggal klik buat langsung diarahin ke berkasnya di tab Upload &amp; Riwayat.
-</p>
-<div class="flex flex-col gap-space-sm">
-<span class="font-stamp-code text-[10px] text-on-surface-variant tracking-wide">TAUTKAN KE BERKAS (OPSIONAL)</span>
-<select class="w-full bg-surface-container-lowest px-space-sm py-2 font-label-md text-label-md text-on-surface focus:bg-surface focus:outline-none shadow-sm" id="note-file-select">
-<option value="">Tanpa tautan berkas</option>
-</select>
-<textarea class="w-full bg-surface-container-lowest p-space-sm font-body-md text-body-md text-on-surface placeholder:text-outline focus:bg-surface focus:outline-none shadow-sm transition-all" id="note-text-input" placeholder="Tulis catatan revisi, saran pembimbing, atau to-do selanjutnya..." rows="3"></textarea>
-<button class="self-start bg-primary hover:bg-primary-container text-on-primary px-space-md py-2.5 font-label-md text-label-md uppercase flex items-center gap-space-xs shadow-sm transition-all" onclick="addRevisionNote()" type="button">
-<span class="material-symbols-outlined text-[16px]">note_add</span>
-<span>Simpan Catatan</span>
-</button>
-</div>
-</article>
-<article class="bg-surface-container-lowest shadow-md p-space-md sm:p-space-lg flex flex-col gap-space-sm max-w-2xl">
-<span class="font-title-md text-title-md font-bold text-on-surface">Semua Catatan</span>
-<div class="flex flex-col gap-space-sm" id="notes-list">
-<p class="font-body-sm text-body-sm text-on-surface-variant italic text-center py-space-md">Memuat catatan...</p>
-</div>
-</article>
-</div>
-</div>
-</section>
-<!-- Confirm Deletion Modal (Academic Scrim) -->
-<div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4" id="delete-modal">
-<div class="bg-surface-container-lowest max-w-md w-full p-space-lg shadow-2xl flex flex-col gap-space-md relative">
-<div class="flex items-center gap-space-sm text-secondary">
-<span class="material-symbols-outlined text-[30px]">warning</span>
-<h3 class="font-headline-sm text-headline-sm tracking-tight text-on-surface">Konfirmasi Hapus Record</h3>
-</div>
-<div class="flex flex-col gap-space-xs">
-<p class="font-body-md text-body-md text-on-surface">
-          Anda akan menghapus riwayat metadata untuk berkas:
-        </p>
-<span class="font-stamp-code text-stamp-code font-bold text-secondary bg-surface-container p-space-xs break-all" id="modal-delete-file-name"></span>
-<p class="font-body-sm text-body-sm text-on-surface-variant pt-space-xs">
-<strong>Perhatian:</strong> Hanya menghapus metadata di Firestore, berkas Cloudinary tetap tersimpan sesuai kebijakan retensi arsip nasional.
-        </p>
-</div>
-<div class="flex items-center justify-end gap-space-sm pt-space-xs">
-<button class="bg-surface-container hover:bg-surface-container-high text-on-surface px-space-md py-2 font-label-md text-label-md uppercase shadow-sm" onclick="closeDeleteModal()" type="button">
-          Batal
-        </button>
-<button class="bg-secondary hover:bg-on-secondary-fixed-variant text-on-secondary px-space-md py-2 font-label-md text-label-md uppercase shadow-md flex items-center gap-1" id="modal-confirm-delete-btn" type="button">
-<span class="material-symbols-outlined text-[16px]">delete</span>
-<span>Ya, Hapus Record</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Toast Notification Bar -->
-<div class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-space-sm px-space-md py-3 shadow-xl bg-surface-container-lowest text-on-surface font-label-md text-label-md" id="toast-notification">
-<span class="material-symbols-outlined text-[20px] text-primary" id="toast-icon">check_circle</span>
-<span id="toast-message">Notifikasi sistem</span>
-</div>
-</div>
+
+<div class="toast" id="toast-notification"><span id="toast-message"></span></div>
+
 <script>
-  let currentActiveFilter = 'ALL';
   let currentAuthMode = 'login';
   let currentUser = null;
   let stagedFile = null;
-  let currentGeo = null;
+  let currentActiveFilter = 'ALL';
   let unsubscribeLedger = null;
   let unsubscribeNotes = null;
   let userFiles = [];
   let idleTimer = null;
-  const IDLE_LIMIT_MS = 15 * 60 * 1000; // 15 menit gak ada aktivitas -> auto logout
-  let pendingDeleteId = null;
-  let elementPendingDeletion = null;
-
-  const EXT_BADGE_COLOR = {
-    'PDF': 'bg-[#ef4444]',
-    'DOC': 'bg-[#60a5fa]', 'DOCX': 'bg-[#60a5fa]',
-    'PPT': 'bg-[#fbbf24]', 'PPTX': 'bg-[#fbbf24]',
-    'XLS': 'bg-[#34d399]', 'XLSX': 'bg-[#34d399]',
-    'PNG': 'bg-[#a78bfa]', 'JPG': 'bg-[#a78bfa]', 'JPEG': 'bg-[#a78bfa]'
-  };
+  const IDLE_LIMIT_MS = 15 * 60 * 1000;
   const MONTHS_ID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const EXT_COLOR = {
+    PDF: '#f87171', DOC: '#60a5fa', DOCX: '#60a5fa',
+    PPT: '#fbbf24', PPTX: '#fbbf24', XLS: '#34d399', XLSX: '#34d399',
+    PNG: '#a78bfa', JPG: '#a78bfa', JPEG: '#a78bfa'
+  };
 
+  // ---------- Idle auto-logout ----------
   function resetIdleTimer() {
     if (!currentUser) return;
     if (idleTimer) clearTimeout(idleTimer);
@@ -457,194 +318,109 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
       window.fb.signOut(window.fb.auth);
     }, IDLE_LIMIT_MS);
   }
-
-  ['mousemove', 'keydown', 'click', 'touchstart', 'scroll'].forEach((evt) => {
+  ['mousemove','keydown','click','touchstart','scroll'].forEach(evt => {
     document.addEventListener(evt, resetIdleTimer, { passive: true });
   });
 
-  // Switch between Login and Register tabs
+  // ---------- Auth ----------
   function switchAuthTab(mode) {
     currentAuthMode = mode;
-    const tabLogin = document.getElementById('tab-login');
-    const tabRegister = document.getElementById('tab-register');
-    const regFields = document.getElementById('register-fields');
-    const submitBtnText = document.querySelector('#auth-submit-btn span:last-child');
-
-    if (mode === 'login') {
-      tabLogin.className = 'flex-1 py-1.5 px-space-sm text-center font-label-md text-label-md bg-surface-container-lowest text-primary shadow-sm font-semibold transition-all';
-      tabRegister.className = 'flex-1 py-1.5 px-space-sm text-center font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-all';
-      regFields.classList.add('hidden');
-      regFields.classList.remove('grid');
-      submitBtnText.textContent = 'Masuk ke Repositori';
-    } else {
-      tabRegister.className = 'flex-1 py-1.5 px-space-sm text-center font-label-md text-label-md bg-surface-container-lowest text-primary shadow-sm font-semibold transition-all';
-      tabLogin.className = 'flex-1 py-1.5 px-space-sm text-center font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-all';
-      regFields.classList.remove('hidden');
-      regFields.classList.add('grid');
-      submitBtnText.textContent = 'Daftar & Registrasi Akun';
-    }
+    document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+    document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+    document.getElementById('register-fields').style.display = mode === 'register' ? 'block' : 'none';
+    document.getElementById('auth-submit-btn').textContent = mode === 'register' ? 'Daftar' : 'Masuk';
   }
 
-  // Real Firebase Auth submit (login or register)
   function handleAuthSubmit(event) {
     event.preventDefault();
     const email = document.getElementById('auth-email').value.trim();
     const pass = document.getElementById('auth-password').value;
-    if (!email || !pass) {
-      notifyFeedback('Isi email dan kata sandi dulu.', 'error');
-      return;
-    }
-    if (!window.fb) {
-      notifyFeedback('Koneksi Firebase belum siap, tunggu sebentar lalu coba lagi.', 'error');
-      return;
-    }
+    const msg = document.getElementById('auth-msg');
+    msg.textContent = '';
+    if (!window.fb) { msg.textContent = 'Koneksi belum siap, coba lagi.'; return; }
 
     if (currentAuthMode === 'register') {
       const nim = document.getElementById('reg-nim').value.trim();
-      const prodi = document.getElementById('reg-prodi').value;
+      const prodi = document.getElementById('reg-prodi').value.trim();
       window.fb.createUserWithEmailAndPassword(window.fb.auth, email, pass)
         .then(async (cred) => {
           await window.fb.setDoc(window.fb.doc(window.fb.db, 'users', cred.user.uid), { nim, prodi, email });
-          notifyFeedback('Akun berhasil didaftarkan & sesi aktif.', 'success');
+          notifyFeedback('Akun berhasil didaftarkan.', 'success');
         })
-        .catch(err => notifyFeedback('Gagal daftar: ' + err.message, 'error'));
+        .catch(err => msg.textContent = 'Gagal daftar: ' + err.message);
     } else {
       window.fb.signInWithEmailAndPassword(window.fb.auth, email, pass)
-        .then(() => notifyFeedback('Berhasil masuk ke repositori.', 'success'))
-        .catch(err => notifyFeedback('Gagal masuk: ' + err.message, 'error'));
+        .then(() => notifyFeedback('Berhasil masuk.', 'success'))
+        .catch(err => msg.textContent = 'Gagal masuk: ' + err.message);
     }
   }
 
-  // Called by module script whenever Firebase auth state changes
   window.onAuthChanged = function(user) {
     currentUser = user;
+    const authCard = document.getElementById('auth-card');
+    const mainTabs = document.getElementById('main-tabs');
     const headerName = document.getElementById('header-user-name');
-    const headerSub = document.getElementById('header-user-sub');
-    const profileName = document.getElementById('profile-user-name');
-    const profileMeta = document.getElementById('profile-meta-wrap');
-    const statusBadge = document.getElementById('auth-status-badge');
-    const sectionUpload = document.getElementById('section-upload');
-    const sectionLedger = document.getElementById('section-ledger');
-    const authFormWrapper = document.getElementById('auth-form-wrapper');
+    const logoutBtn = document.getElementById('header-logout-btn');
+    const tabUpload = document.getElementById('tab-content-upload');
+    const tabNotes = document.getElementById('tab-content-notes');
 
     if (user) {
-      if (authFormWrapper) authFormWrapper.classList.add('hidden');
-      if (headerName) headerName.textContent = user.email;
-      if (headerSub) headerSub.textContent = 'SESI AKTIF';
-      if (statusBadge) statusBadge.textContent = 'STATUS: TEROTENTIKASI (AKTIF)';
-      if (profileName) profileName.textContent = user.email;
-      if (sectionUpload) { sectionUpload.classList.remove('hidden'); sectionUpload.classList.add('flex'); }
-      if (sectionLedger) { sectionLedger.classList.remove('hidden'); sectionLedger.classList.add('flex'); }
-
-      window.fb.getDoc(window.fb.doc(window.fb.db, 'users', user.uid)).then(snap => {
-        if (snap.exists() && profileMeta) {
-          const p = snap.data();
-          const parts = [];
-          if (p.nim) parts.push('NIM: ' + p.nim);
-          if (p.prodi) parts.push(p.prodi);
-          profileMeta.innerHTML = parts.map(t => `<span>${t}</span>`).join('<span>&bull;</span>');
-        }
-      }).catch(() => {});
-
+      authCard.classList.add('hidden');
+      mainTabs.classList.remove('hidden');
+      logoutBtn.classList.remove('hidden');
+      headerName.textContent = user.email;
+      switchMainTab('upload');
       loadLedger(user.uid);
       loadNotes(user.uid);
       resetIdleTimer();
     } else {
-      if (authFormWrapper) authFormWrapper.classList.remove('hidden');
-      if (headerName) headerName.textContent = 'Belum masuk';
-      if (headerSub) headerSub.textContent = 'SILAKAN LOGIN';
-      if (statusBadge) statusBadge.textContent = 'STATUS: BELUM MASUK';
-      if (profileName) profileName.textContent = 'Belum ada sesi aktif';
-      if (profileMeta) profileMeta.innerHTML = '<span>Silakan login atau daftar</span>';
-      if (sectionUpload) { sectionUpload.classList.add('hidden'); sectionUpload.classList.remove('flex'); }
-      if (sectionLedger) { sectionLedger.classList.add('hidden'); sectionLedger.classList.remove('flex'); }
+      authCard.classList.remove('hidden');
+      mainTabs.classList.add('hidden');
+      logoutBtn.classList.add('hidden');
+      headerName.textContent = 'Belum masuk';
+      tabUpload.classList.add('hidden');
+      tabNotes.classList.add('hidden');
       if (unsubscribeLedger) { unsubscribeLedger(); unsubscribeLedger = null; }
       if (unsubscribeNotes) { unsubscribeNotes(); unsubscribeNotes = null; }
       if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
     }
   };
 
-  // Trigger File Dialog
-  function triggerFileSelect() {
-    document.getElementById('file-selector').click();
+  // ---------- Tab switch ----------
+  function switchMainTab(tab) {
+    document.getElementById('tab-content-upload').classList.toggle('hidden', tab !== 'upload');
+    document.getElementById('tab-content-notes').classList.toggle('hidden', tab !== 'notes');
+    document.getElementById('maintab-upload-btn').classList.toggle('active', tab === 'upload');
+    document.getElementById('maintab-notes-btn').classList.toggle('active', tab === 'notes');
+    if (tab === 'notes') populateNoteFileSelect();
   }
 
+  // ---------- Upload ----------
   function handleFileSelected(e) {
     const file = e.target.files[0];
     if (!file) return;
     stagedFile = file;
-
-    const extension = file.name.split('.').pop().toUpperCase();
-    const sizeInMB = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
-
+    document.getElementById('file-preview').classList.remove('hidden');
     document.getElementById('staged-file-name').textContent = file.name;
-    document.getElementById('staged-file-size').textContent = '(' + sizeInMB + ')';
-    document.getElementById('staged-file-ext').textContent = '.' + extension;
-    document.getElementById('staged-file-check').style.display = '';
-    notifyFeedback('Berkas dipilih: ' + file.name, 'info');
+    document.getElementById('staged-file-size').textContent = '(' + (file.size / (1024*1024)).toFixed(1) + ' MB)';
   }
 
-  // Real GPS + Nominatim reverse geocoding
-  function detectUserLocation() {
-    const coordsEl = document.getElementById('geo-coordinates');
-    const addrEl = document.getElementById('geo-address');
-
-    if (!navigator.geolocation) {
-      notifyFeedback('Browser tidak mendukung GPS.', 'error');
-      return;
-    }
-
-    coordsEl.textContent = "MEMINDAI SATELIT GPS...";
-    addrEl.textContent = "Menghubungkan ke server Nominatim OpenStreetMap...";
-
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      coordsEl.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-      currentGeo = { lat, lng, address: null };
-      try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16`);
-        const data = await res.json();
-        const address = data.display_name || 'Alamat tidak ditemukan';
-        addrEl.textContent = address;
-        currentGeo.address = address;
-        notifyFeedback('Koordinat GPS berhasil dikonfirmasi via OSM Nominatim.', 'success');
-      } catch (e) {
-        addrEl.textContent = 'Gagal ambil nama alamat, koordinat tetap tersimpan.';
-        notifyFeedback('Reverse geocoding gagal, koordinat tetap tersimpan.', 'info');
-      }
-    }, (err) => {
-      coordsEl.textContent = '-';
-      addrEl.textContent = 'Izin lokasi ditolak / gagal diambil.';
-      notifyFeedback('Gagal ambil lokasi: ' + err.message, 'error');
-    });
-  }
-
-  // Form Reset
   function resetUploadForm() {
-    document.getElementById('revision-notes').value = "";
-    document.getElementById('file-selector').value = "";
+    document.getElementById('revision-notes').value = '';
+    document.getElementById('file-selector').value = '';
+    document.getElementById('file-preview').classList.add('hidden');
+    document.getElementById('progress-bar').classList.add('hidden');
+    document.getElementById('upload-msg').textContent = '';
     stagedFile = null;
-    currentGeo = null;
-    document.getElementById('staged-file-name').textContent = "Belum ada berkas dipilih";
-    document.getElementById('staged-file-size').textContent = "";
-    document.getElementById('staged-file-ext').textContent = "FILE";
-    document.getElementById('staged-file-check').style.display = 'none';
-    document.getElementById('geo-coordinates').textContent = "-";
-    document.getElementById('geo-address').textContent = 'Klik "Deteksi Koordinat GPS Saya" untuk mengisi lokasi.';
-    notifyFeedback('Formulir penyerahan berkas telah dikosongkan.', 'info');
   }
 
-  // Real upload: Cloudinary (file) + Firestore (metadata + note + geo)
-  function submitToLedger() {
+  function submitUpload() {
     if (!currentUser) { notifyFeedback('Kamu belum login.', 'error'); return; }
     if (!stagedFile) { notifyFeedback('Pilih berkas dulu.', 'error'); return; }
-    if (!window.fb) { notifyFeedback('Koneksi belum siap, coba lagi.', 'error'); return; }
-
     const notes = document.getElementById('revision-notes').value.trim();
-    const geo = currentGeo;
-
-    notifyFeedback('Mengunggah berkas ke Cloudinary...', 'info');
+    const bar = document.getElementById('progress-bar');
+    bar.classList.remove('hidden'); bar.value = 0;
+    document.getElementById('upload-msg').textContent = 'Mengunggah...';
 
     const formData = new FormData();
     formData.append('file', stagedFile);
@@ -652,115 +428,43 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `https://api.cloudinary.com/v1_1/${window.fb.CLOUD_NAME}/upload`);
-
+    xhr.upload.onprogress = (e) => { bar.value = (e.loaded / e.total) * 100; };
     xhr.onload = async () => {
       if (xhr.status !== 200) {
-        notifyFeedback('Gagal unggah: ' + xhr.responseText, 'error');
+        document.getElementById('upload-msg').textContent = 'Error: ' + xhr.responseText;
         return;
       }
       const data = JSON.parse(xhr.responseText);
       const ext = stagedFile.name.split('.').pop().toUpperCase();
-      const sizeLabel = (stagedFile.size / (1024 * 1024)).toFixed(1) + ' MB';
-
+      const sizeLabel = (stagedFile.size / (1024*1024)).toFixed(1) + ' MB';
       try {
         await window.fb.addDoc(window.fb.collection(window.fb.db, 'files'), {
-          owner: currentUser.uid,
-          name: stagedFile.name,
-          ext: ext,
-          size: sizeLabel,
-          url: data.secure_url,
-          publicId: data.public_id,
-          note: notes,
-          location: geo ? { lat: geo.lat, lng: geo.lng } : null,
-          locationName: geo ? geo.address : null,
-          createdAt: Date.now()
+          owner: currentUser.uid, name: stagedFile.name, ext, size: sizeLabel,
+          url: data.secure_url, publicId: data.public_id, note: notes, createdAt: Date.now()
         });
-        notifyFeedback('Naskah berhasil diunggah ke Cloudinary & dicatat di Firestore.', 'success');
+        notifyFeedback('Berkas berhasil diunggah.', 'success');
         resetUploadForm();
       } catch (e) {
-        notifyFeedback('Berkas terunggah tapi gagal dicatat: ' + e.message, 'error');
+        notifyFeedback('Terunggah tapi gagal dicatat: ' + e.message, 'error');
       }
     };
-
-    xhr.onerror = () => notifyFeedback('Gagal konek ke Cloudinary.', 'error');
+    xhr.onerror = () => { document.getElementById('upload-msg').textContent = 'Gagal konek ke Cloudinary.'; };
     xhr.send(formData);
   }
 
-  // Bikin nama file download: NAMA_YYYYMMDD_HHMM.ext (tanpa tanda minus)
+  // ---------- Download & Share ----------
   function buildDownloadName(originalName, createdAt) {
     const extMatch = originalName.match(/\.([a-zA-Z0-9]+)$/);
     const ext = extMatch ? extMatch[1].toLowerCase() : '';
     const base = originalName.replace(/\.[^.]+$/, '');
-    const clean = base
-      .normalize('NFKD')
-      .replace(/[^a-zA-Z0-9]+/g, '_')
-      .replace(/_+/g, '_')
-      .replace(/^_|_$/g, '')
-      .slice(0, 60)
-      .toUpperCase();
+    const clean = base.normalize('NFKD').replace(/[^a-zA-Z0-9]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'').slice(0,60).toUpperCase();
     const d = new Date(createdAt);
-    const p = (n) => String(n).padStart(2, '0');
-    const stamp = `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`;
+    const p = n => String(n).padStart(2,'0');
+    const stamp = `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`;
     const nameNoExt = `${clean || 'BERKAS'}_${stamp}`;
     return ext ? `${nameNoExt}.${ext}` : nameNoExt;
   }
 
-  window.copyShareLink = function(url, name) {
-    const shareUrl = `${location.origin}${location.pathname}?view=1&u=${encodeURIComponent(url)}&n=${encodeURIComponent(name)}`;
-    navigator.clipboard.writeText(shareUrl)
-      .then(() => notifyFeedback('Link pratinjau berhasil disalin, tinggal tempel ke chat/email.', 'success'))
-      .catch(() => {
-        // fallback kalo clipboard API diblokir browser
-        const temp = document.createElement('input');
-        temp.value = shareUrl;
-        document.body.appendChild(temp);
-        temp.select();
-        document.execCommand('copy');
-        temp.remove();
-        notifyFeedback('Link pratinjau berhasil disalin.', 'success');
-      });
-  };
-
-  // Halaman pratinjau kayak Google Drive, dipicu lewat parameter ?view=1&u=...&n=...
-  // Gak butuh login, karena url & nama file udah nempel di link nya sendiri.
-  function renderSharedViewer() {
-    const params = new URLSearchParams(location.search);
-    if (params.get('view') !== '1') return;
-
-    const url = params.get('u');
-    const name = params.get('n') || 'Berkas';
-    if (!url) return;
-
-    document.getElementById('main-app').classList.add('hidden');
-    const viewer = document.getElementById('viewer-page');
-    viewer.classList.remove('hidden');
-
-    const ext = (name.split('.').pop() || 'FILE').toUpperCase();
-    document.getElementById('viewer-filename').textContent = name;
-    document.getElementById('viewer-ext-badge').textContent = '.' + ext;
-    document.getElementById('viewer-ext-badge').className =
-      'font-stamp-code text-[11px] font-bold px-2 py-1 text-[#101314] ' + (EXT_BADGE_COLOR[ext] || 'bg-primary');
-
-    const previewArea = document.getElementById('viewer-preview-area');
-    const officeExts = ['DOC', 'DOCX', 'PPT', 'PPTX', 'XLS', 'XLSX'];
-    const imgExts = ['PNG', 'JPG', 'JPEG', 'GIF', 'WEBP'];
-
-    if (imgExts.includes(ext)) {
-      previewArea.innerHTML = `<img src="${url}" class="max-w-full max-h-[70vh] mx-auto block" />`;
-    } else if (ext === 'PDF') {
-      previewArea.innerHTML = `<iframe src="${url}" class="w-full h-[70vh] bg-white"></iframe>`;
-    } else if (officeExts.includes(ext)) {
-      const officeUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(url);
-      previewArea.innerHTML = `<iframe src="${officeUrl}" class="w-full h-[70vh] bg-white"></iframe>`;
-    } else {
-      previewArea.innerHTML = '<p class="font-body-sm text-body-sm text-on-surface-variant italic text-center py-space-lg">Pratinjau tidak didukung untuk tipe berkas ini. Unduh dulu untuk melihat isinya.</p>';
-    }
-
-    document.getElementById('viewer-download-btn').onclick = () => downloadFile(url, name);
-  }
-
-  // Tarik file lewat fetch jadi blob, baru dipaksa download pake nama sendiri.
-  // Ini jalan buat semua tipe file (docx/pptx/xlsx/gambar), gak ngandelin Cloudinary.
   window.downloadFile = async function(url, filename) {
     try {
       const res = await fetch(url);
@@ -768,11 +472,8 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      a.href = blobUrl; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
     } catch (e) {
       notifyFeedback('Gagal unduh langsung, dibuka di tab baru.', 'info');
@@ -780,117 +481,134 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
     }
   };
 
-  // Realtime ledger list from Firestore, filtered by owner
+  window.copyShareLink = function(url, name) {
+    const shareUrl = `${location.origin}${location.pathname}?view=1&u=${encodeURIComponent(url)}&n=${encodeURIComponent(name)}`;
+    navigator.clipboard.writeText(shareUrl)
+      .then(() => notifyFeedback('Link pratinjau disalin.', 'success'))
+      .catch(() => {
+        const t = document.createElement('input'); t.value = shareUrl;
+        document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
+        notifyFeedback('Link pratinjau disalin.', 'success');
+      });
+  };
+
+  function renderSharedViewer() {
+    const params = new URLSearchParams(location.search);
+    if (params.get('view') !== '1') return;
+    const url = params.get('u');
+    const name = params.get('n') || 'Berkas';
+    if (!url) return;
+
+    document.getElementById('main-app').style.display = 'none';
+    document.getElementById('viewer-page').style.display = 'block';
+    document.getElementById('viewer-filename').textContent = name;
+
+    const ext = (name.split('.').pop() || '').toUpperCase();
+    const area = document.getElementById('viewer-preview-area');
+    const office = ['DOC','DOCX','PPT','PPTX','XLS','XLSX'];
+    const img = ['PNG','JPG','JPEG','GIF','WEBP'];
+
+    if (img.includes(ext)) {
+      area.innerHTML = `<img src="${url}">`;
+    } else if (ext === 'PDF') {
+      area.innerHTML = `<iframe src="${url}"></iframe>`;
+    } else if (office.includes(ext)) {
+      area.innerHTML = `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}"></iframe>`;
+    } else {
+      area.innerHTML = '<p class="empty">Pratinjau tidak didukung. Unduh untuk melihat isinya.</p>';
+    }
+    document.getElementById('viewer-download-btn').onclick = () => downloadFile(url, name);
+  }
+
+  // ---------- Ledger (riwayat) ----------
   function loadLedger(uid) {
     if (unsubscribeLedger) { unsubscribeLedger(); unsubscribeLedger = null; }
     const list = document.getElementById('ledger-records-list');
-    const q = window.fb.query(window.fb.collection(window.fb.db, 'files'), window.fb.where('owner', '==', uid));
-
+    const q = window.fb.query(window.fb.collection(window.fb.db, 'files'), window.fb.where('owner','==',uid));
     unsubscribeLedger = window.fb.onSnapshot(q, (snapshot) => {
-      if (snapshot.empty) {
-        list.innerHTML = '<p class="font-body-sm text-body-sm text-on-surface-variant italic text-center py-space-md">Belum ada naskah yang diunggah.</p>';
-        return;
-      }
+      if (snapshot.empty) { list.innerHTML = '<p class="empty">Belum ada berkas.</p>'; return; }
       const docs = [];
       snapshot.forEach(d => docs.push({ id: d.id, data: d.data() }));
-      docs.sort((a, b) => b.data.createdAt - a.data.createdAt);
+      docs.sort((a,b) => b.data.createdAt - a.data.createdAt);
       userFiles = docs;
-      if (!document.getElementById('tab-content-notes').classList.contains('hidden')) {
-        populateNoteFileSelect();
-      }
+      if (!document.getElementById('tab-content-notes').classList.contains('hidden')) populateNoteFileSelect();
 
       list.innerHTML = '';
       docs.forEach(({ id, data }) => {
         const rawExt = data.ext || data.name.split('.').pop().toUpperCase();
-        const isImg = ['PNG', 'JPG', 'JPEG'].includes(rawExt);
+        const isImg = ['PNG','JPG','JPEG'].includes(rawExt);
         const dataExt = isImg ? 'IMG' : rawExt;
-        const badgeBg = EXT_BADGE_COLOR[rawExt] || 'bg-primary';
         const dt = new Date(data.createdAt);
-        const timeString = `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()} • ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')} WIB`;
-        const noteText = data.note ? data.note : 'Tanpa catatan revisi.';
-        const locText = data.locationName ? data.locationName : (data.location ? `${data.location.lat.toFixed(4)}, ${data.location.lng.toFixed(4)}` : 'Lokasi tidak dicatat');
-        const safeName = data.name.replace(/'/g, "\\'");
+        const timeStr = `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()} · ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
         const dlName = buildDownloadName(data.name, data.createdAt);
+        const safeName = data.name.replace(/'/g, "\\'");
 
         const card = document.createElement('div');
-        card.className = 'ledger-item bg-surface-container-low p-space-sm shadow-sm flex flex-col gap-space-xs transition-all hover:bg-surface-container';
+        card.className = 'entry';
+        card.id = 'file-card-' + id;
         card.setAttribute('data-ext', dataExt);
         card.setAttribute('data-name', data.name);
-        card.id = 'file-card-' + id;
         card.innerHTML = `
-          <div class="flex items-start justify-between gap-space-xs">
-            <div class="flex items-center gap-space-xs">
-              <span class="font-stamp-code text-[11px] font-bold px-2 py-0.5 ${badgeBg} text-[#101314]">.${rawExt}</span>
-              <span class="font-label-sm text-[11px] text-on-surface-variant font-medium">${data.size || ''}</span>
-            </div>
-            <span class="font-stamp-code text-[10px] text-on-surface-variant">${timeString}</span>
+          <div class="entry-top">
+            <div class="entry-name"><span class="ext-dot" style="background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>${data.name}</div>
+            <div class="entry-time">${timeStr}</div>
           </div>
-          <div class="font-title-md text-title-md font-bold text-on-surface truncate">${data.name}</div>
-          <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 italic">"${noteText}"</p>
-          <div class="flex items-center gap-1 font-label-sm text-[11px] text-outline truncate">
-            <span class="material-symbols-outlined text-[14px]">location_on</span>
-            <span class="truncate">${locText}</span>
-          </div>
-          <div class="flex items-center flex-wrap pt-space-xs gap-2">
-            <button onclick="downloadFile('${data.url}', '${dlName.replace(/'/g, "\\'")}')" class="bg-primary hover:bg-primary-container text-on-primary px-space-sm py-1 font-label-sm text-label-sm uppercase flex items-center gap-1 shadow-sm transition-all">
-              <span class="material-symbols-outlined text-[15px]">download</span>
-              <span>Unduh Berkas</span>
-            </button>
-            <button onclick="copyShareLink('${data.url}', '${safeName}')" class="bg-surface-container-high hover:bg-surface-container-highest text-on-surface px-space-sm py-1 font-label-sm text-label-sm uppercase flex items-center gap-1 shadow-sm transition-all">
-              <span class="material-symbols-outlined text-[15px]">link</span>
-              <span>Salin Link</span>
-            </button>
-            <button onclick="confirmDeleteLedgerRecord(this, '${id}', '${safeName}')" class="bg-surface-container-high hover:bg-error-container hover:text-on-error-container text-secondary px-space-sm py-1 font-label-sm text-label-sm uppercase flex items-center gap-1 shadow-sm transition-all">
-              <span class="material-symbols-outlined text-[15px]">delete_sweep</span>
-              <span>Hapus Record</span>
-            </button>
+          <div class="entry-note ${data.note ? 'filled' : ''}">${data.note ? data.note : 'Tanpa catatan revisi.'}</div>
+          <div class="entry-actions">
+            <button class="btn btn-primary btn-sm" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
+            <button class="btn btn-danger btn-sm" onclick="confirmDeleteLedgerRecord('${id}', '${safeName}')">Hapus</button>
           </div>
         `;
         list.appendChild(card);
       });
       filterLedgerRecords();
-    }, (err) => {
-      list.innerHTML = '<p class="text-secondary font-body-sm text-body-sm">Gagal memuat riwayat: ' + err.message + '</p>';
+    }, (err) => { list.innerHTML = '<p class="msg error">Gagal memuat: ' + err.message + '</p>'; });
+  }
+
+  function setFileFilter(ext, chipEl) {
+    currentActiveFilter = ext;
+    document.querySelectorAll('#filter-chip-group .chip').forEach(c => c.classList.remove('active'));
+    chipEl.classList.add('active');
+    filterLedgerRecords();
+  }
+
+  function filterLedgerRecords() {
+    const q = document.getElementById('ledger-search-input').value.toLowerCase();
+    document.querySelectorAll('.entry[data-ext]').forEach(item => {
+      const ext = item.getAttribute('data-ext');
+      const name = (item.getAttribute('data-name') || '').toLowerCase();
+      const ok = (currentActiveFilter === 'ALL' || ext === currentActiveFilter) && name.includes(q);
+      item.classList.toggle('hidden', !ok);
     });
   }
 
-  // Tab switcher: Upload & Riwayat vs Catatan Revisi
-  function switchMainTab(tab) {
-    const uploadTab = document.getElementById('tab-content-upload');
-    const notesTab = document.getElementById('tab-content-notes');
-    const uploadBtn = document.getElementById('maintab-upload-btn');
-    const notesBtn = document.getElementById('maintab-notes-btn');
-    const activeCls = 'w-10 h-10 flex items-center justify-center bg-primary text-on-primary shadow-sm transition-all';
-    const inactiveCls = 'w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-all';
-
-    if (tab === 'notes') {
-      uploadTab.classList.add('hidden');
-      notesTab.classList.remove('hidden');
-      notesTab.classList.add('flex');
-      uploadBtn.className = inactiveCls;
-      notesBtn.className = activeCls;
-      populateNoteFileSelect();
-    } else {
-      notesTab.classList.add('hidden');
-      notesTab.classList.remove('flex');
-      uploadTab.classList.remove('hidden');
-      notesBtn.className = inactiveCls;
-      uploadBtn.className = activeCls;
-    }
+  let pendingDeleteId = null;
+  function confirmDeleteLedgerRecord(docId, fileName) {
+    pendingDeleteId = docId;
+    document.getElementById('modal-delete-file-name').textContent = fileName;
+    document.getElementById('delete-modal').classList.remove('hidden');
+    document.getElementById('modal-confirm-delete-btn').onclick = async function() {
+      try {
+        await window.fb.deleteDoc(window.fb.doc(window.fb.db, 'files', pendingDeleteId));
+        notifyFeedback('Record dihapus.', 'success');
+      } catch (e) { notifyFeedback('Gagal hapus: ' + e.message, 'error'); }
+      closeDeleteModal();
+    };
   }
+  function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); }
 
+  // ---------- Catatan Revisi ----------
   function populateNoteFileSelect() {
     const select = document.getElementById('note-file-select');
-    if (!select) return;
-    const currentVal = select.value;
+    const cur = select.value;
     select.innerHTML = '<option value="">Tanpa tautan berkas</option>';
     userFiles.forEach(({ id, data }) => {
       const opt = document.createElement('option');
-      opt.value = id;
-      opt.textContent = data.name;
+      opt.value = id; opt.textContent = data.name;
       select.appendChild(opt);
     });
-    select.value = currentVal;
+    select.value = cur;
   }
 
   function addRevisionNote() {
@@ -899,53 +617,43 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
     if (!text) { notifyFeedback('Isi catatannya dulu.', 'error'); return; }
     const select = document.getElementById('note-file-select');
     const fileId = select.value;
-    const fileName = fileId ? (select.options[select.selectedIndex].textContent) : null;
+    const fileName = fileId ? select.options[select.selectedIndex].textContent : null;
 
     window.fb.addDoc(window.fb.collection(window.fb.db, 'revisions'), {
-      owner: currentUser.uid,
-      text: text,
-      fileId: fileId || null,
-      fileName: fileName,
-      createdAt: Date.now()
+      owner: currentUser.uid, text, fileId: fileId || null, fileName, createdAt: Date.now()
     }).then(() => {
       document.getElementById('note-text-input').value = '';
-      notifyFeedback('Catatan revisi tersimpan.', 'success');
-    }).catch(err => notifyFeedback('Gagal simpan catatan: ' + err.message, 'error'));
+      notifyFeedback('Catatan tersimpan.', 'success');
+    }).catch(err => notifyFeedback('Gagal simpan: ' + err.message, 'error'));
   }
 
   function loadNotes(uid) {
     if (unsubscribeNotes) { unsubscribeNotes(); unsubscribeNotes = null; }
     const list = document.getElementById('notes-list');
-    const q = window.fb.query(window.fb.collection(window.fb.db, 'revisions'), window.fb.where('owner', '==', uid));
-
+    const q = window.fb.query(window.fb.collection(window.fb.db, 'revisions'), window.fb.where('owner','==',uid));
     unsubscribeNotes = window.fb.onSnapshot(q, (snapshot) => {
-      if (snapshot.empty) {
-        list.innerHTML = '<p class="font-body-sm text-body-sm text-on-surface-variant italic text-center py-space-md">Belum ada catatan revisi.</p>';
-        return;
-      }
+      if (snapshot.empty) { list.innerHTML = '<p class="empty">Belum ada catatan revisi.</p>'; return; }
       const notes = [];
       snapshot.forEach(d => notes.push({ id: d.id, data: d.data() }));
-      notes.sort((a, b) => b.data.createdAt - a.data.createdAt);
+      notes.sort((a,b) => b.data.createdAt - a.data.createdAt);
 
       list.innerHTML = '';
       notes.forEach(({ id, data }) => {
         const dt = new Date(data.createdAt);
-        const timeString = `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()} \u2022 ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')} WIB`;
+        const timeStr = `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()} · ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
         const row = document.createElement('div');
-        row.className = 'bg-surface-container-low p-space-sm shadow-sm flex flex-col gap-1';
+        row.className = 'entry';
         row.innerHTML = `
-          <div class="flex items-center justify-between gap-space-xs">
-            <span class="font-stamp-code text-[10px] text-on-surface-variant">${timeString}</span>
-            <button onclick="deleteRevisionNote('${id}')" class="text-secondary hover:underline font-label-sm text-[11px] uppercase">Hapus</button>
+          <div class="entry-top">
+            <div class="entry-time">${timeStr}</div>
+            <button class="btn btn-danger btn-sm" onclick="deleteRevisionNote('${id}')">Hapus</button>
           </div>
-          <p class="font-body-md text-body-md text-on-surface">${data.text}</p>
-          ${data.fileId ? `<button onclick="jumpToFile('${data.fileId}')" class="self-start font-label-sm text-[11px] text-primary hover:underline flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">description</span>${data.fileName}</button>` : ''}
+          <div class="entry-note filled" style="margin-bottom:0;">${data.text}</div>
+          ${data.fileId ? `<button class="entry-link-file" onclick="jumpToFile('${data.fileId}')">📄 ${data.fileName}</button>` : ''}
         `;
         list.appendChild(row);
       });
-    }, (err) => {
-      list.innerHTML = '<p class="text-secondary font-body-sm text-body-sm">Gagal memuat catatan: ' + err.message + '</p>';
-    });
+    }, (err) => { list.innerHTML = '<p class="msg error">Gagal memuat: ' + err.message + '</p>'; });
   }
 
   function deleteRevisionNote(id) {
@@ -959,96 +667,25 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
     switchMainTab('upload');
     setTimeout(() => {
       const card = document.getElementById('file-card-' + fileId);
-      if (!card) { notifyFeedback('Berkas terkait sudah tidak ada di riwayat.', 'info'); return; }
+      if (!card) { notifyFeedback('Berkas terkait sudah tidak ada.', 'info'); return; }
       card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      card.classList.add('ring-2', 'ring-primary');
-      setTimeout(() => card.classList.remove('ring-2', 'ring-primary'), 2000);
-    }, 100);
+      card.style.outline = '2px solid var(--accent)';
+      setTimeout(() => { card.style.outline = 'none'; }, 2000);
+    }, 80);
   }
 
-  // Filter Records by Extension
-  function setFileFilter(ext) {
-    currentActiveFilter = ext;
-    const buttons = document.querySelectorAll('#filter-badge-group .filter-btn');
-    buttons.forEach(btn => {
-      if (btn.textContent.trim() === ext || (ext === 'ALL' && btn.textContent.trim() === 'SEMUA')) {
-        btn.className = 'filter-btn active-filter px-2 py-0.5 font-stamp-code text-[10px] bg-primary text-on-primary';
-      } else {
-        btn.className = 'filter-btn px-2 py-0.5 font-stamp-code text-[10px] bg-surface-container-high text-on-surface';
-      }
-    });
-    filterLedgerRecords();
-  }
-
-  function filterLedgerRecords() {
-    const searchInput = document.getElementById('ledger-search-input');
-    const query = searchInput ? searchInput.value.toLowerCase() : '';
-    const items = document.querySelectorAll('.ledger-item');
-
-    items.forEach(item => {
-      const ext = item.getAttribute('data-ext');
-      const name = (item.getAttribute('data-name') || '').toLowerCase();
-      const matchesExt = (currentActiveFilter === 'ALL' || ext === currentActiveFilter);
-      const matchesSearch = name.includes(query);
-      item.classList.toggle('hidden', !(matchesExt && matchesSearch));
-    });
-  }
-
-  // Real deletion: removes Firestore record only (Cloudinary file stays, unsigned preset can't delete)
-  function confirmDeleteLedgerRecord(buttonEl, docId, fileName) {
-    elementPendingDeletion = buttonEl.closest('.ledger-item');
-    pendingDeleteId = docId;
-    const modal = document.getElementById('delete-modal');
-    document.getElementById('modal-delete-file-name').textContent = fileName;
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-
-    document.getElementById('modal-confirm-delete-btn').onclick = async function() {
-      try {
-        await window.fb.deleteDoc(window.fb.doc(window.fb.db, 'files', pendingDeleteId));
-        notifyFeedback(`Record metadata "${fileName}" berhasil dihapus dari Firestore.`, 'success');
-      } catch (e) {
-        notifyFeedback('Gagal hapus: ' + e.message, 'error');
-      }
-      closeDeleteModal();
-    };
-  }
-
-  function closeDeleteModal() {
-    const modal = document.getElementById('delete-modal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-  }
-
-  // Universal Toast Notification
+  // ---------- Toast ----------
   function notifyFeedback(message, type) {
     const toast = document.getElementById('toast-notification');
-    const toastMsg = document.getElementById('toast-message');
-    const toastIcon = document.getElementById('toast-icon');
-
-    toastMsg.textContent = message;
-    if (type === 'success') {
-      toastIcon.textContent = 'verified';
-      toastIcon.className = 'material-symbols-outlined text-[20px] text-primary';
-    } else if (type === 'error') {
-      toastIcon.textContent = 'error';
-      toastIcon.className = 'material-symbols-outlined text-[20px] text-secondary';
-    } else {
-      toastIcon.textContent = 'info';
-      toastIcon.className = 'material-symbols-outlined text-[20px] text-secondary';
-    }
-
-    toast.classList.remove('translate-y-24', 'opacity-0');
-    toast.classList.add('translate-y-0', 'opacity-100');
-
-    setTimeout(() => {
-      toast.classList.remove('translate-y-0', 'opacity-100');
-      toast.classList.add('translate-y-24', 'opacity-0');
-    }, 3600);
+    document.getElementById('toast-message').textContent = message;
+    toast.style.borderColor = type === 'error' ? 'var(--danger)' : 'var(--border)';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3200);
   }
 
   renderSharedViewer();
-</script></main><footer class="w-full pl-14 bg-surface-container-low py-space-xl mt-space-xl"><div class="max-w-[1240px] mx-auto px-margin-mobile lg:px-margin flex flex-col md:flex-row justify-between items-start md:items-center gap-space-lg"><div class="flex flex-col gap-space-xs"><span class="font-stamp-code text-stamp-code uppercase text-primary font-bold">PRESERVASI ARSIP PERMANEN TUGAS AKHIR DIGITAL</span><p class="font-body-sm text-body-sm text-on-surface-variant max-w-xl">Dokumen yang disimpan dalam Repositori SyncTA tunduk pada ketentuan retensi arsip akademik, preservasi naskah ilmiah digital, dan regulasi keterbukaan informasi perpustakaan universitas.</p></div><div class="flex flex-col sm:flex-row items-start sm:items-center gap-space-md"><div class="flex items-center gap-space-xs bg-surface-container-high px-space-sm py-space-xs"><span class="font-label-sm text-label-sm text-on-surface font-bold">ISO/IEC 27001 · 14721 OAIS</span></div><span class="font-label-sm text-label-sm text-on-surface-variant">Data Lokasi Kampus: © <a class="underline hover:text-on-surface" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> Nominatim</span></div></div></footer></div>
+</script>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import {
@@ -1060,7 +697,6 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
     query, where, onSnapshot, deleteDoc
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-  // GANTI DENGAN CONFIG DARI FIREBASE CONSOLE LU (kalau bikin project baru)
   const firebaseConfig = {
     apiKey: "AIzaSyDk4vG_bj7JXbAB66GoMCYBt41fcVeGjYI",
     authDomain: "syncta-c471c.firebaseapp.com",
@@ -1070,7 +706,6 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
     appId: "1:1035549141172:web:659d557002ad416e2c4fe1"
   };
 
-  // GANTI DENGAN DATA CLOUDINARY LU
   const CLOUD_NAME = "gcgtfswq";
   const UPLOAD_PRESET = "SyncTA";
 
@@ -1089,4 +724,6 @@ Catetan bebas, gak nempel ke satu upload doang. Kalo mau, tautin ke salah satu b
     if (window.onAuthChanged) window.onAuthChanged(user);
   });
 </script>
-</body></html>
+
+</body>
+</html>
