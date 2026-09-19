@@ -194,6 +194,7 @@
   <div class="tabs hidden" id="main-tabs">
     <button class="tab-btn active" id="maintab-upload-btn" onclick="switchMainTab('upload')">Upload &amp; Riwayat</button>
     <button class="tab-btn" id="maintab-notes-btn" onclick="switchMainTab('notes')">Catatan Revisi</button>
+    <button class="tab-btn hidden" id="maintab-admin-btn" onclick="switchMainTab('admin')">Admin</button>
   </div>
   <div class="nav-right">
     <span id="header-user-name">Belum masuk</span>
@@ -287,6 +288,21 @@
     </div>
   </div>
 
+  <!-- TAB 3: ADMIN (semua user) -->
+  <div id="tab-content-admin" class="hidden">
+    <div class="card">
+      <h2>Semua Berkas (Seluruh Pengguna)</h2>
+      <div class="search-row">
+        <input type="text" id="admin-search-input" placeholder="Cari nama berkas atau email pemilik..." oninput="filterAdminRecords()">
+      </div>
+      <div id="admin-scroll" style="max-height:480px; overflow-y:auto; padding-right:4px;">
+        <div id="admin-records-list">
+          <p class="empty">Memuat data...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </main>
 </div>
 
@@ -312,6 +328,8 @@
   let unsubscribeLedger = null;
   let unsubscribeNotes = null;
   let userFiles = [];
+  let isAdmin = false;
+  let unsubscribeAdmin = null;
   let idleTimer = null;
   const IDLE_LIMIT_MS = 15 * 60 * 1000;
   const MONTHS_ID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -385,6 +403,12 @@
       loadLedger(user.uid);
       loadNotes(user.uid);
       resetIdleTimer();
+
+      window.fb.getDoc(window.fb.doc(window.fb.db, 'users', user.uid)).then(snap => {
+        isAdmin = snap.exists() && snap.data().role === 'admin';
+        document.getElementById('maintab-admin-btn').classList.toggle('hidden', !isAdmin);
+        if (isAdmin) loadAdminAllFiles();
+      }).catch(() => { isAdmin = false; });
     } else {
       authCard.classList.remove('hidden');
       mainTabs.classList.add('hidden');
@@ -394,7 +418,10 @@
       tabNotes.classList.add('hidden');
       if (unsubscribeLedger) { unsubscribeLedger(); unsubscribeLedger = null; }
       if (unsubscribeNotes) { unsubscribeNotes(); unsubscribeNotes = null; }
+      if (unsubscribeAdmin) { unsubscribeAdmin(); unsubscribeAdmin = null; }
       if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+      isAdmin = false;
+      document.getElementById('maintab-admin-btn').classList.add('hidden');
     }
   };
 
@@ -402,8 +429,10 @@
   function switchMainTab(tab) {
     document.getElementById('tab-content-upload').classList.toggle('hidden', tab !== 'upload');
     document.getElementById('tab-content-notes').classList.toggle('hidden', tab !== 'notes');
+    document.getElementById('tab-content-admin').classList.toggle('hidden', tab !== 'admin');
     document.getElementById('maintab-upload-btn').classList.toggle('active', tab === 'upload');
     document.getElementById('maintab-notes-btn').classList.toggle('active', tab === 'notes');
+    document.getElementById('maintab-admin-btn').classList.toggle('active', tab === 'admin');
     if (tab === 'notes') populateNoteFileSelect();
   }
 
@@ -618,6 +647,69 @@
     };
   }
   function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); }
+
+  // ---------- Admin (semua user) ----------
+  const userProfileCache = {};
+
+  async function getOwnerEmail(uid) {
+    if (userProfileCache[uid]) return userProfileCache[uid];
+    try {
+      const snap = await window.fb.getDoc(window.fb.doc(window.fb.db, 'users', uid));
+      const email = snap.exists() ? (snap.data().email || uid) : uid;
+      userProfileCache[uid] = email;
+      return email;
+    } catch (e) {
+      return uid;
+    }
+  }
+
+  function loadAdminAllFiles() {
+    if (unsubscribeAdmin) { unsubscribeAdmin(); unsubscribeAdmin = null; }
+    const list = document.getElementById('admin-records-list');
+    const q = window.fb.collection(window.fb.db, 'files');
+    unsubscribeAdmin = window.fb.onSnapshot(q, async (snapshot) => {
+      if (snapshot.empty) { list.innerHTML = '<p class="empty">Belum ada berkas dari siapapun.</p>'; return; }
+      const docs = [];
+      snapshot.forEach(d => docs.push({ id: d.id, data: d.data() }));
+      docs.sort((a,b) => b.data.createdAt - a.data.createdAt);
+
+      list.innerHTML = '';
+      for (const { id, data } of docs) {
+        const ownerEmail = await getOwnerEmail(data.owner);
+        const dt = new Date(data.createdAt);
+        const timeStr = `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()} · ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+        const rawExt = data.ext || data.name.split('.').pop().toUpperCase();
+        const dlName = buildDownloadName(data.name, data.createdAt);
+        const safeName = data.name.replace(/'/g, "\\'");
+
+        const row = document.createElement('div');
+        row.className = 'entry';
+        row.setAttribute('data-name', (data.name + ' ' + ownerEmail).toLowerCase());
+        row.innerHTML = `
+          <div class="entry-top">
+            <div class="entry-name" title="${safeName}"><span class="ext-dot" style="background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>${data.name}</div>
+            <div class="entry-time">${timeStr}</div>
+          </div>
+          <div class="entry-note filled" style="margin-bottom:2px;">Pemilik: ${ownerEmail}</div>
+          <div class="entry-note ${data.note ? 'filled' : ''}">${data.note ? data.note : 'Tanpa catatan revisi.'}</div>
+          <div class="entry-actions">
+            <button class="btn btn-primary btn-sm" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
+          </div>
+        `;
+        list.appendChild(row);
+      }
+      filterAdminRecords();
+    }, (err) => { list.innerHTML = '<p class="msg error">Gagal memuat: ' + err.message + '</p>'; });
+  }
+
+  function filterAdminRecords() {
+    const q = document.getElementById('admin-search-input').value.toLowerCase();
+    document.querySelectorAll('#admin-records-list .entry').forEach(item => {
+      const name = item.getAttribute('data-name') || '';
+      item.classList.toggle('hidden', !name.includes(q));
+    });
+  }
 
   // ---------- Catatan Revisi ----------
   function populateNoteFileSelect() {
