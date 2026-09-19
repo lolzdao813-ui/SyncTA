@@ -215,6 +215,9 @@
       <input type="email" id="auth-email" placeholder="nama@kampus.ac.id" required>
       <label>Kata Sandi</label>
       <input type="password" id="auth-password" placeholder="••••••••" required>
+      <div id="forgot-password-row" style="margin:-8px 0 14px; text-align:right;">
+        <a href="#" onclick="handleForgotPassword(event)" style="font-size:12.5px; color:var(--muted); text-decoration:underline;">Lupa kata sandi?</a>
+      </div>
       <div id="register-fields">
         <label>NIM</label>
         <input type="text" id="reg-nim" placeholder="Contoh: 2104011823">
@@ -361,11 +364,33 @@
     document.getElementById('auth-submit-btn').textContent = mode === 'register' ? 'Daftar' : 'Masuk';
   }
 
+  function handleForgotPassword(event) {
+    event.preventDefault();
+    const msg = document.getElementById('auth-msg');
+    msg.className = 'msg info';
+    let email = document.getElementById('auth-email').value.trim();
+    if (!email) {
+      email = prompt('Masukkan email yang mau di-reset kata sandinya:');
+      if (!email) return;
+    }
+    if (!window.fb) { msg.className = 'msg error'; msg.textContent = 'Koneksi belum siap, coba lagi.'; return; }
+    window.fb.sendPasswordResetEmail(window.fb.auth, email.trim())
+      .then(() => {
+        msg.className = 'msg info';
+        msg.textContent = 'Link reset kata sandi udah dikirim ke ' + email + '. Kalo gak muncul di inbox, cek folder Spam/Promosi ya.';
+      })
+      .catch(err => {
+        msg.className = 'msg error';
+        msg.textContent = 'Gagal kirim: ' + err.message;
+      });
+  }
+
   function handleAuthSubmit(event) {
     event.preventDefault();
     const email = document.getElementById('auth-email').value.trim();
     const pass = document.getElementById('auth-password').value;
     const msg = document.getElementById('auth-msg');
+    msg.className = 'msg error';
     msg.textContent = '';
     if (!window.fb) { msg.textContent = 'Koneksi belum siap, coba lagi.'; return; }
 
@@ -803,7 +828,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-    signOut, onAuthStateChanged
+    signOut, onAuthStateChanged, sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
     getFirestore, collection, addDoc, doc, setDoc, getDoc,
@@ -828,7 +853,7 @@
 
   window.fb = {
     auth, db,
-    createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
+    createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail,
     collection, addDoc, doc, setDoc, getDoc, query, where, onSnapshot, deleteDoc,
     CLOUD_NAME, UPLOAD_PRESET
   };
