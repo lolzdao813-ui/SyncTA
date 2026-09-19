@@ -101,19 +101,26 @@
 
   .entry {
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 12px;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
     background: var(--card-alt);
   }
-  .entry-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-  .ext-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 7px; }
-  .entry-name { font-weight: 700; font-size: 15px; word-break: break-word; }
-  .entry-time { font-size: 12px; color: var(--muted); white-space: nowrap; }
-  .entry-note { font-size: 13.5px; color: var(--muted); margin: 8px 0; font-style: italic; }
-  .entry-note.filled { color: var(--text); }
-  .entry-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .entry-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .ext-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 7px; flex-shrink: 0; }
+  .entry-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; min-width: 0; }
+  .entry-time { font-size: 11.5px; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+  .entry-note { font-size: 12.5px; color: var(--muted); margin: 4px 0 6px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .entry-note.filled { color: var(--text); font-style: normal; }
+  .entry-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .entry-actions .btn { padding: 5px 10px; font-size: 12px; }
   .entry-link-file { font-size: 12.5px; color: var(--accent); background: none; border: none; cursor: pointer; padding: 0; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+
+  .ledger-toolbar { position: sticky; top: 0; background: var(--card); padding-bottom: 8px; z-index: 5; }
+  #ledger-scroll { max-height: 420px; overflow-y: auto; padding-right: 4px; }
+  #ledger-scroll::-webkit-scrollbar { width: 6px; }
+  #ledger-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  .ledger-count { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
 
   .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
   .search-row input { margin-bottom: 0; flex: 1; }
@@ -238,19 +245,24 @@
 
     <div class="card">
       <h2>Riwayat Unggahan</h2>
-      <div class="search-row">
-        <input type="text" id="ledger-search-input" placeholder="Cari nama berkas..." oninput="filterLedgerRecords()">
+      <div class="ledger-toolbar">
+        <div class="search-row">
+          <input type="text" id="ledger-search-input" placeholder="Cari nama berkas atau catatan..." oninput="filterLedgerRecords()">
+        </div>
+        <div class="filter-chips" id="filter-chip-group">
+          <span class="chip active" onclick="setFileFilter('ALL', this)">Semua</span>
+          <span class="chip" onclick="setFileFilter('PDF', this)">PDF</span>
+          <span class="chip" onclick="setFileFilter('DOCX', this)">DOCX</span>
+          <span class="chip" onclick="setFileFilter('PPTX', this)">PPTX</span>
+          <span class="chip" onclick="setFileFilter('XLSX', this)">XLSX</span>
+          <span class="chip" onclick="setFileFilter('IMG', this)">Gambar</span>
+        </div>
+        <div class="ledger-count" id="ledger-count-label"></div>
       </div>
-      <div class="filter-chips" id="filter-chip-group">
-        <span class="chip active" onclick="setFileFilter('ALL', this)">Semua</span>
-        <span class="chip" onclick="setFileFilter('PDF', this)">PDF</span>
-        <span class="chip" onclick="setFileFilter('DOCX', this)">DOCX</span>
-        <span class="chip" onclick="setFileFilter('PPTX', this)">PPTX</span>
-        <span class="chip" onclick="setFileFilter('XLSX', this)">XLSX</span>
-        <span class="chip" onclick="setFileFilter('IMG', this)">Gambar</span>
-      </div>
-      <div id="ledger-records-list">
-        <p class="empty">Memuat riwayat...</p>
+      <div id="ledger-scroll">
+        <div id="ledger-records-list">
+          <p class="empty">Memuat riwayat...</p>
+        </div>
       </div>
     </div>
   </div>
@@ -548,12 +560,13 @@
         card.id = 'file-card-' + id;
         card.setAttribute('data-ext', dataExt);
         card.setAttribute('data-name', data.name);
+        card.setAttribute('data-note', (data.note || '').toLowerCase());
         card.innerHTML = `
           <div class="entry-top">
-            <div class="entry-name"><span class="ext-dot" style="background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>${data.name}</div>
+            <div class="entry-name" title="${safeName}"><span class="ext-dot" style="background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>${data.name}</div>
             <div class="entry-time">${timeStr}</div>
           </div>
-          <div class="entry-note ${data.note ? 'filled' : ''}">${data.note ? data.note : 'Tanpa catatan revisi.'}</div>
+          <div class="entry-note ${data.note ? 'filled' : ''}" title="${data.note ? data.note.replace(/"/g,'&quot;') : ''}">${data.note ? data.note : 'Tanpa catatan revisi.'}</div>
           <div class="entry-actions">
             <button class="btn btn-primary btn-sm" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
             <button class="btn btn-secondary btn-sm" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
@@ -562,6 +575,8 @@
         `;
         list.appendChild(card);
       });
+      const countLabel = document.getElementById('ledger-count-label');
+      if (countLabel) countLabel.textContent = docs.length + ' berkas total';
       filterLedgerRecords();
     }, (err) => { list.innerHTML = '<p class="msg error">Gagal memuat: ' + err.message + '</p>'; });
   }
@@ -575,12 +590,18 @@
 
   function filterLedgerRecords() {
     const q = document.getElementById('ledger-search-input').value.toLowerCase();
+    let visible = 0;
     document.querySelectorAll('.entry[data-ext]').forEach(item => {
       const ext = item.getAttribute('data-ext');
       const name = (item.getAttribute('data-name') || '').toLowerCase();
-      const ok = (currentActiveFilter === 'ALL' || ext === currentActiveFilter) && name.includes(q);
+      const note = (item.getAttribute('data-note') || '').toLowerCase();
+      const ok = (currentActiveFilter === 'ALL' || ext === currentActiveFilter) && (name.includes(q) || note.includes(q));
       item.classList.toggle('hidden', !ok);
+      if (ok) visible++;
     });
+    const countLabel = document.getElementById('ledger-count-label');
+    if (countLabel && q) countLabel.textContent = visible + ' hasil ditemukan';
+    else if (countLabel) countLabel.textContent = userFiles.length + ' berkas total';
   }
 
   let pendingDeleteId = null;
