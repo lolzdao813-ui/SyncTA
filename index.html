@@ -232,6 +232,17 @@
   <!-- TAB 1: UPLOAD & RIWAYAT -->
   <div id="tab-content-upload" class="hidden">
     <div class="card">
+      <h2>Progress Bimbingan</h2>
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+        <span id="progress-label" style="font-size:14px; color:var(--muted);">0 dari 5 revisi</span>
+        <button class="btn btn-secondary btn-sm" onclick="editRevisionTarget()">Ubah target</button>
+      </div>
+      <div style="background:var(--card-alt); border-radius:8px; height:10px; overflow:hidden;">
+        <div id="progress-fill" style="background:var(--accent); height:100%; width:0%; transition:width .3s;"></div>
+      </div>
+    </div>
+
+    <div class="card">
       <h2>Unggah Berkas</h2>
       <label>Pilih File</label>
       <input type="file" id="file-selector" onchange="handleFileSelected(event)">
@@ -240,7 +251,7 @@
         <span id="staged-file-size"></span>
       </div>
       <label>Catatan Revisi (opsional)</label>
-      <textarea id="revision-notes" placeholder="Mis. revisi bab 3 setelah bimbingan..."></textarea>
+      <textarea id="revision-notes" placeholder="Mis. revisi bab 3 setelah bimbingan..." oninput="markDraftDirty()"></textarea>
       <progress id="progress-bar" value="0" max="100" class="hidden"></progress>
       <button class="btn btn-primary" onclick="submitUpload()">Upload</button>
       <button class="btn btn-secondary" onclick="resetUploadForm()">Reset</button>
@@ -333,6 +344,8 @@
   let userFiles = [];
   let isAdmin = false;
   let unsubscribeAdmin = null;
+  let hasUnsavedDraft = false;
+  let revisionTarget = 5;
   let idleTimer = null;
   const IDLE_LIMIT_MS = 15 * 60 * 1000;
   const MONTHS_ID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -341,6 +354,18 @@
     PPT: '#fbbf24', PPTX: '#fbbf24', XLS: '#34d399', XLSX: '#34d399',
     PNG: '#a78bfa', JPG: '#a78bfa', JPEG: '#a78bfa'
   };
+
+  window.addEventListener('beforeunload', (e) => {
+    if (hasUnsavedDraft) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
+  function markDraftDirty() {
+    const note = document.getElementById('revision-notes');
+    hasUnsavedDraft = !!(stagedFile || (note && note.value.trim()));
+  }
 
   // ---------- Idle auto-logout ----------
   function resetIdleTimer() {
@@ -431,8 +456,10 @@
 
       window.fb.getDoc(window.fb.doc(window.fb.db, 'users', user.uid)).then(snap => {
         isAdmin = snap.exists() && snap.data().role === 'admin';
+        revisionTarget = (snap.exists() && snap.data().revisionTarget) ? snap.data().revisionTarget : 5;
         document.getElementById('maintab-admin-btn').classList.toggle('hidden', !isAdmin);
         if (isAdmin) loadAdminAllFiles();
+        updateProgressBimbingan();
       }).catch(() => { isAdmin = false; });
     } else {
       authCard.classList.remove('hidden');
@@ -447,8 +474,33 @@
       if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
       isAdmin = false;
       document.getElementById('maintab-admin-btn').classList.add('hidden');
+      userFiles = [];
+      revisionTarget = 5;
+      updateProgressBimbingan();
     }
   };
+
+  function updateProgressBimbingan() {
+    const count = userFiles.length;
+    const pct = Math.min(100, Math.round((count / revisionTarget) * 100));
+    const label = document.getElementById('progress-label');
+    const fill = document.getElementById('progress-fill');
+    if (label) label.textContent = count + ' dari ' + revisionTarget + ' revisi';
+    if (fill) fill.style.width = pct + '%';
+  }
+
+  function editRevisionTarget() {
+    const input = prompt('Target jumlah revisi buat sidang:', revisionTarget);
+    if (input === null) return;
+    const num = parseInt(input, 10);
+    if (isNaN(num) || num <= 0) { notifyFeedback('Isi angka yang valid.', 'error'); return; }
+    revisionTarget = num;
+    updateProgressBimbingan();
+    if (currentUser) {
+      window.fb.setDoc(window.fb.doc(window.fb.db, 'users', currentUser.uid), { revisionTarget: num }, { merge: true })
+        .catch(err => notifyFeedback('Gagal simpan target: ' + err.message, 'error'));
+    }
+  }
 
   // ---------- Tab switch ----------
   function switchMainTab(tab) {
@@ -469,6 +521,7 @@
     document.getElementById('file-preview').classList.remove('hidden');
     document.getElementById('staged-file-name').textContent = file.name;
     document.getElementById('staged-file-size').textContent = '(' + (file.size / (1024*1024)).toFixed(1) + ' MB)';
+    markDraftDirty();
   }
 
   function resetUploadForm() {
@@ -478,6 +531,7 @@
     document.getElementById('progress-bar').classList.add('hidden');
     document.getElementById('upload-msg').textContent = '';
     stagedFile = null;
+    hasUnsavedDraft = false;
   }
 
   function submitUpload() {
@@ -597,6 +651,7 @@
       snapshot.forEach(d => docs.push({ id: d.id, data: d.data() }));
       docs.sort((a,b) => b.data.createdAt - a.data.createdAt);
       userFiles = docs;
+      updateProgressBimbingan();
       if (!document.getElementById('tab-content-notes').classList.contains('hidden')) populateNoteFileSelect();
 
       list.innerHTML = '';
