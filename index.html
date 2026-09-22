@@ -222,9 +222,19 @@
     <div class="brand-text">SyncTA</div>
   </div>
   <div class="tabs hidden" id="main-tabs">
-    <button class="tab-btn active" id="maintab-upload-btn" onclick="switchMainTab('upload')">Upload &amp; Riwayat</button>
-    <button class="tab-btn" id="maintab-notes-btn" onclick="switchMainTab('notes')">Catatan Revisi</button>
-    <button class="tab-btn" id="maintab-library-btn" onclick="switchMainTab('library')">Daftar Pustaka</button>
+    <button class="tab-btn active" id="maintab-upload-btn" onclick="switchMainTab('upload')" style="display:flex; align-items:center; gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Upload &amp; Riwayat
+    </button>
+    <button class="tab-btn" id="maintab-notes-btn" onclick="switchMainTab('notes')" style="display:flex; align-items:center; gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Catatan Revisi
+      <span id="notes-count-badge" class="hidden" style="font-size:10px; background:var(--card-alt); color:var(--muted); padding:1px 6px; border-radius:999px; font-weight:700;">0</span>
+    </button>
+    <button class="tab-btn" id="maintab-library-btn" onclick="switchMainTab('library')" style="display:flex; align-items:center; gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 6.25v13M12 6.25C10.83 5.48 9.25 5 7.5 5S4.17 5.48 3 6.25v13C4.17 18.48 5.75 18 7.5 18s3.33.48 4.5 1.25m0-13C13.17 5.48 14.75 5 16.5 5c1.75 0 3.33.48 4.5 1.25v13C19.83 18.48 18.25 18 16.5 18c-1.75 0-3.33.48-4.5 1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Daftar Pustaka
+    </button>
     <button class="tab-btn hidden" id="maintab-admin-btn" onclick="switchMainTab('admin')">Admin</button>
   </div>
   <div class="nav-right">
@@ -359,6 +369,32 @@
   <!-- TAB: DAFTAR PUSTAKA (folder explorer) - tema teal/cyan khusus -->
   <div id="tab-content-library" class="hidden lib-scope libsans" style="background:#080c14; margin:0 -12px; padding:16px 12px 40px; border-radius:14px;">
 
+    <div class="flex flex-col sm:flex-row gap-4">
+
+      <!-- Sidebar: Koleksi Referensi -->
+      <aside class="w-full sm:w-56 shrink-0">
+        <div class="bg-[#0f172a]/70 rounded-2xl border border-brand-border p-4 shadow-xl">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-brand-border">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Koleksi Referensi</span>
+            <span class="text-[11px] text-slate-500 font-medium" id="library-sidebar-total">0 Berkas</span>
+          </div>
+          <ul class="space-y-1 text-xs">
+            <li>
+              <a class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-800/90 text-white font-medium border border-slate-700/60 transition cursor-pointer" onclick="navigateLibraryBreadcrumb(0)">
+                <div class="flex items-center gap-2.5 truncate">
+                  <svg class="w-4 h-4 text-brand-teal shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
+                  <span class="truncate">Daftar Pustaka / Jurnal</span>
+                </div>
+                <span class="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-md font-semibold border border-slate-700" id="library-sidebar-root-count">0</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <div class="flex-1 min-w-0">
+
     <!-- Header panel: breadcrumb + judul + aksi -->
     <div class="bg-[#0f172a] rounded-2xl border border-brand-border p-4 sm:p-5 shadow-xl mb-5">
       <div id="library-breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 mb-3 flex-wrap"></div>
@@ -459,6 +495,9 @@
 
       <div class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4" id="library-file-grid"></div>
     </section>
+
+      </div>
+    </div>
 
   </div>
 
@@ -622,6 +661,8 @@
       if (unsubscribeLibrary) { unsubscribeLibrary(); unsubscribeLibrary = null; }
       currentLibraryFolder = null;
       libraryPath = [{ id: null, name: 'Daftar Pustaka' }];
+      const badge = document.getElementById('notes-count-badge');
+      if (badge) badge.classList.add('hidden');
       if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
       isAdmin = false;
       document.getElementById('maintab-admin-btn').classList.add('hidden');
@@ -1104,6 +1145,8 @@
         lastLibraryFolders.length + ' Direktori • ' + lastLibraryFiles.length + ' Berkas';
       document.getElementById('library-status-text').textContent =
         items.length === 0 ? 'Folder ini masih kosong.' : 'Menampilkan isi folder saat ini.';
+      document.getElementById('library-sidebar-root-count').textContent = lastLibraryFiles.length;
+      document.getElementById('library-sidebar-total').textContent = lastLibraryFiles.length + ' Berkas';
 
       renderLibraryFolders();
       renderLibraryFiles();
@@ -1223,6 +1266,11 @@
     const list = document.getElementById('notes-list');
     const q = window.fb.query(window.fb.collection(window.fb.db, 'revisions'), window.fb.where('owner','==',uid));
     unsubscribeNotes = window.fb.onSnapshot(q, (snapshot) => {
+      const badge = document.getElementById('notes-count-badge');
+      if (badge) {
+        if (snapshot.size > 0) { badge.textContent = snapshot.size; badge.classList.remove('hidden'); }
+        else { badge.classList.add('hidden'); }
+      }
       if (snapshot.empty) { list.innerHTML = '<p class="empty">Belum ada catatan revisi.</p>'; return; }
       const notes = [];
       snapshot.forEach(d => notes.push({ id: d.id, data: d.data() }));
