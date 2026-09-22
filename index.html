@@ -194,6 +194,7 @@
   <div class="tabs hidden" id="main-tabs">
     <button class="tab-btn active" id="maintab-upload-btn" onclick="switchMainTab('upload')">Upload &amp; Riwayat</button>
     <button class="tab-btn" id="maintab-notes-btn" onclick="switchMainTab('notes')">Catatan Revisi</button>
+    <button class="tab-btn" id="maintab-library-btn" onclick="switchMainTab('library')">Daftar Pustaka</button>
     <button class="tab-btn hidden" id="maintab-admin-btn" onclick="switchMainTab('admin')">Admin</button>
   </div>
   <div class="nav-right">
@@ -249,6 +250,7 @@
       <div id="file-preview" class="hidden">
         <span class="name" id="staged-file-name"></span>
         <span id="staged-file-size"></span>
+        <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="cancelStagedFile()">Batal</button>
       </div>
       <label>Jenis Berkas</label>
       <select id="file-category-select">
@@ -324,6 +326,25 @@
     </div>
   </div>
 
+  <!-- TAB: DAFTAR PUSTAKA (folder explorer) -->
+  <div id="tab-content-library" class="hidden">
+    <div class="card">
+      <h2>Daftar Pustaka / Jurnal</h2>
+      <div id="library-breadcrumb" style="font-size:13px; color:var(--muted); margin-bottom:12px;"></div>
+      <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="createLibraryFolder()">+ Folder Baru</button>
+        <label class="btn btn-primary btn-sm" style="cursor:pointer; margin:0;">
+          + Upload Berkas
+          <input type="file" id="library-file-input" style="display:none;" onchange="uploadLibraryFile(event)">
+        </label>
+      </div>
+      <progress id="library-progress-bar" value="0" max="100" class="hidden"></progress>
+      <div id="library-list">
+        <p class="empty">Memuat...</p>
+      </div>
+    </div>
+  </div>
+
 </main>
 </div>
 
@@ -353,6 +374,9 @@
   let unsubscribeAdmin = null;
   let hasUnsavedDraft = false;
   let revisionTarget = 5;
+  let currentLibraryFolder = null;
+  let libraryPath = [{ id: null, name: 'Daftar Pustaka' }];
+  let unsubscribeLibrary = null;
   let idleTimer = null;
   const IDLE_LIMIT_MS = 15 * 60 * 1000;
   const MONTHS_ID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -478,6 +502,9 @@
       if (unsubscribeLedger) { unsubscribeLedger(); unsubscribeLedger = null; }
       if (unsubscribeNotes) { unsubscribeNotes(); unsubscribeNotes = null; }
       if (unsubscribeAdmin) { unsubscribeAdmin(); unsubscribeAdmin = null; }
+      if (unsubscribeLibrary) { unsubscribeLibrary(); unsubscribeLibrary = null; }
+      currentLibraryFolder = null;
+      libraryPath = [{ id: null, name: 'Daftar Pustaka' }];
       if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
       isAdmin = false;
       document.getElementById('maintab-admin-btn').classList.add('hidden');
@@ -513,11 +540,14 @@
   function switchMainTab(tab) {
     document.getElementById('tab-content-upload').classList.toggle('hidden', tab !== 'upload');
     document.getElementById('tab-content-notes').classList.toggle('hidden', tab !== 'notes');
+    document.getElementById('tab-content-library').classList.toggle('hidden', tab !== 'library');
     document.getElementById('tab-content-admin').classList.toggle('hidden', tab !== 'admin');
     document.getElementById('maintab-upload-btn').classList.toggle('active', tab === 'upload');
     document.getElementById('maintab-notes-btn').classList.toggle('active', tab === 'notes');
+    document.getElementById('maintab-library-btn').classList.toggle('active', tab === 'library');
     document.getElementById('maintab-admin-btn').classList.toggle('active', tab === 'admin');
     if (tab === 'notes') populateNoteFileSelect();
+    if (tab === 'library' && currentUser) loadLibrary(currentUser.uid);
   }
 
   // ---------- Upload ----------
@@ -528,6 +558,13 @@
     document.getElementById('file-preview').classList.remove('hidden');
     document.getElementById('staged-file-name').textContent = file.name;
     document.getElementById('staged-file-size').textContent = '(' + (file.size / (1024*1024)).toFixed(1) + ' MB)';
+    markDraftDirty();
+  }
+
+  function cancelStagedFile() {
+    document.getElementById('file-selector').value = '';
+    document.getElementById('file-preview').classList.add('hidden');
+    stagedFile = null;
     markDraftDirty();
   }
 
@@ -745,6 +782,141 @@
     };
   }
   function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); }
+
+  // ---------- Daftar Pustaka (folder explorer) ----------
+  function renderLibraryBreadcrumb() {
+    const el = document.getElementById('library-breadcrumb');
+    el.innerHTML = libraryPath.map((p, i) => {
+      const isLast = i === libraryPath.length - 1;
+      const label = p.name.replace(/'/g, "\\'");
+      return isLast
+        ? `<span style="color:var(--text); font-weight:600;">${p.name}</span>`
+        : `<span style="cursor:pointer; color:var(--accent);" onclick="navigateLibraryBreadcrumb(${i})">${p.name}</span> <span style="color:var(--muted);">/</span> `;
+    }).join('');
+  }
+
+  function navigateLibraryBreadcrumb(index) {
+    libraryPath = libraryPath.slice(0, index + 1);
+    currentLibraryFolder = libraryPath[libraryPath.length - 1].id;
+    loadLibrary(currentUser.uid);
+  }
+
+  function openLibraryFolder(id, name) {
+    libraryPath.push({ id, name });
+    currentLibraryFolder = id;
+    loadLibrary(currentUser.uid);
+  }
+
+  function createLibraryFolder() {
+    const name = prompt('Nama folder baru:');
+    if (!name || !name.trim()) return;
+    window.fb.addDoc(window.fb.collection(window.fb.db, 'library'), {
+      owner: currentUser.uid, parentId: currentLibraryFolder, type: 'folder',
+      name: name.trim(), createdAt: Date.now()
+    }).then(() => notifyFeedback('Folder dibuat.', 'success'))
+      .catch(err => notifyFeedback('Gagal bikin folder: ' + err.message, 'error'));
+  }
+
+  function uploadLibraryFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const bar = document.getElementById('library-progress-bar');
+    bar.classList.remove('hidden'); bar.value = 0;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', window.fb.UPLOAD_PRESET);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${window.fb.CLOUD_NAME}/upload`);
+    xhr.upload.onprogress = (e) => { bar.value = (e.loaded / e.total) * 100; };
+    xhr.onload = async () => {
+      if (xhr.status !== 200) { notifyFeedback('Gagal unggah: ' + xhr.responseText, 'error'); return; }
+      const data = JSON.parse(xhr.responseText);
+      const ext = file.name.split('.').pop().toUpperCase();
+      try {
+        await window.fb.addDoc(window.fb.collection(window.fb.db, 'library'), {
+          owner: currentUser.uid, parentId: currentLibraryFolder, type: 'file',
+          name: file.name, ext, url: data.secure_url, publicId: data.public_id,
+          size: (file.size / (1024*1024)).toFixed(1) + ' MB', createdAt: Date.now()
+        });
+        notifyFeedback('Berkas ditambahkan ke Daftar Pustaka.', 'success');
+      } catch (e) {
+        notifyFeedback('Terunggah tapi gagal dicatat: ' + e.message, 'error');
+      }
+      bar.classList.add('hidden');
+      document.getElementById('library-file-input').value = '';
+    };
+    xhr.onerror = () => notifyFeedback('Gagal konek ke Cloudinary.', 'error');
+    xhr.send(formData);
+  }
+
+  function loadLibrary(uid) {
+    renderLibraryBreadcrumb();
+    if (unsubscribeLibrary) { unsubscribeLibrary(); unsubscribeLibrary = null; }
+    const list = document.getElementById('library-list');
+    const q = window.fb.query(
+      window.fb.collection(window.fb.db, 'library'),
+      window.fb.where('owner', '==', uid),
+      window.fb.where('parentId', '==', currentLibraryFolder)
+    );
+    unsubscribeLibrary = window.fb.onSnapshot(q, (snapshot) => {
+      if (snapshot.empty) { list.innerHTML = '<p class="empty">Folder ini masih kosong.</p>'; return; }
+      const items = [];
+      snapshot.forEach(d => items.push({ id: d.id, data: d.data() }));
+      items.sort((a, b) => {
+        if (a.data.type !== b.data.type) return a.data.type === 'folder' ? -1 : 1;
+        return b.data.createdAt - a.data.createdAt;
+      });
+
+      list.innerHTML = '';
+      items.forEach(({ id, data }) => {
+        const row = document.createElement('div');
+        row.className = 'entry';
+        const safeName = data.name.replace(/'/g, "\\'");
+        if (data.type === 'folder') {
+          row.style.cursor = 'pointer';
+          row.innerHTML = `
+            <div class="entry-top">
+              <div class="entry-name">📁 ${data.name}</div>
+            </div>
+            <div class="entry-actions">
+              <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteLibraryItem('${id}','folder','${safeName}')">Hapus Folder</button>
+            </div>
+          `;
+          row.querySelector('.entry-top').onclick = () => openLibraryFolder(id, data.name);
+        } else {
+          const rawExt = data.ext || data.name.split('.').pop().toUpperCase();
+          row.innerHTML = `
+            <div class="entry-top">
+              <div class="entry-name" title="${safeName}"><span class="ext-dot" style="background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>${data.name}</div>
+              <div class="entry-time">${data.size || ''}</div>
+            </div>
+            <div class="entry-actions">
+              <button class="btn btn-primary btn-sm" onclick="downloadFile('${data.url}', '${safeName}')">Unduh</button>
+              <button class="btn btn-secondary btn-sm" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteLibraryItem('${id}','file','${safeName}')">Hapus</button>
+            </div>
+          `;
+        }
+        list.appendChild(row);
+      });
+    }, (err) => { list.innerHTML = '<p class="msg error">Gagal memuat: ' + err.message + '</p>'; });
+  }
+
+  async function deleteLibraryItem(id, type, name) {
+    if (type === 'folder') {
+      const checkQ = window.fb.query(window.fb.collection(window.fb.db, 'library'), window.fb.where('parentId', '==', id));
+      const snap = await new Promise((resolve) => {
+        const unsub = window.fb.onSnapshot(checkQ, (s) => { unsub(); resolve(s); });
+      });
+      if (!snap.empty) { notifyFeedback('Folder "' + name + '" belum kosong, kosongin dulu isinya.', 'error'); return; }
+    }
+    if (!confirm('Hapus "' + name + '"?')) return;
+    window.fb.deleteDoc(window.fb.doc(window.fb.db, 'library', id))
+      .then(() => notifyFeedback('Berhasil dihapus.', 'success'))
+      .catch(err => notifyFeedback('Gagal hapus: ' + err.message, 'error'));
+  }
 
   // ---------- Admin (semua user) ----------
   const userProfileCache = {};
