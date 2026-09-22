@@ -150,8 +150,11 @@
       <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
         <h2 class="text-base font-semibold text-white mb-5">Unggah Berkas</h2>
         <label class="block text-xs font-medium text-slate-400 mb-1.5">Pilih File</label>
-        <div class="w-full bg-brand-panel border border-brand-border rounded-md px-3 py-2 flex items-center focus-within:border-brand-teal transition mb-4">
-          <input class="w-full text-xs text-slate-400 cursor-pointer focus:outline-none" id="file-selector" type="file" onchange="handleFileSelected(event)">
+        <div id="upload-dropzone" class="w-full border-2 border-dashed border-brand-border rounded-lg px-4 py-6 mb-4 flex flex-col items-center justify-center text-center gap-2 cursor-pointer transition hover:border-brand-teal/60 hover:bg-brand-teal/5" onclick="document.getElementById('file-selector').click()">
+          <svg class="w-7 h-7 text-brand-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+          <p class="text-xs text-slate-300"><span class="text-brand-teal font-semibold">Klik untuk pilih file</span> atau tarik &amp; lepas ke sini</p>
+          <p class="text-[11px] text-slate-500">PDF, DOCX, PPTX, XLSX, atau gambar</p>
+          <input class="hidden" id="file-selector" type="file" onchange="handleFileSelected(event)">
         </div>
         <div id="file-preview" class="hidden items-center gap-2 bg-brand-panel px-3 py-2 rounded-md mb-4 text-xs text-slate-400">
           <span class="text-slate-200 font-semibold" id="staged-file-name"></span>
@@ -306,12 +309,19 @@
           <div class="hidden grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3" id="library-folder-grid"></div>
         </section>
 
-        <section class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden shadow-xl">
+        <section id="library-dropzone" class="relative bg-brand-card rounded-2xl border-2 border-dashed border-transparent overflow-hidden shadow-xl transition">
           <div class="p-4 sm:p-5 border-b border-brand-border flex items-center justify-between">
             <div class="flex items-center gap-2">
               <h3 class="text-sm font-bold text-white tracking-wide">Berkas Referensi</h3>
               <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-800 text-slate-400 border border-slate-700 font-mono" id="library-file-count-label">0 Berkas</span>
             </div>
+            <span class="text-[11px] text-slate-500 hidden sm:inline-flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+              Tarik &amp; lepas berkas di sini
+            </span>
+          </div>
+          <div id="library-dropzone-overlay" class="hidden absolute inset-0 z-10 bg-brand-teal/10 backdrop-blur-[1px] border-2 border-brand-teal rounded-2xl flex items-center justify-center pointer-events-none">
+            <p class="text-sm font-bold text-brand-teal">Lepas untuk mengunggah ke folder ini</p>
           </div>
           <div id="library-file-empty" class="p-8 sm:p-12 flex flex-col items-center justify-center text-center">
             <div class="w-16 h-16 rounded-2xl bg-brand-teal/10 border border-brand-teal/20 flex items-center justify-center text-brand-teal mb-4">
@@ -562,12 +572,17 @@
   function handleFileSelected(e) {
     const file = e.target.files[0];
     if (!file) return;
+    stageFile(file);
+  }
+
+  function stageFile(file) {
     stagedFile = file;
     const prev = document.getElementById('file-preview');
     prev.classList.remove('hidden'); prev.classList.add('flex');
     document.getElementById('staged-file-name').textContent = file.name;
     document.getElementById('staged-file-size').textContent = '(' + (file.size / (1024*1024)).toFixed(1) + ' MB)';
     markDraftDirty();
+    notifyFeedback('Berkas "' + file.name + '" siap diunggah.', 'success');
   }
 
   function cancelStagedFile() {
@@ -847,6 +862,12 @@
   function uploadLibraryFile(event) {
     const file = event.target.files[0];
     if (!file) return;
+    uploadLibraryFileObject(file);
+    event.target.value = '';
+  }
+
+  function uploadLibraryFileObject(file) {
+    if (!currentUser) { notifyFeedback('Kamu belum login.', 'error'); return; }
     const wrap = document.getElementById('library-progress-bar-wrap');
     const bar = document.getElementById('library-progress-bar');
     wrap.classList.remove('hidden'); bar.style.width = '0%';
@@ -1173,10 +1194,60 @@
     setTimeout(() => toast.classList.remove('show'), 3200);
   }
 
-  // init default chip class
+  // ---------- Drag & drop ----------
+  function setupDropzone(zoneEl, onDrop, opts) {
+    if (!zoneEl) return;
+    const options = opts || {};
+    let dragCounter = 0;
+    ['dragenter','dragover','dragleave','drop'].forEach(evt => {
+      zoneEl.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); });
+    });
+    zoneEl.addEventListener('dragenter', () => {
+      dragCounter++;
+      if (options.onEnter) options.onEnter();
+    });
+    zoneEl.addEventListener('dragover', () => {
+      if (options.onEnter) options.onEnter();
+    });
+    zoneEl.addEventListener('dragleave', () => {
+      dragCounter = Math.max(0, dragCounter - 1);
+      if (dragCounter === 0 && options.onLeave) options.onLeave();
+    });
+    zoneEl.addEventListener('drop', (e) => {
+      dragCounter = 0;
+      if (options.onLeave) options.onLeave();
+      const files = e.dataTransfer && e.dataTransfer.files;
+      if (files && files.length) onDrop(files[0]);
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
+    // default chip class
     document.querySelectorAll('#filter-chip-group .chip').forEach(c => {
       c.className = c.getAttribute('data-filter') === 'ALL' ? CHIP_ACTIVE : CHIP_INACTIVE;
+    });
+
+    // Tab 1: Upload & Riwayat dropzone
+    const uploadZone = document.getElementById('upload-dropzone');
+    const uploadZoneDefault = 'w-full border-2 border-dashed border-brand-border rounded-lg px-4 py-6 mb-4 flex flex-col items-center justify-center text-center gap-2 cursor-pointer transition hover:border-brand-teal/60 hover:bg-brand-teal/5';
+    const uploadZoneActive = 'w-full border-2 border-dashed border-brand-teal bg-brand-teal/10 rounded-lg px-4 py-6 mb-4 flex flex-col items-center justify-center text-center gap-2 cursor-pointer transition';
+    setupDropzone(uploadZone, (file) => stageFile(file), {
+      onEnter: () => { if (uploadZone) uploadZone.className = uploadZoneActive; },
+      onLeave: () => { if (uploadZone) uploadZone.className = uploadZoneDefault; }
+    });
+
+    // Tab 3: Daftar Pustaka dropzone
+    const libZone = document.getElementById('library-dropzone');
+    const libOverlay = document.getElementById('library-dropzone-overlay');
+    setupDropzone(libZone, (file) => uploadLibraryFileObject(file), {
+      onEnter: () => {
+        if (libZone) libZone.className = 'relative bg-brand-card rounded-2xl border-2 border-dashed border-brand-teal overflow-hidden shadow-xl transition';
+        if (libOverlay) libOverlay.classList.remove('hidden');
+      },
+      onLeave: () => {
+        if (libZone) libZone.className = 'relative bg-brand-card rounded-2xl border-2 border-dashed border-transparent overflow-hidden shadow-xl transition';
+        if (libOverlay) libOverlay.classList.add('hidden');
+      }
     });
   });
 
