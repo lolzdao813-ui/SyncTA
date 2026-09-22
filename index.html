@@ -245,7 +245,17 @@
 
       <div class="flex-1 min-w-0">
         <div class="bg-brand-card rounded-2xl border border-brand-border p-4 sm:p-5 shadow-xl mb-5">
-          <div id="library-breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 mb-3 flex-wrap"></div>
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <div id="library-breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 flex-wrap"></div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button id="library-back-btn" onclick="goLibraryBack()" title="Kembali ke folder sebelumnya" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition disabled:opacity-30 disabled:pointer-events-none" disabled>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+              </button>
+              <button onclick="refreshLibrary()" title="Refresh" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+              </button>
+            </div>
+          </div>
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2.5 flex-wrap">
@@ -835,11 +845,26 @@
       return `<a class="hover:text-brand-teal transition cursor-pointer" onclick="navigateLibraryBreadcrumb(${i})">${p.name}</a>
         <svg class="w-3 h-3 text-slate-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>`;
     }).join(' ');
+    const backBtn = document.getElementById('library-back-btn');
+    if (backBtn) backBtn.disabled = libraryPath.length <= 1;
   }
 
   function navigateLibraryBreadcrumb(index) {
     libraryPath = libraryPath.slice(0, index + 1);
     currentLibraryFolder = libraryPath[libraryPath.length - 1].id;
+    loadLibrary(currentUser.uid);
+  }
+
+  function goLibraryBack() {
+    if (libraryPath.length <= 1) return;
+    libraryPath = libraryPath.slice(0, -1);
+    currentLibraryFolder = libraryPath[libraryPath.length - 1].id;
+    loadLibrary(currentUser.uid);
+  }
+
+  function refreshLibrary() {
+    if (!currentUser) return;
+    notifyFeedback('Memuat ulang isi folder...', 'info');
     loadLibrary(currentUser.uid);
   }
 
@@ -1026,12 +1051,22 @@
   }
 
   async function deleteLibraryItem(id, type, name) {
+    if (!currentUser) { notifyFeedback('Kamu belum login.', 'error'); return; }
     if (type === 'folder') {
-      const checkQ = window.fb.query(window.fb.collection(window.fb.db, 'library'), window.fb.where('parentId', '==', id));
-      const snap = await new Promise((resolve) => {
-        const unsub = window.fb.onSnapshot(checkQ, (s) => { unsub(); resolve(s); });
-      });
-      if (!snap.empty) { notifyFeedback('Folder "' + name + '" belum kosong, kosongin dulu isinya.', 'error'); return; }
+      try {
+        const checkQ = window.fb.query(
+          window.fb.collection(window.fb.db, 'library'),
+          window.fb.where('owner', '==', currentUser.uid),
+          window.fb.where('parentId', '==', id)
+        );
+        const snap = await new Promise((resolve, reject) => {
+          const unsub = window.fb.onSnapshot(checkQ, (s) => { unsub(); resolve(s); }, (err) => { unsub(); reject(err); });
+        });
+        if (!snap.empty) { notifyFeedback('Folder "' + name + '" belum kosong, kosongin dulu isinya.', 'error'); return; }
+      } catch (err) {
+        notifyFeedback('Gagal cek isi folder: ' + err.message, 'error');
+        return;
+      }
     }
     if (!confirm('Hapus "' + name + '"?')) return;
     window.fb.deleteDoc(window.fb.doc(window.fb.db, 'library', id))
