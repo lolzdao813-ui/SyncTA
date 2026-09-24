@@ -353,7 +353,7 @@
         <button class="btn btn-secondary btn-sm" onclick="createLibraryFolder()">+ Folder Baru</button>
         <label class="btn btn-primary btn-sm" style="cursor:pointer; margin:0;">
           + Upload Berkas
-          <input type="file" id="library-file-input" style="display:none;" onchange="uploadLibraryFile(event)">
+          <input type="file" id="library-file-input" multiple style="display:none;" onchange="uploadLibraryFile(event)">
         </label>
       </div>
       <progress id="library-progress-bar" value="0" max="100" class="hidden"></progress>
@@ -848,37 +848,58 @@
   }
 
   function uploadLibraryFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+    const files = Array.from(event.target.files);
+    if (files.length === 0) return;
     const bar = document.getElementById('library-progress-bar');
-    bar.classList.remove('hidden'); bar.value = 0;
+    bar.classList.remove('hidden');
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', window.fb.UPLOAD_PRESET);
+    let uploadedCount = 0;
+    let failedCount = 0;
 
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', `https://api.cloudinary.com/v1_1/${window.fb.CLOUD_NAME}/upload`);
-    xhr.upload.onprogress = (e) => { bar.value = (e.loaded / e.total) * 100; };
-    xhr.onload = async () => {
-      if (xhr.status !== 200) { notifyFeedback('Gagal unggah: ' + xhr.responseText, 'error'); return; }
-      const data = JSON.parse(xhr.responseText);
-      const ext = file.name.split('.').pop().toUpperCase();
-      try {
-        await window.fb.addDoc(window.fb.collection(window.fb.db, 'library'), {
-          owner: currentUser.uid, parentId: currentLibraryFolder, type: 'file',
-          name: file.name, ext, url: data.secure_url, publicId: data.public_id,
-          size: (file.size / (1024*1024)).toFixed(1) + ' MB', createdAt: Date.now()
-        });
-        notifyFeedback('Berkas ditambahkan ke Daftar Pustaka.', 'success');
-      } catch (e) {
-        notifyFeedback('Terunggah tapi gagal dicatat: ' + e.message, 'error');
+    function uploadOne(file) {
+      return new Promise((resolve) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', window.fb.UPLOAD_PRESET);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `https://api.cloudinary.com/v1_1/${window.fb.CLOUD_NAME}/upload`);
+        xhr.upload.onprogress = (e) => { bar.value = (e.loaded / e.total) * 100; };
+        xhr.onload = async () => {
+          if (xhr.status !== 200) { failedCount++; resolve(); return; }
+          const data = JSON.parse(xhr.responseText);
+          const ext = file.name.split('.').pop().toUpperCase();
+          try {
+            await window.fb.addDoc(window.fb.collection(window.fb.db, 'library'), {
+              owner: currentUser.uid, parentId: currentLibraryFolder, type: 'file',
+              name: file.name, ext, url: data.secure_url, publicId: data.public_id,
+              size: (file.size / (1024*1024)).toFixed(1) + ' MB', createdAt: Date.now()
+            });
+            uploadedCount++;
+          } catch (e) {
+            failedCount++;
+          }
+          resolve();
+        };
+        xhr.onerror = () => { failedCount++; resolve(); };
+        xhr.send(formData);
+      });
+    }
+
+    (async () => {
+      for (let i = 0; i < files.length; i++) {
+        notifyFeedback(`Mengunggah ${i + 1} dari ${files.length}: ${files[i].name}`, 'info');
+        bar.value = 0;
+        await uploadOne(files[i]);
       }
       bar.classList.add('hidden');
       document.getElementById('library-file-input').value = '';
-    };
-    xhr.onerror = () => notifyFeedback('Gagal konek ke Cloudinary.', 'error');
-    xhr.send(formData);
+      if (failedCount === 0) {
+        notifyFeedback(`${uploadedCount} berkas berhasil ditambahkan.`, 'success');
+      } else {
+        notifyFeedback(`${uploadedCount} berhasil, ${failedCount} gagal diunggah.`, 'error');
+      }
+    })();
   }
 
   function renderLibraryItems() {
