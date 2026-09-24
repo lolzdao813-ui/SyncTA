@@ -1,384 +1,387 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SyncTA</title>
-<link href="https://fonts.googleapis.com" rel="preconnect">
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script>
-  tailwind.config = {
-    darkMode: 'class',
-    theme: {
-      extend: {
-        fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
-        colors: {
-          brand: {
-            teal: '#00e5c9', tealLight: '#26ffe6', cyan: '#06b6d4',
-            dark: '#080d16', card: '#0f172a', panel: '#131d2e',
-            border: '#1e293b', borderLight: '#334155'
-          }
-        }
-      }
-    }
-  }
-</script>
 <style>
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: #0b111e; }
-  ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
-  ::-webkit-scrollbar-thumb:hover { background: #334155; }
-  .glow-teal { box-shadow: 0 0 20px -3px rgba(0,229,201,0.35); }
-  .glow-teal-sm { box-shadow: 0 0 10px -2px rgba(0,229,201,0.4); }
-  input[type="file"]::file-selector-button {
-    background-color: #ffffff; color: #111827; border: none; padding: .4rem .8rem;
-    border-radius: .375rem; font-size: .8rem; font-weight: 600; margin-right: .75rem; cursor: pointer;
+  :root {
+    --bg: #10131a;
+    --card: #1a1e28;
+    --card-alt: #20242f;
+    --border: rgba(255,255,255,0.08);
+    --text: #e7e9ee;
+    --muted: #8b91a3;
+    --accent: #2dd4bf;
+    --accent-dark: #14b8a6;
+    --danger: #f87171;
+    --danger-bg: rgba(248,113,113,0.12);
   }
-  input[type="file"]::file-selector-button:hover { background-color: #f3f4f6; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  a { color: var(--accent); }
+
+  /* Navbar */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--accent); color: #06282a;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px;
+  }
+  .brand-text { font-weight: 700; font-size: 17px; }
+  .tabs { display: flex; gap: 4px; background: var(--card-alt); padding: 4px; border-radius: 10px; }
+  .tab-btn {
+    border: none; background: transparent; color: var(--muted);
+    padding: 7px 14px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer;
+  }
+  .tab-btn.active { background: var(--accent); color: #06282a; }
+  .nav-right { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+  .btn {
+    border: none; border-radius: 8px; padding: 9px 16px; font-size: 14px; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: #06282a; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-secondary { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: #262b38; }
+  .btn-danger { background: var(--danger-bg); color: var(--danger); }
+  .btn-sm { padding: 6px 11px; font-size: 12.5px; }
+
+  main { max-width: 720px; margin: 0 auto; padding: 24px 16px 80px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 { margin: 0 0 14px; font-size: 16px; font-weight: 700; }
+  label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 5px; font-weight: 600; }
+  input[type="email"], input[type="password"], input[type="text"], input[type="file"], textarea, select {
+    width: 100%; background: var(--card-alt); border: 1px solid var(--border);
+    color: var(--text); border-radius: 9px; padding: 10px 12px; font-size: 14.5px;
+    margin-bottom: 14px; font-family: inherit;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 64px; }
+
+  .authtabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .authtab { flex: 1; text-align: center; padding: 9px; border-radius: 9px; background: var(--card-alt); color: var(--muted); font-weight: 600; font-size: 14px; cursor: pointer; }
+  .authtab.active { background: var(--accent); color: #06282a; }
+  #register-fields { display: none; }
+  .msg { font-size: 13px; margin-top: 8px; }
+  .msg.error { color: var(--danger); }
+  .msg.info { color: var(--muted); }
+
+  progress { width: 100%; height: 6px; accent-color: var(--accent); margin-bottom: 10px; border-radius: 4px; }
+
+  #file-preview { display: flex; align-items: center; gap: 8px; background: var(--card-alt); padding: 8px 12px; border-radius: 9px; margin-bottom: 14px; font-size: 13.5px; color: var(--muted); }
+  #file-preview .name { color: var(--text); font-weight: 600; }
+
+  .entry {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: var(--card-alt);
+  }
+  .entry-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .ext-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 7px; flex-shrink: 0; }
+  .entry-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; min-width: 0; }
+  .entry-time { font-size: 11.5px; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+  .entry-note { font-size: 12.5px; color: var(--muted); margin: 4px 0 6px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .entry-note.filled { color: var(--text); font-style: normal; }
+  .entry-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .entry-actions .btn { padding: 5px 10px; font-size: 12px; }
+  .entry-link-file { font-size: 12.5px; color: var(--accent); background: none; border: none; cursor: pointer; padding: 0; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+
+  .ledger-toolbar { position: sticky; top: 0; background: var(--card); padding-bottom: 8px; z-index: 5; }
+  #ledger-scroll { max-height: 420px; overflow-y: auto; padding-right: 4px; }
+  #ledger-scroll::-webkit-scrollbar { width: 6px; }
+  #ledger-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  .ledger-count { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+
+  .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .search-row input { margin-bottom: 0; flex: 1; }
+  .filter-chips { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .chip { font-size: 12px; padding: 5px 11px; border-radius: 999px; background: var(--card-alt); color: var(--muted); cursor: pointer; border: 1px solid var(--border); }
+  .chip.active { background: var(--accent); color: #06282a; border-color: var(--accent); }
+
+  .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 24px 0; font-style: italic; }
+  .hidden { display: none !important; }
+
   .toast {
     position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
-    background: #131d2e; border: 1px solid #1e293b; color: #e2e8f0;
-    padding: 12px 18px; border-radius: 10px; font-size: 13.5px; opacity: 0;
-    transition: all .25s ease; z-index: 200; max-width: 90%; box-shadow: 0 8px 24px rgba(0,0,0,.5);
+    background: var(--card-alt); border: 1px solid var(--border); color: var(--text);
+    padding: 12px 18px; border-radius: 10px; font-size: 14px; opacity: 0;
+    transition: all .25s ease; z-index: 200; max-width: 90%; box-shadow: 0 8px 24px rgba(0,0,0,.4);
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 150;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal { background: var(--card); border-radius: 14px; padding: 20px; max-width: 380px; border: 1px solid var(--border); }
+  .modal h3 { margin: 0 0 8px; font-size: 16px; }
+  .modal p { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  #viewer-page {
+    position: fixed; inset: 0; background: var(--bg); z-index: 300; overflow-y: auto; display: none;
+  }
+  #viewer-page .inner { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+  #viewer-preview-area { background: var(--card-alt); border-radius: 10px; padding: 10px; min-height: 200px; }
   #viewer-preview-area img { max-width: 100%; display: block; margin: 0 auto; border-radius: 8px; }
   #viewer-preview-area iframe { width: 100%; height: 70vh; border: none; border-radius: 8px; background: #fff; }
+
+  @media (max-width: 560px) {
+    .nav-right { display: none; }
+    main { padding: 16px 12px 80px; }
+  }
 </style>
 </head>
-<body class="bg-brand-dark text-slate-200 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-teal selection:text-slate-900">
+<body>
 
-<!-- ===== SHARE VIEWER PAGE ===== -->
-<div id="viewer-page" class="fixed inset-0 bg-brand-dark z-[300] overflow-y-auto hidden">
-  <div class="max-w-2xl mx-auto px-4 py-10">
-    <div class="flex items-center gap-3 mb-6">
-      <div class="w-9 h-9 rounded-lg bg-brand-teal flex items-center justify-center font-bold text-slate-950 text-sm glow-teal-sm">TA</div>
-      <span class="text-lg font-bold text-white tracking-wide">SyncTA · Pratinjau Berkas</span>
+<!-- SHARE VIEWER (Drive-like preview page) -->
+<div id="viewer-page">
+  <div class="inner">
+    <div class="brand" style="margin-bottom:20px;">
+      <div class="brand-logo">TA</div>
+      <div class="brand-text">SyncTA · Pratinjau Berkas</div>
     </div>
-    <div class="bg-brand-card border border-brand-border rounded-2xl p-5 shadow-xl">
-      <div class="flex items-center justify-between gap-3 mb-4">
-        <h2 id="viewer-filename" class="text-sm font-semibold text-white truncate">Nama Berkas</h2>
-        <button id="viewer-download-btn" class="shrink-0 px-4 py-2 rounded-lg text-xs font-bold bg-brand-teal hover:bg-brand-tealLight text-[#06181e] transition">Unduh</button>
+    <div class="card">
+      <div class="entry-top" style="margin-bottom:14px;">
+        <div class="entry-name" id="viewer-filename">Nama Berkas</div>
+        <button class="btn btn-primary btn-sm" id="viewer-download-btn">Unduh</button>
       </div>
-      <div id="viewer-preview-area" class="bg-brand-panel rounded-xl p-3 min-h-[200px] flex items-center justify-center">
-        <p class="text-xs text-slate-500 italic">Memuat pratinjau...</p>
+      <div id="viewer-preview-area">
+        <p class="empty">Memuat pratinjau...</p>
       </div>
-      <p class="text-xs text-slate-500 mt-4">Berkas ini dibagikan lewat SyncTA. Link ini bisa dibuka siapa saja tanpa login.</p>
+      <p class="msg info" style="margin-top:14px;">Berkas ini dibagikan lewat SyncTA. Link ini bisa dibuka siapa saja tanpa login.</p>
     </div>
   </div>
 </div>
 
-<div id="main-app" class="flex flex-col min-h-screen">
+<div id="main-app">
 
-  <!-- ===== HEADER ===== -->
-  <header class="border-b border-brand-border bg-[#0b111e]/90 backdrop-blur-md sticky top-0 z-40">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3 shrink-0">
-        <div class="w-9 h-9 rounded-lg bg-brand-teal flex items-center justify-center font-bold text-slate-950 text-sm glow-teal-sm">TA</div>
-        <span class="text-lg font-bold text-white tracking-wide">SyncTA</span>
+<nav>
+  <div class="brand">
+    <div class="brand-logo">TA</div>
+    <div class="brand-text">SyncTA</div>
+  </div>
+  <div class="tabs hidden" id="main-tabs">
+    <button class="tab-btn active" id="maintab-upload-btn" onclick="switchMainTab('upload')" style="display:flex; align-items:center; gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Upload &amp; Riwayat
+    </button>
+    <button class="tab-btn" id="maintab-notes-btn" onclick="switchMainTab('notes')" style="display:flex; align-items:center; gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Catatan Revisi
+      <span id="notes-count-badge" class="hidden" style="font-size:10px; background:var(--card-alt); color:var(--muted); padding:1px 6px; border-radius:999px; font-weight:700;">0</span>
+    </button>
+    <button class="tab-btn" id="maintab-library-btn" onclick="switchMainTab('library')" style="display:flex; align-items:center; gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 6.25v13M12 6.25C10.83 5.48 9.25 5 7.5 5S4.17 5.48 3 6.25v13C4.17 18.48 5.75 18 7.5 18s3.33.48 4.5 1.25m0-13C13.17 5.48 14.75 5 16.5 5c1.75 0 3.33.48 4.5 1.25v13C19.83 18.48 18.25 18 16.5 18c-1.75 0-3.33.48-4.5 1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Daftar Pustaka
+    </button>
+    <button class="tab-btn hidden" id="maintab-admin-btn" onclick="switchMainTab('admin')">Admin</button>
+  </div>
+  <div class="nav-right">
+    <span id="header-user-name">Belum masuk</span>
+    <button class="btn btn-secondary btn-sm hidden" id="header-logout-btn" onclick="window.fb.signOut(window.fb.auth)">Keluar</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- LOGIN / REGISTER -->
+  <div id="auth-card" class="card" style="max-width:420px; margin:40px auto;">
+    <div class="authtabs">
+      <div class="authtab active" id="tab-login" onclick="switchAuthTab('login')">Masuk</div>
+      <div class="authtab" id="tab-register" onclick="switchAuthTab('register')">Daftar</div>
+    </div>
+    <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="nama@kampus.ac.id" required>
+      <label>Kata Sandi</label>
+      <input type="password" id="auth-password" placeholder="••••••••" required>
+      <div id="forgot-password-row" style="margin:-8px 0 14px; text-align:right;">
+        <a href="#" onclick="handleForgotPassword(event)" style="font-size:12.5px; color:var(--muted); text-decoration:underline;">Lupa kata sandi?</a>
       </div>
-      <nav id="main-tabs" class="hidden md:flex items-center gap-2 hidden">
-        <button id="maintab-upload-btn" onclick="switchMainTab('upload')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Upload &amp; Riwayat
-        </button>
-        <button id="maintab-notes-btn" onclick="switchMainTab('notes')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Catatan Revisi
-          <span id="notes-count-badge" class="hidden ml-0.5 px-1.5 py-0.2 text-[10px] font-bold bg-slate-950 text-white rounded-full">0</span>
-        </button>
-        <button id="maintab-library-btn" onclick="switchMainTab('library')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 6.25v13M12 6.25C10.83 5.48 9.25 5 7.5 5S4.17 5.48 3 6.25v13C4.17 18.48 5.75 18 7.5 18s3.33.48 4.5 1.25m0-13C13.17 5.48 14.75 5 16.5 5c1.75 0 3.33.48 4.5 1.25v13C19.83 18.48 18.25 18 16.5 18c-1.75 0-3.33.48-4.5 1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Daftar Pustaka
-        </button>
-        <button id="maintab-admin-btn" onclick="switchMainTab('admin')" class="hidden flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">Admin</button>
-      </nav>
-      <div class="flex items-center gap-3 shrink-0">
-        <span id="header-user-name" class="text-xs text-slate-400 font-mono hidden sm:inline-block">Belum masuk</span>
-        <button id="header-logout-btn" onclick="window.fb.signOut(window.fb.auth)" class="hidden px-2.5 py-1 text-xs font-medium text-rose-300 hover:text-rose-100 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-900/50 rounded-md transition">Keluar</button>
+      <div id="register-fields">
+        <label>NIM</label>
+        <input type="text" id="reg-nim" placeholder="Contoh: 2104011823">
+        <label>Program Studi</label>
+        <input type="text" id="reg-prodi" placeholder="Contoh: Teknik Informatika">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;" id="auth-submit-btn">Masuk</button>
+      <p class="msg error" id="auth-msg"></p>
+    </form>
+  </div>
+
+  <!-- TAB 1: UPLOAD & RIWAYAT -->
+  <div id="tab-content-upload" class="hidden">
+    <div class="card">
+      <h2>Progress Bimbingan</h2>
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+        <span id="progress-label" style="font-size:14px; color:var(--muted);">0 dari 5 revisi</span>
+        <button class="btn btn-secondary btn-sm" onclick="editRevisionTarget()">Ubah target</button>
+      </div>
+      <div style="background:var(--card-alt); border-radius:8px; height:10px; overflow:hidden;">
+        <div id="progress-fill" style="background:var(--accent); height:100%; width:0%; transition:width .3s;"></div>
       </div>
     </div>
-  </header>
 
-  <main class="flex-1 w-full">
+    <div class="card">
+      <h2>Unggah Berkas</h2>
+      <label>Pilih File</label>
+      <input type="file" id="file-selector" onchange="handleFileSelected(event)">
+      <div id="file-preview" class="hidden">
+        <span class="name" id="staged-file-name"></span>
+        <span id="staged-file-size"></span>
+        <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="cancelStagedFile()">Batal</button>
+      </div>
+      <label>Jenis Berkas</label>
+      <select id="file-category-select">
+        <option value="utama">File Utama (draf/naskah TA)</option>
+        <option value="sampingan">File Sampingan (kerangka berpikir, logbook bimbingan, dll)</option>
+      </select>
+      <label>Catatan Revisi (opsional)</label>
+      <textarea id="revision-notes" placeholder="Mis. revisi bab 3 setelah bimbingan..." oninput="markDraftDirty()"></textarea>
+      <progress id="progress-bar" value="0" max="100" class="hidden"></progress>
+      <button class="btn btn-primary" onclick="submitUpload()">Upload</button>
+      <button class="btn btn-secondary" onclick="resetUploadForm()">Reset</button>
+      <p class="msg info" id="upload-msg"></p>
+    </div>
 
-    <!-- ===== AUTH CARD ===== -->
-    <div id="auth-card" class="max-w-md mx-auto mt-12 mb-12 px-4">
-      <div class="bg-brand-card border border-brand-border rounded-2xl p-6 shadow-xl">
-        <div class="flex gap-1.5 mb-5 bg-brand-panel p-1 rounded-xl">
-          <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 text-center py-2 rounded-lg bg-brand-teal text-slate-950 font-bold text-sm transition">Masuk</button>
-          <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 text-center py-2 rounded-lg text-slate-400 font-semibold text-sm transition">Daftar</button>
+    <div class="card">
+      <h2>Riwayat Unggahan</h2>
+      <div class="ledger-toolbar">
+        <div class="search-row">
+          <input type="text" id="ledger-search-input" placeholder="Cari nama berkas atau catatan..." oninput="filterLedgerRecords()">
         </div>
-        <form id="auth-form" onsubmit="handleAuthSubmit(event)">
-          <label class="block text-xs font-medium text-slate-400 mb-1.5">Email</label>
-          <input type="email" id="auth-email" placeholder="nama@kampus.ac.id" required class="w-full bg-white text-slate-900 placeholder:text-slate-400 text-sm rounded-md px-3.5 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-brand-teal border-0">
-          <label class="block text-xs font-medium text-slate-400 mb-1.5">Kata Sandi</label>
-          <input type="password" id="auth-password" placeholder="••••••••" required class="w-full bg-white text-slate-900 placeholder:text-slate-400 text-sm rounded-md px-3.5 py-2.5 mb-1 focus:outline-none focus:ring-2 focus:ring-brand-teal border-0">
-          <div class="text-right mb-4">
-            <a href="#" onclick="handleForgotPassword(event)" class="text-xs text-slate-500 hover:text-brand-teal underline">Lupa kata sandi?</a>
-          </div>
-          <div id="register-fields" class="hidden">
-            <label class="block text-xs font-medium text-slate-400 mb-1.5">NIM</label>
-            <input type="text" id="reg-nim" placeholder="Contoh: 2104011823" class="w-full bg-white text-slate-900 placeholder:text-slate-400 text-sm rounded-md px-3.5 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-brand-teal border-0">
-            <label class="block text-xs font-medium text-slate-400 mb-1.5">Program Studi</label>
-            <input type="text" id="reg-prodi" placeholder="Contoh: Teknik Informatika" class="w-full bg-white text-slate-900 placeholder:text-slate-400 text-sm rounded-md px-3.5 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-brand-teal border-0">
-          </div>
-          <button type="submit" id="auth-submit-btn" class="w-full py-2.5 rounded-md bg-brand-teal hover:bg-brand-tealLight text-slate-950 font-bold text-sm transition glow-teal-sm">Masuk</button>
-          <p id="auth-msg" class="text-xs text-rose-400 mt-3"></p>
-        </form>
+        <div class="filter-chips" id="filter-chip-group">
+          <span class="chip active" onclick="setFileFilter('ALL', this)">Semua</span>
+          <span class="chip" onclick="setFileFilter('CAT:utama', this)">Utama</span>
+          <span class="chip" onclick="setFileFilter('CAT:sampingan', this)">Sampingan</span>
+          <span class="chip" onclick="setFileFilter('PDF', this)">PDF</span>
+          <span class="chip" onclick="setFileFilter('DOCX', this)">DOCX</span>
+          <span class="chip" onclick="setFileFilter('PPTX', this)">PPTX</span>
+          <span class="chip" onclick="setFileFilter('XLSX', this)">XLSX</span>
+          <span class="chip" onclick="setFileFilter('IMG', this)">Gambar</span>
+        </div>
+        <div class="ledger-count" id="ledger-count-label"></div>
+      </div>
+      <div id="ledger-scroll">
+        <div id="ledger-records-list">
+          <p class="empty">Memuat riwayat...</p>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- ===== TAB 1: UPLOAD & RIWAYAT ===== -->
-    <div id="tab-content-upload" class="hidden max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-
-      <section class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg shadow-black/20">
-        <div class="flex items-start justify-between mb-2">
-          <div>
-            <h2 class="text-base font-semibold text-white tracking-wide">Progress Bimbingan</h2>
-            <p id="progress-label" class="text-xs text-slate-400 mt-1">0 dari 5 revisi (file utama)</p>
-          </div>
-          <button onclick="editRevisionTarget()" class="px-3 py-1.5 text-xs font-medium text-slate-300 bg-brand-panel hover:bg-slate-800 border border-brand-border rounded-md transition hover:text-white">Ubah target</button>
-        </div>
-        <div class="mt-4 w-full bg-[#1a2533] rounded-full h-2 overflow-hidden">
-          <div id="progress-fill" class="bg-brand-teal h-full rounded-full transition-all duration-500 ease-out" style="width:0%; box-shadow:0 0 10px rgba(0,229,201,.5);"></div>
-        </div>
-      </section>
-
-      <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
-        <h2 class="text-base font-semibold text-white mb-5">Unggah Berkas</h2>
-        <label class="block text-xs font-medium text-slate-400 mb-1.5">Pilih File</label>
-        <div id="upload-dropzone" class="w-full border-2 border-dashed border-brand-border rounded-lg px-4 py-6 mb-4 flex flex-col items-center justify-center text-center gap-2 cursor-pointer transition hover:border-brand-teal/60 hover:bg-brand-teal/5" onclick="document.getElementById('file-selector').click()">
-          <svg class="w-7 h-7 text-brand-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-          <p class="text-xs text-slate-300"><span class="text-brand-teal font-semibold">Klik untuk pilih file</span> atau tarik &amp; lepas ke sini</p>
-          <p class="text-[11px] text-slate-500">PDF, DOCX, PPTX, XLSX, atau gambar</p>
-          <input class="hidden" id="file-selector" type="file" onchange="handleFileSelected(event)">
-        </div>
-        <div id="file-preview" class="hidden items-center gap-2 bg-brand-panel px-3 py-2 rounded-md mb-4 text-xs text-slate-400">
-          <span class="text-slate-200 font-semibold" id="staged-file-name"></span>
-          <span id="staged-file-size"></span>
-          <button onclick="cancelStagedFile()" class="ml-auto text-rose-400 hover:text-rose-300 text-xs font-medium">Batal</button>
-        </div>
-        <label class="block text-xs font-medium text-slate-400 mb-1.5">Jenis Berkas</label>
-        <div class="relative mb-4">
-          <select id="file-category-select" class="w-full bg-white text-slate-800 text-sm font-medium rounded-md px-3.5 py-2.5 appearance-none focus:outline-none focus:ring-2 focus:ring-brand-teal border-0 cursor-pointer">
-            <option value="utama">File Utama (draf/naskah TA)</option>
-            <option value="sampingan">File Sampingan (kerangka berpikir, logbook bimbingan, dll)</option>
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-          </div>
-        </div>
-        <label class="block text-xs font-medium text-slate-400 mb-1.5">Catatan Revisi (opsional)</label>
-        <textarea id="revision-notes" oninput="markDraftDirty()" rows="3" placeholder="Mis. revisi bab 3 setelah bimbingan..." class="w-full bg-white text-slate-900 placeholder:text-slate-400 text-sm rounded-md px-3.5 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-brand-teal border-0 resize-y"></textarea>
-        <div id="progress-bar-wrap" class="hidden w-full bg-[#1a2533] rounded-full h-1.5 overflow-hidden mb-4">
-          <div id="progress-bar" class="bg-brand-teal h-full rounded-full transition-all" style="width:0%"></div>
-        </div>
-        <div class="flex items-center gap-2.5">
-          <button onclick="submitUpload()" class="px-5 py-2 rounded-md bg-brand-teal hover:bg-brand-tealLight text-slate-950 font-bold text-xs tracking-wide transition glow-teal-sm">Upload</button>
-          <button onclick="resetUploadForm()" class="px-5 py-2 rounded-md bg-brand-panel hover:bg-slate-800 border border-brand-border text-slate-300 font-medium text-xs tracking-wide transition hover:text-white">Reset</button>
-        </div>
-        <p id="upload-msg" class="text-xs text-slate-400 mt-2"></p>
-      </section>
-
-      <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
-        <h2 class="text-base font-semibold text-white mb-4">Riwayat Unggahan</h2>
-        <input type="text" id="ledger-search-input" oninput="filterLedgerRecords()" placeholder="Cari nama berkas atau catatan..." class="w-full bg-brand-panel border border-brand-border text-slate-200 placeholder:text-slate-500 text-sm rounded-md px-3.5 py-2.5 focus:outline-none focus:border-brand-teal transition mb-4">
-        <div id="filter-chip-group" class="flex flex-wrap items-center gap-2 mb-2">
-          <span class="chip active" data-filter="ALL" onclick="setFileFilter('ALL', this)">Semua</span>
-          <span class="chip" data-filter="CAT:utama" onclick="setFileFilter('CAT:utama', this)">Utama</span>
-          <span class="chip" data-filter="CAT:sampingan" onclick="setFileFilter('CAT:sampingan', this)">Sampingan</span>
-          <span class="chip" data-filter="PDF" onclick="setFileFilter('PDF', this)">PDF</span>
-          <span class="chip" data-filter="DOCX" onclick="setFileFilter('DOCX', this)">DOCX</span>
-          <span class="chip" data-filter="PPTX" onclick="setFileFilter('PPTX', this)">PPTX</span>
-          <span class="chip" data-filter="XLSX" onclick="setFileFilter('XLSX', this)">XLSX</span>
-          <span class="chip" data-filter="IMG" onclick="setFileFilter('IMG', this)">Gambar</span>
-        </div>
-        <p id="ledger-count-label" class="text-xs text-slate-500 mb-4"></p>
-        <div id="ledger-scroll" class="max-h-[460px] overflow-y-auto pr-1 space-y-3">
-          <div id="ledger-records-list"><p class="text-center text-sm text-slate-500 italic py-6">Memuat riwayat...</p></div>
-        </div>
-      </section>
+  <!-- TAB 2: CATATAN REVISI -->
+  <div id="tab-content-notes" class="hidden">
+    <div class="card">
+      <h2>Tambah Catatan</h2>
+      <label>Tautkan ke berkas (opsional)</label>
+      <select id="note-file-select">
+        <option value="">Tanpa tautan berkas</option>
+      </select>
+      <label>Catatan</label>
+      <textarea id="note-text-input" placeholder="Tulis catatan revisi, saran pembimbing, atau to-do..."></textarea>
+      <button class="btn btn-primary" onclick="addRevisionNote()">Simpan Catatan</button>
     </div>
+    <div class="card">
+      <h2>Semua Catatan</h2>
+      <div id="notes-list">
+        <p class="empty">Memuat catatan...</p>
+      </div>
+    </div>
+  </div>
 
-    <!-- ===== TAB 2: CATATAN REVISI ===== -->
-    <div id="tab-content-notes" class="hidden max-w-2xl mx-auto px-4 py-8 space-y-6">
-      <section class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg">
-        <h2 class="text-sm font-semibold text-white mb-4 tracking-wide">Tambah Catatan</h2>
-        <label class="block text-xs text-slate-400 mb-1.5">Tautkan ke berkas (opsional)</label>
-        <select id="note-file-select" class="w-full bg-white text-slate-800 text-xs rounded-md border-0 px-3 py-2.5 mb-4 focus:ring-2 focus:ring-brand-teal outline-none cursor-pointer">
-          <option value="">Tanpa tautan berkas</option>
+  <!-- TAB 3: ADMIN (semua user) -->
+  <div id="tab-content-admin" class="hidden">
+    <div class="card">
+      <h2>Semua Berkas (Seluruh Pengguna)</h2>
+      <div class="search-row">
+        <input type="text" id="admin-search-input" placeholder="Cari nama berkas atau email pemilik..." oninput="filterAdminRecords()">
+      </div>
+      <div id="admin-scroll" style="max-height:480px; overflow-y:auto; padding-right:4px;">
+        <div id="admin-records-list">
+          <p class="empty">Memuat data...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: DAFTAR PUSTAKA (folder explorer) - tema teal/cyan khusus -->
+  <!-- TAB: DAFTAR PUSTAKA (folder explorer) -->
+  <div id="tab-content-library" class="hidden">
+    <div class="card">
+      <div id="library-breadcrumb" style="font-size:13px; color:var(--muted); margin-bottom:8px;"></div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:8px; margin-bottom:14px;">
+        <h2 style="margin:0;">Daftar Pustaka / Jurnal <span id="library-count-badge" style="font-size:11px; font-weight:600; color:var(--muted); background:var(--card-alt); padding:3px 9px; border-radius:999px; margin-left:6px;"></span></h2>
+        <select id="library-sort-select" onchange="renderLibraryItems()" style="width:auto; margin:0; padding:7px 10px; font-size:13px;">
+          <option value="newest">Paling Terkini</option>
+          <option value="name">Nama (A-Z)</option>
+          <option value="size">Ukuran Terbesar</option>
         </select>
-        <label class="block text-xs text-slate-400 mb-1.5">Catatan</label>
-        <textarea id="note-text-input" rows="3" placeholder="Tulis catatan revisi, saran pembimbing, atau to-do..." class="w-full bg-white text-slate-900 text-xs rounded-md border-0 p-3 mb-4 placeholder:text-slate-400 focus:ring-2 focus:ring-brand-teal outline-none resize-y"></textarea>
-        <button onclick="addRevisionNote()" class="px-4 py-2 bg-brand-teal hover:bg-brand-tealLight text-slate-950 font-bold text-xs rounded-md transition glow-teal-sm">Simpan Catatan</button>
-      </section>
-      <section class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg">
-        <h2 class="text-sm font-semibold text-white mb-4 tracking-wide">Semua Catatan</h2>
-        <div id="notes-list" class="space-y-3"><p class="text-center text-sm text-slate-500 italic py-6">Memuat catatan...</p></div>
-      </section>
-    </div>
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="createLibraryFolder()">+ Folder Baru</button>
+        <label class="btn btn-primary btn-sm" style="cursor:pointer; margin:0;">
+          + Upload Berkas
+          <input type="file" id="library-file-input" style="display:none;" onchange="uploadLibraryFile(event)">
+        </label>
+      </div>
+      <progress id="library-progress-bar" value="0" max="100" class="hidden"></progress>
 
-    <!-- ===== TAB 3: DAFTAR PUSTAKA ===== -->
-    <div id="tab-content-library" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col lg:flex-row gap-6">
-      <aside class="w-full lg:w-64 shrink-0">
-        <div class="bg-brand-panel/70 rounded-2xl border border-brand-border p-4 shadow-xl">
-          <div class="flex items-center justify-between pb-3 mb-3 border-b border-brand-border">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Koleksi Referensi</span>
-            <span class="text-[11px] text-slate-500 font-medium" id="library-sidebar-total">0 Berkas</span>
-          </div>
-          <ul class="space-y-1 text-xs">
-            <li>
-              <a class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-800/90 text-white font-medium border border-slate-700/60 transition cursor-pointer" onclick="navigateLibraryBreadcrumb(0)">
-                <div class="flex items-center gap-2.5 truncate">
-                  <svg class="w-4 h-4 text-brand-teal shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
-                  <span class="truncate">Daftar Pustaka / Jurnal</span>
-                </div>
-                <span class="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded-md font-semibold border border-slate-700" id="library-sidebar-root-count">0</span>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </aside>
+      <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); margin-bottom:8px;">Folder</div>
+      <div id="library-folders-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; margin-bottom:20px;">
+        <p class="empty" style="grid-column:1/-1;">Memuat...</p>
+      </div>
 
-      <div class="flex-1 min-w-0">
-        <div class="bg-brand-card rounded-2xl border border-brand-border p-4 sm:p-5 shadow-xl mb-5">
-          <div class="flex items-center justify-between gap-2 mb-3">
-            <div id="library-breadcrumb" class="flex items-center gap-2 text-xs text-slate-400 flex-wrap"></div>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button id="library-back-btn" onclick="goLibraryBack()" title="Kembali ke folder sebelumnya" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition disabled:opacity-30 disabled:pointer-events-none" disabled>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-              </button>
-              <button onclick="refreshLibrary()" title="Refresh" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-              </button>
-            </div>
-          </div>
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2.5 flex-wrap">
-                Daftar Pustaka / Jurnal
-                <span class="text-[11px] px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700 font-semibold" id="library-summary-badge">0 Direktori • 0 Berkas</span>
-              </h2>
-              <p class="text-xs text-slate-400 mt-1" id="library-status-text">Memuat repositori...</p>
-            </div>
-            <div class="flex items-center gap-2.5 flex-wrap">
-              <button class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-[#162032] hover:bg-slate-800 border border-brand-borderLight text-slate-200 hover:text-white transition active:scale-95" onclick="createLibraryFolder()">
-                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                + Folder Baru
-              </button>
-              <label class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-brand-teal hover:bg-brand-tealLight text-[#06181e] glow-teal-sm transition active:scale-95 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
-                + Upload Berkas
-                <input type="file" id="library-file-input" class="hidden" onchange="uploadLibraryFile(event)">
-              </label>
-            </div>
-          </div>
-          <div id="library-progress-bar-wrap" class="hidden w-full bg-[#1a2533] rounded-full h-1.5 overflow-hidden mt-3">
-            <div id="library-progress-bar" class="bg-brand-teal h-full rounded-full transition-all" style="width:0%"></div>
-          </div>
-          <div class="mt-5 pt-4 border-t border-brand-border/70 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div class="flex items-center gap-2">
-              <span class="text-slate-400">Urutkan berkas:</span>
-              <select class="bg-slate-900 border border-brand-border text-slate-300 rounded-lg px-2.5 py-1.5 focus:border-brand-teal focus:ring-0 text-xs cursor-pointer" id="library-sort-select" onchange="setLibrarySort(this.value)">
-                <option value="newest">Paling Terkini</option>
-                <option value="name">Nama Berkas (A-Z)</option>
-                <option value="size">Ukuran Terbesar</option>
-              </select>
-            </div>
-            <div class="flex items-center gap-1 bg-slate-900/90 border border-brand-border p-1 rounded-lg">
-              <button class="p-1.5 rounded-md bg-slate-800 text-brand-teal" id="library-view-table-btn" onclick="setLibraryView('table')" title="Table View">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-              </button>
-              <button class="p-1.5 rounded-md text-slate-400 hover:text-white" id="library-view-grid-btn" onclick="setLibraryView('grid')" title="Grid View">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <section class="mb-5">
-          <div class="flex items-center justify-between mb-3 px-1">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Folder Direktori</h3>
-            <span class="text-xs text-slate-500" id="library-folder-count-label">0 Folder</span>
-          </div>
-          <div id="library-folder-empty" class="border-2 border-dashed border-slate-800 rounded-2xl p-6 bg-brand-card/50 text-center flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-4 text-left">
-              <div class="w-12 h-12 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-400 shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path></svg>
-              </div>
-              <div>
-                <h4 class="text-sm font-semibold text-white">Belum Ada Folder</h4>
-                <p class="text-xs text-slate-400 mt-0.5">Kelompokkan jurnal &amp; manuskrip ke dalam folder biar tertata rapi.</p>
-              </div>
-            </div>
-            <button class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-[#162032] hover:bg-slate-800 text-slate-200 border border-brand-borderLight hover:text-white transition shrink-0 active:scale-95" onclick="createLibraryFolder()">+ Buat Folder</button>
-          </div>
-          <div class="hidden grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3" id="library-folder-grid"></div>
-        </section>
-
-        <section id="library-dropzone" class="relative bg-brand-card rounded-2xl border-2 border-dashed border-transparent overflow-hidden shadow-xl transition">
-          <div class="p-4 sm:p-5 border-b border-brand-border flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <h3 class="text-sm font-bold text-white tracking-wide">Berkas Referensi</h3>
-              <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-800 text-slate-400 border border-slate-700 font-mono" id="library-file-count-label">0 Berkas</span>
-            </div>
-            <span class="text-[11px] text-slate-500 hidden sm:inline-flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-              Tarik &amp; lepas berkas di sini
-            </span>
-          </div>
-          <div id="library-dropzone-overlay" class="hidden absolute inset-0 z-10 bg-brand-teal/10 backdrop-blur-[1px] border-2 border-brand-teal rounded-2xl flex items-center justify-center pointer-events-none">
-            <p class="text-sm font-bold text-brand-teal">Lepas untuk mengunggah ke folder ini</p>
-          </div>
-          <div id="library-file-empty" class="p-8 sm:p-12 flex flex-col items-center justify-center text-center">
-            <div class="w-16 h-16 rounded-2xl bg-brand-teal/10 border border-brand-teal/20 flex items-center justify-center text-brand-teal mb-4">
-              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-            </div>
-            <h4 class="text-base font-bold text-white mb-1.5">Folder Ini Masih Kosong</h4>
-            <p class="text-xs text-slate-400 max-w-md mb-2 leading-relaxed">Unggah jurnal (PDF), naskah, atau template sitasi ke repositori ini.</p>
-          </div>
-          <div class="hidden overflow-x-auto" id="library-table-wrap">
-            <table class="w-full text-xs text-left">
-              <thead class="bg-[#0b111e] text-slate-400 uppercase text-[10px]">
-                <tr><th class="px-4 py-3">Nama Berkas</th><th class="px-4 py-3">Ukuran</th><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3 text-right">Aksi</th></tr>
-              </thead>
-              <tbody id="library-file-tbody" class="divide-y divide-brand-border"></tbody>
-            </table>
-          </div>
-          <div class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4" id="library-file-grid"></div>
-        </section>
+      <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); margin-bottom:8px;">Berkas</div>
+      <div id="library-files-list">
+        <p class="empty">Memuat...</p>
       </div>
     </div>
+  </div>
 
-    <!-- ===== TAB: ADMIN ===== -->
-    <div id="tab-content-admin" class="hidden max-w-3xl mx-auto px-4 py-8">
-      <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg">
-        <h2 class="text-base font-semibold text-white mb-4">Semua Berkas (Seluruh Pengguna)</h2>
-        <input type="text" id="admin-search-input" oninput="filterAdminRecords()" placeholder="Cari nama berkas atau email pemilik..." class="w-full bg-brand-panel border border-brand-border text-slate-200 placeholder:text-slate-500 text-sm rounded-md px-3.5 py-2.5 focus:outline-none focus:border-brand-teal transition mb-4">
-        <div id="admin-scroll" class="max-h-[500px] overflow-y-auto pr-1 space-y-3">
-          <div id="admin-records-list"><p class="text-center text-sm text-slate-500 italic py-6">Memuat data...</p></div>
-        </div>
-      </section>
-    </div>
 
-  </main>
-
-  <footer class="border-t border-brand-border bg-[#070b12] py-4 mt-auto text-center text-xs text-slate-500">
-    © 2026 SyncTA — Sistem Manajemen Tugas Akhir &amp; Bimbingan.
-  </footer>
+</main>
 </div>
 
-<!-- ===== DELETE MODAL ===== -->
-<div id="delete-modal" class="hidden fixed inset-0 bg-black/60 z-[150] flex items-center justify-center p-5">
-  <div class="bg-brand-card border border-brand-border rounded-2xl p-5 max-w-sm w-full shadow-2xl">
-    <h3 class="text-base font-bold text-white mb-1.5">Hapus record?</h3>
-    <p class="text-sm text-slate-400 mb-5">Hapus catatan <b id="modal-delete-file-name" class="text-slate-200"></b> dari riwayat? File asli di Cloudinary tetap tersimpan.</p>
-    <div class="flex items-center justify-end gap-2">
-      <button onclick="closeDeleteModal()" class="px-4 py-2 rounded-md bg-brand-panel hover:bg-slate-800 border border-brand-border text-slate-300 text-xs font-medium transition">Batal</button>
-      <button id="modal-confirm-delete-btn" class="px-4 py-2 rounded-md bg-rose-950/60 hover:bg-rose-900 text-rose-300 hover:text-rose-100 border border-rose-900/60 text-xs font-medium transition">Hapus</button>
+<!-- Delete confirm modal -->
+<div class="modal-backdrop hidden" id="delete-modal">
+  <div class="modal">
+    <h3>Hapus record?</h3>
+    <p>Hapus catatan <b id="modal-delete-file-name"></b> dari riwayat? File asli di Cloudinary tetap tersimpan.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeDeleteModal()">Batal</button>
+      <button class="btn btn-danger" id="modal-confirm-delete-btn">Hapus</button>
     </div>
   </div>
 </div>
@@ -386,12 +389,6 @@
 <div class="toast" id="toast-notification"><span id="toast-message"></span></div>
 
 <script>
-  // ---------- Class helpers ----------
-  const TAB_ACTIVE = 'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-brand-teal text-slate-950 shadow-sm transition';
-  const TAB_INACTIVE = 'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-[#161f30] border border-transparent hover:border-[#25324c] transition';
-  const CHIP_ACTIVE = 'chip inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-brand-teal text-slate-950 cursor-pointer transition';
-  const CHIP_INACTIVE = 'chip inline-block px-3.5 py-1 rounded-full text-xs font-medium bg-brand-panel hover:bg-slate-800 text-slate-300 border border-brand-border cursor-pointer transition';
-
   let currentAuthMode = 'login';
   let currentUser = null;
   let stagedFile = null;
@@ -414,12 +411,12 @@
     PPT: '#fbbf24', PPTX: '#fbbf24', XLS: '#34d399', XLSX: '#34d399',
     PNG: '#a78bfa', JPG: '#a78bfa', JPEG: '#a78bfa'
   };
-  function fileIconSvg() {
-    return '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>';
-  }
 
   window.addEventListener('beforeunload', (e) => {
-    if (hasUnsavedDraft) { e.preventDefault(); e.returnValue = ''; }
+    if (hasUnsavedDraft) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
   });
 
   function markDraftDirty() {
@@ -443,26 +440,31 @@
   // ---------- Auth ----------
   function switchAuthTab(mode) {
     currentAuthMode = mode;
-    const loginBtn = document.getElementById('tab-login');
-    const regBtn = document.getElementById('tab-register');
-    loginBtn.className = mode === 'login' ? 'flex-1 text-center py-2 rounded-lg bg-brand-teal text-slate-950 font-bold text-sm transition' : 'flex-1 text-center py-2 rounded-lg text-slate-400 font-semibold text-sm transition';
-    regBtn.className = mode === 'register' ? 'flex-1 text-center py-2 rounded-lg bg-brand-teal text-slate-950 font-bold text-sm transition' : 'flex-1 text-center py-2 rounded-lg text-slate-400 font-semibold text-sm transition';
-    document.getElementById('register-fields').classList.toggle('hidden', mode !== 'register');
+    document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+    document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+    document.getElementById('register-fields').style.display = mode === 'register' ? 'block' : 'none';
     document.getElementById('auth-submit-btn').textContent = mode === 'register' ? 'Daftar' : 'Masuk';
   }
 
   function handleForgotPassword(event) {
     event.preventDefault();
     const msg = document.getElementById('auth-msg');
+    msg.className = 'msg info';
     let email = document.getElementById('auth-email').value.trim();
-    if (!email) { email = prompt('Masukkan email yang mau di-reset kata sandinya:'); if (!email) return; }
-    if (!window.fb) { msg.className = 'text-xs text-rose-400 mt-3'; msg.textContent = 'Koneksi belum siap, coba lagi.'; return; }
+    if (!email) {
+      email = prompt('Masukkan email yang mau di-reset kata sandinya:');
+      if (!email) return;
+    }
+    if (!window.fb) { msg.className = 'msg error'; msg.textContent = 'Koneksi belum siap, coba lagi.'; return; }
     window.fb.sendPasswordResetEmail(window.fb.auth, email.trim())
       .then(() => {
-        msg.className = 'text-xs text-slate-400 mt-3';
+        msg.className = 'msg info';
         msg.textContent = 'Link reset kata sandi udah dikirim ke ' + email + '. Kalo gak muncul di inbox, cek folder Spam/Promosi ya.';
       })
-      .catch(err => { msg.className = 'text-xs text-rose-400 mt-3'; msg.textContent = 'Gagal kirim: ' + err.message; });
+      .catch(err => {
+        msg.className = 'msg error';
+        msg.textContent = 'Gagal kirim: ' + err.message;
+      });
   }
 
   function handleAuthSubmit(event) {
@@ -470,7 +472,8 @@
     const email = document.getElementById('auth-email').value.trim();
     const pass = document.getElementById('auth-password').value;
     const msg = document.getElementById('auth-msg');
-    msg.className = 'text-xs text-rose-400 mt-3'; msg.textContent = '';
+    msg.className = 'msg error';
+    msg.textContent = '';
     if (!window.fb) { msg.textContent = 'Koneksi belum siap, coba lagi.'; return; }
 
     if (currentAuthMode === 'register') {
@@ -522,8 +525,6 @@
       headerName.textContent = 'Belum masuk';
       tabUpload.classList.add('hidden');
       tabNotes.classList.add('hidden');
-      document.getElementById('tab-content-library').classList.add('hidden');
-      document.getElementById('tab-content-admin').classList.add('hidden');
       if (unsubscribeLedger) { unsubscribeLedger(); unsubscribeLedger = null; }
       if (unsubscribeNotes) { unsubscribeNotes(); unsubscribeNotes = null; }
       if (unsubscribeAdmin) { unsubscribeAdmin(); unsubscribeAdmin = null; }
@@ -569,11 +570,10 @@
     document.getElementById('tab-content-notes').classList.toggle('hidden', tab !== 'notes');
     document.getElementById('tab-content-library').classList.toggle('hidden', tab !== 'library');
     document.getElementById('tab-content-admin').classList.toggle('hidden', tab !== 'admin');
-    document.getElementById('maintab-upload-btn').className = tab === 'upload' ? TAB_ACTIVE : TAB_INACTIVE;
-    document.getElementById('maintab-notes-btn').className = (tab === 'notes' ? TAB_ACTIVE : TAB_INACTIVE);
-    document.getElementById('maintab-library-btn').className = tab === 'library' ? TAB_ACTIVE : TAB_INACTIVE;
-    const adminBtn = document.getElementById('maintab-admin-btn');
-    adminBtn.className = (tab === 'admin' ? TAB_ACTIVE : TAB_INACTIVE) + (isAdmin ? '' : ' hidden');
+    document.getElementById('maintab-upload-btn').classList.toggle('active', tab === 'upload');
+    document.getElementById('maintab-notes-btn').classList.toggle('active', tab === 'notes');
+    document.getElementById('maintab-library-btn').classList.toggle('active', tab === 'library');
+    document.getElementById('maintab-admin-btn').classList.toggle('active', tab === 'admin');
     if (tab === 'notes') populateNoteFileSelect();
     if (tab === 'library' && currentUser) loadLibrary(currentUser.uid);
   }
@@ -582,23 +582,16 @@
   function handleFileSelected(e) {
     const file = e.target.files[0];
     if (!file) return;
-    stageFile(file);
-  }
-
-  function stageFile(file) {
     stagedFile = file;
-    const prev = document.getElementById('file-preview');
-    prev.classList.remove('hidden'); prev.classList.add('flex');
+    document.getElementById('file-preview').classList.remove('hidden');
     document.getElementById('staged-file-name').textContent = file.name;
     document.getElementById('staged-file-size').textContent = '(' + (file.size / (1024*1024)).toFixed(1) + ' MB)';
     markDraftDirty();
-    notifyFeedback('Berkas "' + file.name + '" siap diunggah.', 'success');
   }
 
   function cancelStagedFile() {
     document.getElementById('file-selector').value = '';
-    const prev = document.getElementById('file-preview');
-    prev.classList.add('hidden'); prev.classList.remove('flex');
+    document.getElementById('file-preview').classList.add('hidden');
     stagedFile = null;
     markDraftDirty();
   }
@@ -606,9 +599,8 @@
   function resetUploadForm() {
     document.getElementById('revision-notes').value = '';
     document.getElementById('file-selector').value = '';
-    const prev = document.getElementById('file-preview');
-    prev.classList.add('hidden'); prev.classList.remove('flex');
-    document.getElementById('progress-bar-wrap').classList.add('hidden');
+    document.getElementById('file-preview').classList.add('hidden');
+    document.getElementById('progress-bar').classList.add('hidden');
     document.getElementById('upload-msg').textContent = '';
     stagedFile = null;
     hasUnsavedDraft = false;
@@ -619,9 +611,8 @@
     if (!stagedFile) { notifyFeedback('Pilih berkas dulu.', 'error'); return; }
     const notes = document.getElementById('revision-notes').value.trim();
     const category = document.getElementById('file-category-select').value;
-    const wrap = document.getElementById('progress-bar-wrap');
     const bar = document.getElementById('progress-bar');
-    wrap.classList.remove('hidden'); bar.style.width = '0%';
+    bar.classList.remove('hidden'); bar.value = 0;
     document.getElementById('upload-msg').textContent = 'Mengunggah...';
 
     const formData = new FormData();
@@ -630,7 +621,7 @@
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `https://api.cloudinary.com/v1_1/${window.fb.CLOUD_NAME}/upload`);
-    xhr.upload.onprogress = (e) => { bar.style.width = ((e.loaded / e.total) * 100) + '%'; };
+    xhr.upload.onprogress = (e) => { bar.value = (e.loaded / e.total) * 100; };
     xhr.onload = async () => {
       if (xhr.status !== 200) {
         document.getElementById('upload-msg').textContent = 'Error: ' + xhr.responseText;
@@ -702,7 +693,7 @@
     if (!url) return;
 
     document.getElementById('main-app').style.display = 'none';
-    document.getElementById('viewer-page').classList.remove('hidden');
+    document.getElementById('viewer-page').style.display = 'block';
     document.getElementById('viewer-filename').textContent = name;
 
     const ext = (name.split('.').pop() || '').toUpperCase();
@@ -717,7 +708,7 @@
     } else if (office.includes(ext)) {
       area.innerHTML = `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}"></iframe>`;
     } else {
-      area.innerHTML = '<p class="text-sm text-slate-500 italic">Pratinjau tidak didukung. Unduh untuk melihat isinya.</p>';
+      area.innerHTML = '<p class="empty">Pratinjau tidak didukung. Unduh untuk melihat isinya.</p>';
     }
     document.getElementById('viewer-download-btn').onclick = () => downloadFile(url, name);
   }
@@ -728,7 +719,7 @@
     const list = document.getElementById('ledger-records-list');
     const q = window.fb.query(window.fb.collection(window.fb.db, 'files'), window.fb.where('owner','==',uid));
     unsubscribeLedger = window.fb.onSnapshot(q, (snapshot) => {
-      if (snapshot.empty) { list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Belum ada berkas.</p>'; userFiles = []; updateProgressBimbingan(); return; }
+      if (snapshot.empty) { list.innerHTML = '<p class="empty">Belum ada berkas.</p>'; return; }
       const docs = [];
       snapshot.forEach(d => docs.push({ id: d.id, data: d.data() }));
       docs.sort((a,b) => b.data.createdAt - a.data.createdAt);
@@ -746,38 +737,27 @@
         const dlName = buildDownloadName(data.name, data.createdAt);
         const safeName = data.name.replace(/'/g, "\\'");
         const category = data.category || 'utama';
-        const color = EXT_COLOR[rawExt] || '#8b91a3';
         const catBadge = category === 'sampingan'
-          ? '<span class="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-semibold border border-blue-500/20">Sampingan</span>'
-          : '<span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">Utama</span>';
+          ? '<span style="font-size:10.5px; background:#3b3f4c; color:var(--muted); padding:2px 7px; border-radius:5px; margin-left:6px; flex-shrink:0;">Sampingan</span>'
+          : '<span style="font-size:10.5px; background:rgba(45,212,191,0.15); color:var(--accent); padding:2px 7px; border-radius:5px; margin-left:6px; flex-shrink:0;">Utama</span>';
 
-        const card = document.createElement('article');
-        card.className = 'entry p-4 rounded-lg bg-[#16212e] border border-[#223245] flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-slate-600 transition';
+        const card = document.createElement('div');
+        card.className = 'entry';
         card.id = 'file-card-' + id;
         card.setAttribute('data-ext', dataExt);
         card.setAttribute('data-name', data.name);
         card.setAttribute('data-note', (data.note || '').toLowerCase());
         card.setAttribute('data-category', category);
         card.innerHTML = `
-          <div class="flex items-start gap-3 min-w-0">
-            <div class="p-2.5 rounded-lg shrink-0" style="background:${color}22; color:${color}">${fileIconSvg()}</div>
-            <div class="min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <h3 class="text-sm font-semibold text-slate-100 truncate max-w-[220px]" title="${safeName}">${data.name}</h3>
-                ${catBadge}
-              </div>
-              <p class="text-xs text-slate-400 mt-0.5 truncate max-w-[320px]" title="${data.note ? data.note.replace(/"/g,'&quot;') : ''}">${data.note ? 'Catatan: ' + data.note : 'Tanpa catatan revisi.'}</p>
-              <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-1.5 font-medium">
-                <span>${data.size || ''}</span><span>•</span><span>Diunggah ${timeStr}</span>
-              </div>
-            </div>
+          <div class="entry-top">
+            <div class="entry-name" title="${safeName}"><span class="ext-dot" style="background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>${data.name}${catBadge}</div>
+            <div class="entry-time">${timeStr}</div>
           </div>
-          <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
-            <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
-            <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
-            <button class="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Hapus Berkas" onclick="confirmDeleteLedgerRecord('${id}', '${safeName}')">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-            </button>
+          <div class="entry-note ${data.note ? 'filled' : ''}" title="${data.note ? data.note.replace(/"/g,'&quot;') : ''}">${data.note ? data.note : 'Tanpa catatan revisi.'}</div>
+          <div class="entry-actions">
+            <button class="btn btn-primary btn-sm" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
+            <button class="btn btn-danger btn-sm" onclick="confirmDeleteLedgerRecord('${id}', '${safeName}')">Hapus</button>
           </div>
         `;
         list.appendChild(card);
@@ -785,13 +765,13 @@
       const countLabel = document.getElementById('ledger-count-label');
       if (countLabel) countLabel.textContent = docs.length + ' berkas total';
       filterLedgerRecords();
-    }, (err) => { list.innerHTML = '<p class="text-sm text-rose-400">Gagal memuat: ' + err.message + '</p>'; });
+    }, (err) => { list.innerHTML = '<p class="msg error">Gagal memuat: ' + err.message + '</p>'; });
   }
 
   function setFileFilter(ext, chipEl) {
     currentActiveFilter = ext;
-    document.querySelectorAll('#filter-chip-group .chip').forEach(c => { c.className = CHIP_INACTIVE; });
-    chipEl.className = CHIP_ACTIVE;
+    document.querySelectorAll('#filter-chip-group .chip').forEach(c => c.classList.remove('active'));
+    chipEl.classList.add('active');
     filterLedgerRecords();
   }
 
@@ -832,8 +812,6 @@
   function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); }
 
   // ---------- Daftar Pustaka (folder explorer) ----------
-  let librarySortMode = 'newest';
-  let libraryViewMode = 'table';
   let lastLibraryFiles = [];
   let lastLibraryFolders = [];
 
@@ -841,30 +819,15 @@
     const el = document.getElementById('library-breadcrumb');
     el.innerHTML = libraryPath.map((p, i) => {
       const isLast = i === libraryPath.length - 1;
-      if (isLast) return `<span class="text-brand-teal font-medium">${p.name}</span>`;
-      return `<a class="hover:text-brand-teal transition cursor-pointer" onclick="navigateLibraryBreadcrumb(${i})">${p.name}</a>
-        <svg class="w-3 h-3 text-slate-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>`;
-    }).join(' ');
-    const backBtn = document.getElementById('library-back-btn');
-    if (backBtn) backBtn.disabled = libraryPath.length <= 1;
+      return isLast
+        ? `<span style="color:var(--text); font-weight:600;">${p.name}</span>`
+        : `<span style="cursor:pointer; color:var(--accent);" onclick="navigateLibraryBreadcrumb(${i})">${p.name}</span> <span style="color:var(--muted);">/</span> `;
+    }).join('');
   }
 
   function navigateLibraryBreadcrumb(index) {
     libraryPath = libraryPath.slice(0, index + 1);
     currentLibraryFolder = libraryPath[libraryPath.length - 1].id;
-    loadLibrary(currentUser.uid);
-  }
-
-  function goLibraryBack() {
-    if (libraryPath.length <= 1) return;
-    libraryPath = libraryPath.slice(0, -1);
-    currentLibraryFolder = libraryPath[libraryPath.length - 1].id;
-    loadLibrary(currentUser.uid);
-  }
-
-  function refreshLibrary() {
-    if (!currentUser) return;
-    notifyFeedback('Memuat ulang isi folder...', 'info');
     loadLibrary(currentUser.uid);
   }
 
@@ -887,15 +850,8 @@
   function uploadLibraryFile(event) {
     const file = event.target.files[0];
     if (!file) return;
-    uploadLibraryFileObject(file);
-    event.target.value = '';
-  }
-
-  function uploadLibraryFileObject(file) {
-    if (!currentUser) { notifyFeedback('Kamu belum login.', 'error'); return; }
-    const wrap = document.getElementById('library-progress-bar-wrap');
     const bar = document.getElementById('library-progress-bar');
-    wrap.classList.remove('hidden'); bar.style.width = '0%';
+    bar.classList.remove('hidden'); bar.value = 0;
 
     const formData = new FormData();
     formData.append('file', file);
@@ -903,129 +859,89 @@
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `https://api.cloudinary.com/v1_1/${window.fb.CLOUD_NAME}/upload`);
-    xhr.upload.onprogress = (e) => { bar.style.width = ((e.loaded / e.total) * 100) + '%'; };
+    xhr.upload.onprogress = (e) => { bar.value = (e.loaded / e.total) * 100; };
     xhr.onload = async () => {
-      if (xhr.status !== 200) { notifyFeedback('Gagal unggah: ' + xhr.responseText, 'error'); wrap.classList.add('hidden'); return; }
+      if (xhr.status !== 200) { notifyFeedback('Gagal unggah: ' + xhr.responseText, 'error'); return; }
       const data = JSON.parse(xhr.responseText);
       const ext = file.name.split('.').pop().toUpperCase();
       try {
         await window.fb.addDoc(window.fb.collection(window.fb.db, 'library'), {
           owner: currentUser.uid, parentId: currentLibraryFolder, type: 'file',
           name: file.name, ext, url: data.secure_url, publicId: data.public_id,
-          sizeBytes: file.size, size: (file.size / (1024*1024)).toFixed(1) + ' MB', createdAt: Date.now()
+          size: (file.size / (1024*1024)).toFixed(1) + ' MB', createdAt: Date.now()
         });
         notifyFeedback('Berkas ditambahkan ke Daftar Pustaka.', 'success');
       } catch (e) {
         notifyFeedback('Terunggah tapi gagal dicatat: ' + e.message, 'error');
       }
-      wrap.classList.add('hidden');
+      bar.classList.add('hidden');
       document.getElementById('library-file-input').value = '';
     };
     xhr.onerror = () => notifyFeedback('Gagal konek ke Cloudinary.', 'error');
     xhr.send(formData);
   }
 
-  function setLibrarySort(mode) { librarySortMode = mode; renderLibraryFiles(); }
+  function renderLibraryItems() {
+    const sortMode = document.getElementById('library-sort-select').value;
+    const files = [...lastLibraryFiles];
+    if (sortMode === 'name') files.sort((a, b) => a.data.name.localeCompare(b.data.name));
+    else if (sortMode === 'size') files.sort((a, b) => parseFloat(b.data.size) - parseFloat(a.data.size));
+    else files.sort((a, b) => b.data.createdAt - a.data.createdAt);
 
-  function setLibraryView(mode) {
-    libraryViewMode = mode;
-    document.getElementById('library-view-table-btn').className = mode === 'table' ? 'p-1.5 rounded-md bg-slate-800 text-brand-teal' : 'p-1.5 rounded-md text-slate-400 hover:text-white';
-    document.getElementById('library-view-grid-btn').className = mode === 'grid' ? 'p-1.5 rounded-md bg-slate-800 text-brand-teal' : 'p-1.5 rounded-md text-slate-400 hover:text-white';
-    renderLibraryFiles();
-  }
-
-  function libraryFileRowHtml(id, data) {
-    const rawExt = data.ext || data.name.split('.').pop().toUpperCase();
-    const safeName = data.name.replace(/'/g, "\\'");
-    const dt = new Date(data.createdAt);
-    const dateStr = `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()}`;
-    return { rawExt, safeName, dateStr };
-  }
-
-  function renderLibraryFiles() {
-    const tableWrap = document.getElementById('library-table-wrap');
-    const gridWrap = document.getElementById('library-file-grid');
-    const emptyEl = document.getElementById('library-file-empty');
-    const tbody = document.getElementById('library-file-tbody');
-    const countLabel = document.getElementById('library-file-count-label');
-
-    countLabel.textContent = lastLibraryFiles.length + ' Berkas';
-
-    if (lastLibraryFiles.length === 0) {
-      emptyEl.classList.remove('hidden');
-      tableWrap.classList.add('hidden');
-      gridWrap.classList.add('hidden');
-      return;
-    }
-    emptyEl.classList.add('hidden');
-
-    const sorted = [...lastLibraryFiles].sort((a, b) => {
-      if (librarySortMode === 'name') return a.data.name.localeCompare(b.data.name);
-      if (librarySortMode === 'size') return (b.data.sizeBytes || 0) - (a.data.sizeBytes || 0);
-      return b.data.createdAt - a.data.createdAt;
-    });
-
-    if (libraryViewMode === 'table') {
-      tableWrap.classList.remove('hidden'); gridWrap.classList.add('hidden');
-      tbody.innerHTML = sorted.map(({ id, data }) => {
-        const { rawExt, safeName, dateStr } = libraryFileRowHtml(id, data);
-        return `<tr class="hover:bg-slate-900/40 transition">
-            <td class="px-4 py-3 text-slate-200 font-medium flex items-center gap-2">
-              <span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>
-              <span class="truncate max-w-[220px]" title="${safeName}">${data.name}</span>
-            </td>
-            <td class="px-4 py-3 text-slate-400">${data.size || ''}</td>
-            <td class="px-4 py-3 text-slate-400">${dateStr}</td>
-            <td class="px-4 py-3 text-right whitespace-nowrap">
-              <button class="text-brand-teal hover:underline mr-3" onclick="downloadFile('${data.url}', '${safeName}')">Unduh</button>
-              <button class="text-cyan-400 hover:underline mr-3" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
-              <button class="text-red-400 hover:underline" onclick="deleteLibraryItem('${id}','file','${safeName}')">Hapus</button>
-            </td>
-          </tr>`;
-      }).join('');
+    const folderGrid = document.getElementById('library-folders-grid');
+    if (lastLibraryFolders.length === 0) {
+      folderGrid.innerHTML = '<p class="empty" style="grid-column:1/-1;">Belum ada folder di sini.</p>';
     } else {
-      gridWrap.classList.remove('hidden'); tableWrap.classList.add('hidden');
-      gridWrap.innerHTML = sorted.map(({ id, data }) => {
-        const { rawExt, safeName, dateStr } = libraryFileRowHtml(id, data);
-        return `<div class="bg-[#111928] border border-brand-border rounded-xl p-4 flex flex-col gap-2">
-            <div class="flex items-center gap-2">
-              <span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>
-              <span class="text-slate-200 font-medium text-sm truncate" title="${safeName}">${data.name}</span>
-            </div>
-            <div class="text-[11px] text-slate-500">${data.size || ''} · ${dateStr}</div>
-            <div class="flex items-center gap-3 text-[11px] mt-1">
-              <button class="text-brand-teal hover:underline" onclick="downloadFile('${data.url}', '${safeName}')">Unduh</button>
-              <button class="text-cyan-400 hover:underline" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
-              <button class="text-red-400 hover:underline" onclick="deleteLibraryItem('${id}','file','${safeName}')">Hapus</button>
-            </div>
-          </div>`;
-      }).join('');
-    }
-  }
-
-  function renderLibraryFolders() {
-    const grid = document.getElementById('library-folder-grid');
-    const emptyEl = document.getElementById('library-folder-empty');
-    const countLabel = document.getElementById('library-folder-count-label');
-    countLabel.textContent = lastLibraryFolders.length + ' Folder';
-
-    if (lastLibraryFolders.length === 0) { emptyEl.classList.remove('hidden'); grid.classList.add('hidden'); return; }
-    emptyEl.classList.add('hidden'); grid.classList.remove('hidden');
-    grid.innerHTML = lastLibraryFolders.map(({ id, data }) => {
-      const safeName = data.name.replace(/'/g, "\\'");
-      return `<div class="bg-[#111928] border border-brand-border rounded-xl p-4 flex flex-col gap-2 cursor-pointer hover:border-brand-teal/50 transition group" onclick="openLibraryFolder('${id}', '${safeName}')">
-          <div class="flex items-center justify-between">
-            <svg class="w-7 h-7 text-brand-teal" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
-            <button class="text-slate-500 hover:text-red-400 text-[11px]" onclick="event.stopPropagation(); deleteLibraryItem('${id}','folder','${safeName}')">Hapus</button>
+      folderGrid.innerHTML = '';
+      lastLibraryFolders.forEach(({ id, data }) => {
+        const safeName = data.name.replace(/'/g, "\\'");
+        const card = document.createElement('div');
+        card.className = 'entry';
+        card.style.cursor = 'pointer';
+        card.style.textAlign = 'center';
+        card.innerHTML = `
+          <div style="font-size:26px; margin-bottom:4px;">📁</div>
+          <div class="entry-name" style="justify-content:center; white-space:normal;">${data.name}</div>
+          <div class="entry-actions" style="justify-content:center; margin-top:8px;">
+            <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteLibraryItem('${id}','folder','${safeName}')">Hapus</button>
           </div>
-          <span class="text-slate-200 text-sm font-medium truncate">${data.name}</span>
-        </div>`;
-    }).join('');
+        `;
+        card.querySelector('.entry-name').onclick = () => openLibraryFolder(id, data.name);
+        folderGrid.appendChild(card);
+      });
+    }
+
+    const fileList = document.getElementById('library-files-list');
+    if (files.length === 0) {
+      fileList.innerHTML = '<p class="empty">Belum ada berkas di sini.</p>';
+    } else {
+      fileList.innerHTML = '';
+      files.forEach(({ id, data }) => {
+        const rawExt = data.ext || data.name.split('.').pop().toUpperCase();
+        const safeName = data.name.replace(/'/g, "\\'");
+        const row = document.createElement('div');
+        row.className = 'entry';
+        row.innerHTML = `
+          <div class="entry-top">
+            <div class="entry-name" title="${safeName}"><span class="ext-dot" style="background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>${data.name}</div>
+            <div class="entry-time">${data.size || ''}</div>
+          </div>
+          <div class="entry-actions">
+            <button class="btn btn-primary btn-sm" onclick="downloadFile('${data.url}', '${safeName}')">Unduh</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteLibraryItem('${id}','file','${safeName}')">Hapus</button>
+          </div>
+        `;
+        fileList.appendChild(row);
+      });
+    }
+
+    const badge = document.getElementById('library-count-badge');
+    if (badge) badge.textContent = lastLibraryFolders.length + ' Folder \u2022 ' + files.length + ' Berkas';
   }
 
   function loadLibrary(uid) {
     renderLibraryBreadcrumb();
-    document.getElementById('library-status-text').textContent = 'Memuat repositori...';
     if (unsubscribeLibrary) { unsubscribeLibrary(); unsubscribeLibrary = null; }
     const q = window.fb.query(
       window.fb.collection(window.fb.db, 'library'),
@@ -1035,38 +951,21 @@
     unsubscribeLibrary = window.fb.onSnapshot(q, (snapshot) => {
       const items = [];
       snapshot.forEach(d => items.push({ id: d.id, data: d.data() }));
-      lastLibraryFolders = items.filter(i => i.data.type === 'folder');
-      lastLibraryFiles = items.filter(i => i.data.type === 'file');
-
-      document.getElementById('library-summary-badge').textContent =
-        lastLibraryFolders.length + ' Direktori • ' + lastLibraryFiles.length + ' Berkas';
-      document.getElementById('library-status-text').textContent =
-        items.length === 0 ? 'Folder ini masih kosong.' : 'Menampilkan isi folder saat ini.';
-      document.getElementById('library-sidebar-root-count').textContent = lastLibraryFiles.length;
-      document.getElementById('library-sidebar-total').textContent = lastLibraryFiles.length + ' Berkas';
-
-      renderLibraryFolders();
-      renderLibraryFiles();
-    }, (err) => { document.getElementById('library-status-text').textContent = 'Gagal memuat: ' + err.message; });
+      lastLibraryFolders = items.filter(it => it.data.type === 'folder');
+      lastLibraryFiles = items.filter(it => it.data.type === 'file');
+      renderLibraryItems();
+    }, (err) => {
+      notifyFeedback('Gagal memuat Daftar Pustaka: ' + err.message, 'error');
+    });
   }
 
   async function deleteLibraryItem(id, type, name) {
-    if (!currentUser) { notifyFeedback('Kamu belum login.', 'error'); return; }
     if (type === 'folder') {
-      try {
-        const checkQ = window.fb.query(
-          window.fb.collection(window.fb.db, 'library'),
-          window.fb.where('owner', '==', currentUser.uid),
-          window.fb.where('parentId', '==', id)
-        );
-        const snap = await new Promise((resolve, reject) => {
-          const unsub = window.fb.onSnapshot(checkQ, (s) => { unsub(); resolve(s); }, (err) => { unsub(); reject(err); });
-        });
-        if (!snap.empty) { notifyFeedback('Folder "' + name + '" belum kosong, kosongin dulu isinya.', 'error'); return; }
-      } catch (err) {
-        notifyFeedback('Gagal cek isi folder: ' + err.message, 'error');
-        return;
-      }
+      const checkQ = window.fb.query(window.fb.collection(window.fb.db, 'library'), window.fb.where('parentId', '==', id));
+      const snap = await new Promise((resolve) => {
+        const unsub = window.fb.onSnapshot(checkQ, (s) => { unsub(); resolve(s); });
+      });
+      if (!snap.empty) { notifyFeedback('Folder "' + name + '" belum kosong, kosongin dulu isinya.', 'error'); return; }
     }
     if (!confirm('Hapus "' + name + '"?')) return;
     window.fb.deleteDoc(window.fb.doc(window.fb.db, 'library', id))
@@ -1074,8 +973,9 @@
       .catch(err => notifyFeedback('Gagal hapus: ' + err.message, 'error'));
   }
 
-  // ---------- Admin ----------
+  // ---------- Admin (semua user) ----------
   const userProfileCache = {};
+
   async function getOwnerEmail(uid) {
     if (userProfileCache[uid]) return userProfileCache[uid];
     try {
@@ -1083,7 +983,9 @@
       const email = snap.exists() ? (snap.data().email || uid) : uid;
       userProfileCache[uid] = email;
       return email;
-    } catch (e) { return uid; }
+    } catch (e) {
+      return uid;
+    }
   }
 
   function loadAdminAllFiles() {
@@ -1091,7 +993,7 @@
     const list = document.getElementById('admin-records-list');
     const q = window.fb.collection(window.fb.db, 'files');
     unsubscribeAdmin = window.fb.onSnapshot(q, async (snapshot) => {
-      if (snapshot.empty) { list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Belum ada berkas dari siapapun.</p>'; return; }
+      if (snapshot.empty) { list.innerHTML = '<p class="empty">Belum ada berkas dari siapapun.</p>'; return; }
       const docs = [];
       snapshot.forEach(d => docs.push({ id: d.id, data: d.data() }));
       docs.sort((a,b) => b.data.createdAt - a.data.createdAt);
@@ -1104,31 +1006,26 @@
         const rawExt = data.ext || data.name.split('.').pop().toUpperCase();
         const dlName = buildDownloadName(data.name, data.createdAt);
         const safeName = data.name.replace(/'/g, "\\'");
-        const color = EXT_COLOR[rawExt] || '#8b91a3';
 
-        const row = document.createElement('article');
-        row.className = 'entry p-4 rounded-lg bg-[#16212e] border border-[#223245]';
+        const row = document.createElement('div');
+        row.className = 'entry';
         row.setAttribute('data-name', (data.name + ' ' + ownerEmail).toLowerCase());
         row.innerHTML = `
-          <div class="flex items-start justify-between gap-3">
-            <div class="flex items-start gap-3 min-w-0">
-              <div class="p-2.5 rounded-lg shrink-0" style="background:${color}22; color:${color}">${fileIconSvg()}</div>
-              <div class="min-w-0">
-                <h3 class="text-sm font-semibold text-slate-100 truncate max-w-[280px]" title="${safeName}">${data.name}</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Pemilik: ${ownerEmail}</p>
-                <p class="text-xs text-slate-500 mt-0.5">${data.note ? 'Catatan: ' + data.note : 'Tanpa catatan revisi.'}</p>
-              </div>
-            </div>
-            <span class="text-[11px] text-slate-500 whitespace-nowrap">${timeStr}</span>
+          <div class="entry-top">
+            <div class="entry-name" title="${safeName}"><span class="ext-dot" style="background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>${data.name}</div>
+            <div class="entry-time">${timeStr}</div>
           </div>
-          <div class="flex items-center gap-2 mt-3">
-            <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
-            <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
-          </div>`;
+          <div class="entry-note filled" style="margin-bottom:2px;">Pemilik: ${ownerEmail}</div>
+          <div class="entry-note ${data.note ? 'filled' : ''}">${data.note ? data.note : 'Tanpa catatan revisi.'}</div>
+          <div class="entry-actions">
+            <button class="btn btn-primary btn-sm" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
+          </div>
+        `;
         list.appendChild(row);
       }
       filterAdminRecords();
-    }, (err) => { list.innerHTML = '<p class="text-sm text-rose-400">Gagal memuat: ' + err.message + '</p>'; });
+    }, (err) => { list.innerHTML = '<p class="msg error">Gagal memuat: ' + err.message + '</p>'; });
   }
 
   function filterAdminRecords() {
@@ -1178,7 +1075,7 @@
         if (snapshot.size > 0) { badge.textContent = snapshot.size; badge.classList.remove('hidden'); }
         else { badge.classList.add('hidden'); }
       }
-      if (snapshot.empty) { list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Belum ada catatan revisi.</p>'; return; }
+      if (snapshot.empty) { list.innerHTML = '<p class="empty">Belum ada catatan revisi.</p>'; return; }
       const notes = [];
       snapshot.forEach(d => notes.push({ id: d.id, data: d.data() }));
       notes.sort((a,b) => b.data.createdAt - a.data.createdAt);
@@ -1187,19 +1084,19 @@
       notes.forEach(({ id, data }) => {
         const dt = new Date(data.createdAt);
         const timeStr = `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()} · ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
-        const row = document.createElement('article');
-        row.className = 'bg-[#0f1523] border border-[#1e2a3e] rounded-lg p-3.5 space-y-2 hover:border-[#273752] transition';
+        const row = document.createElement('div');
+        row.className = 'entry';
         row.innerHTML = `
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] text-slate-400 font-mono tracking-tight">${timeStr}</span>
-            <button class="px-2 py-0.5 text-[11px] text-rose-300 bg-rose-950/30 hover:bg-rose-900/50 border border-rose-900/40 rounded transition" onclick="deleteRevisionNote('${id}')">Hapus</button>
+          <div class="entry-top">
+            <div class="entry-time">${timeStr}</div>
+            <button class="btn btn-danger btn-sm" onclick="deleteRevisionNote('${id}')">Hapus</button>
           </div>
-          <p class="text-xs text-slate-200 leading-relaxed">${data.text}</p>
-          ${data.fileId ? `<button class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-brand-teal hover:underline" onclick="jumpToFile('${data.fileId}')">📄 ${data.fileName}</button>` : ''}
+          <div class="entry-note filled" style="margin-bottom:0;">${data.text}</div>
+          ${data.fileId ? `<button class="entry-link-file" onclick="jumpToFile('${data.fileId}')">📄 ${data.fileName}</button>` : ''}
         `;
         list.appendChild(row);
       });
-    }, (err) => { list.innerHTML = '<p class="text-sm text-rose-400">Gagal memuat: ' + err.message + '</p>'; });
+    }, (err) => { list.innerHTML = '<p class="msg error">Gagal memuat: ' + err.message + '</p>'; });
   }
 
   function deleteRevisionNote(id) {
@@ -1215,7 +1112,7 @@
       const card = document.getElementById('file-card-' + fileId);
       if (!card) { notifyFeedback('Berkas terkait sudah tidak ada.', 'info'); return; }
       card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      card.style.outline = '2px solid #00e5c9';
+      card.style.outline = '2px solid var(--accent)';
       setTimeout(() => { card.style.outline = 'none'; }, 2000);
     }, 80);
   }
@@ -1224,67 +1121,10 @@
   function notifyFeedback(message, type) {
     const toast = document.getElementById('toast-notification');
     document.getElementById('toast-message').textContent = message;
-    toast.style.borderColor = type === 'error' ? '#f87171' : '#1e293b';
+    toast.style.borderColor = type === 'error' ? 'var(--danger)' : 'var(--border)';
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3200);
   }
-
-  // ---------- Drag & drop ----------
-  function setupDropzone(zoneEl, onDrop, opts) {
-    if (!zoneEl) return;
-    const options = opts || {};
-    let dragCounter = 0;
-    ['dragenter','dragover','dragleave','drop'].forEach(evt => {
-      zoneEl.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); });
-    });
-    zoneEl.addEventListener('dragenter', () => {
-      dragCounter++;
-      if (options.onEnter) options.onEnter();
-    });
-    zoneEl.addEventListener('dragover', () => {
-      if (options.onEnter) options.onEnter();
-    });
-    zoneEl.addEventListener('dragleave', () => {
-      dragCounter = Math.max(0, dragCounter - 1);
-      if (dragCounter === 0 && options.onLeave) options.onLeave();
-    });
-    zoneEl.addEventListener('drop', (e) => {
-      dragCounter = 0;
-      if (options.onLeave) options.onLeave();
-      const files = e.dataTransfer && e.dataTransfer.files;
-      if (files && files.length) onDrop(files[0]);
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    // default chip class
-    document.querySelectorAll('#filter-chip-group .chip').forEach(c => {
-      c.className = c.getAttribute('data-filter') === 'ALL' ? CHIP_ACTIVE : CHIP_INACTIVE;
-    });
-
-    // Tab 1: Upload & Riwayat dropzone
-    const uploadZone = document.getElementById('upload-dropzone');
-    const uploadZoneDefault = 'w-full border-2 border-dashed border-brand-border rounded-lg px-4 py-6 mb-4 flex flex-col items-center justify-center text-center gap-2 cursor-pointer transition hover:border-brand-teal/60 hover:bg-brand-teal/5';
-    const uploadZoneActive = 'w-full border-2 border-dashed border-brand-teal bg-brand-teal/10 rounded-lg px-4 py-6 mb-4 flex flex-col items-center justify-center text-center gap-2 cursor-pointer transition';
-    setupDropzone(uploadZone, (file) => stageFile(file), {
-      onEnter: () => { if (uploadZone) uploadZone.className = uploadZoneActive; },
-      onLeave: () => { if (uploadZone) uploadZone.className = uploadZoneDefault; }
-    });
-
-    // Tab 3: Daftar Pustaka dropzone
-    const libZone = document.getElementById('library-dropzone');
-    const libOverlay = document.getElementById('library-dropzone-overlay');
-    setupDropzone(libZone, (file) => uploadLibraryFileObject(file), {
-      onEnter: () => {
-        if (libZone) libZone.className = 'relative bg-brand-card rounded-2xl border-2 border-dashed border-brand-teal overflow-hidden shadow-xl transition';
-        if (libOverlay) libOverlay.classList.remove('hidden');
-      },
-      onLeave: () => {
-        if (libZone) libZone.className = 'relative bg-brand-card rounded-2xl border-2 border-dashed border-transparent overflow-hidden shadow-xl transition';
-        if (libOverlay) libOverlay.classList.add('hidden');
-      }
-    });
-  });
 
   renderSharedViewer();
 </script>
