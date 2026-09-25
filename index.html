@@ -46,6 +46,8 @@
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   #viewer-preview-area img { max-width: 100%; display: block; margin: 0 auto; border-radius: 8px; }
   #viewer-preview-area iframe { width: 100%; height: 70vh; border: none; border-radius: 8px; background: #fff; }
+  #preview-modal-body img { max-width: 100%; max-height: 75vh; display: block; margin: 0 auto; border-radius: 8px; }
+  #preview-modal-body iframe { width: 100%; height: 70vh; border: none; border-radius: 8px; background: #fff; }
 </style>
 </head>
 <body class="bg-brand-dark text-slate-200 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-teal selection:text-slate-900">
@@ -385,6 +387,24 @@
     <div class="flex items-center justify-end gap-2">
       <button onclick="closeDeleteModal()" class="px-4 py-2 rounded-md bg-brand-panel hover:bg-slate-800 border border-brand-border text-slate-300 text-xs font-medium transition">Batal</button>
       <button id="modal-confirm-delete-btn" class="px-4 py-2 rounded-md bg-rose-950/60 hover:bg-rose-900 text-rose-300 hover:text-rose-100 border border-rose-900/60 text-xs font-medium transition">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FILE PREVIEW MODAL ===== -->
+<div id="preview-modal" class="hidden fixed inset-0 bg-black/70 z-[160] flex items-center justify-center p-4 sm:p-8" onclick="if(event.target===this) closePreviewModal()">
+  <div class="bg-brand-card border border-brand-border rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+    <div class="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-brand-border shrink-0">
+      <h3 id="preview-modal-filename" class="text-sm font-semibold text-white truncate">Nama Berkas</h3>
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="preview-modal-download-btn" class="px-3 py-1.5 rounded-md text-xs font-bold bg-brand-teal hover:bg-brand-tealLight text-[#06181e] transition">Unduh</button>
+        <button onclick="closePreviewModal()" class="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Tutup">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="preview-modal-body" class="flex-1 overflow-auto bg-brand-panel p-3 flex items-center justify-center min-h-[240px]">
+      <p class="text-sm text-slate-500 italic">Memuat pratinjau...</p>
     </div>
   </div>
 </div>
@@ -761,6 +781,40 @@
       });
   };
 
+  function buildPreviewMarkup(url, name) {
+    const ext = (name.split('.').pop() || '').toUpperCase();
+    const office = ['DOC','DOCX','PPT','PPTX','XLS','XLSX'];
+    const img = ['PNG','JPG','JPEG','GIF','WEBP'];
+    if (img.includes(ext)) return `<img src="${url}">`;
+    if (ext === 'PDF') return `<iframe src="${url}"></iframe>`;
+    if (office.includes(ext)) return `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}"></iframe>`;
+    return '<p class="text-sm text-slate-500 italic">Pratinjau tidak didukung untuk tipe berkas ini. Unduh untuk melihat isinya.</p>';
+  }
+
+  window.openFilePreview = function(url, name) {
+    const modal = document.getElementById('preview-modal');
+    const body = document.getElementById('preview-modal-body');
+    document.getElementById('preview-modal-filename').textContent = name;
+    body.innerHTML = '<p class="text-sm text-slate-500 italic">Memuat pratinjau...</p>';
+    modal.classList.remove('hidden');
+    document.getElementById('preview-modal-download-btn').onclick = () => downloadFile(url, name);
+    // slight delay so the modal paints before heavier content (iframe/img) loads
+    setTimeout(() => { body.innerHTML = buildPreviewMarkup(url, name); }, 30);
+  };
+
+  function closePreviewModal() {
+    const modal = document.getElementById('preview-modal');
+    modal.classList.add('hidden');
+    document.getElementById('preview-modal-body').innerHTML = '';
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('preview-modal');
+      if (modal && !modal.classList.contains('hidden')) closePreviewModal();
+    }
+  });
+
   function renderSharedViewer() {
     const params = new URLSearchParams(location.search);
     if (params.get('view') !== '1') return;
@@ -771,21 +825,7 @@
     document.getElementById('main-app').style.display = 'none';
     document.getElementById('viewer-page').classList.remove('hidden');
     document.getElementById('viewer-filename').textContent = name;
-
-    const ext = (name.split('.').pop() || '').toUpperCase();
-    const area = document.getElementById('viewer-preview-area');
-    const office = ['DOC','DOCX','PPT','PPTX','XLS','XLSX'];
-    const img = ['PNG','JPG','JPEG','GIF','WEBP'];
-
-    if (img.includes(ext)) {
-      area.innerHTML = `<img src="${url}">`;
-    } else if (ext === 'PDF') {
-      area.innerHTML = `<iframe src="${url}"></iframe>`;
-    } else if (office.includes(ext)) {
-      area.innerHTML = `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}"></iframe>`;
-    } else {
-      area.innerHTML = '<p class="text-sm text-slate-500 italic">Pratinjau tidak didukung. Unduh untuk melihat isinya.</p>';
-    }
+    document.getElementById('viewer-preview-area').innerHTML = buildPreviewMarkup(url, name);
     document.getElementById('viewer-download-btn').onclick = () => downloadFile(url, name);
   }
 
@@ -1064,11 +1104,12 @@
         return `<tr class="hover:bg-slate-900/40 transition">
             <td class="px-4 py-3 text-slate-200 font-medium flex items-center gap-2">
               <span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>
-              <span class="truncate max-w-[220px]" title="${safeName}">${data.name}</span>
+              <span class="truncate max-w-[220px] cursor-pointer hover:text-brand-teal transition" title="Klik untuk pratinjau · ${safeName}" onclick="openFilePreview('${data.url}', '${safeName}')">${data.name}</span>
             </td>
             <td class="px-4 py-3 text-slate-400">${data.size || ''}</td>
             <td class="px-4 py-3 text-slate-400">${dateStr}</td>
             <td class="px-4 py-3 text-right whitespace-nowrap">
+              <button class="text-slate-300 hover:text-white hover:underline mr-3" onclick="openFilePreview('${data.url}', '${safeName}')">Pratinjau</button>
               <button class="text-brand-teal hover:underline mr-3" onclick="downloadFile('${data.url}', '${safeName}')">Unduh</button>
               <button class="text-cyan-400 hover:underline mr-3" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
               <button class="text-red-400 hover:underline" onclick="deleteLibraryItem('${id}','file','${safeName}')">Hapus</button>
@@ -1080,12 +1121,13 @@
       gridWrap.innerHTML = sorted.map(({ id, data }) => {
         const { rawExt, safeName, dateStr } = libraryFileRowHtml(id, data);
         return `<div class="bg-[#111928] border border-brand-border rounded-xl p-4 flex flex-col gap-2">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 cursor-pointer group" onclick="openFilePreview('${data.url}', '${safeName}')">
               <span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>
-              <span class="text-slate-200 font-medium text-sm truncate" title="${safeName}">${data.name}</span>
+              <span class="text-slate-200 font-medium text-sm truncate group-hover:text-brand-teal transition" title="Klik untuk pratinjau · ${safeName}">${data.name}</span>
             </div>
             <div class="text-[11px] text-slate-500">${data.size || ''} · ${dateStr}</div>
-            <div class="flex items-center gap-3 text-[11px] mt-1">
+            <div class="flex items-center gap-3 text-[11px] mt-1 flex-wrap">
+              <button class="text-slate-300 hover:text-white hover:underline" onclick="openFilePreview('${data.url}', '${safeName}')">Pratinjau</button>
               <button class="text-brand-teal hover:underline" onclick="downloadFile('${data.url}', '${safeName}')">Unduh</button>
               <button class="text-cyan-400 hover:underline" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
               <button class="text-red-400 hover:underline" onclick="deleteLibraryItem('${id}','file','${safeName}')">Hapus</button>
