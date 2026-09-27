@@ -134,7 +134,9 @@
     </div>
 
     <!-- ===== TAB 1: UPLOAD & RIWAYAT ===== -->
-    <div id="tab-content-upload" class="hidden max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <div id="tab-content-upload" class="hidden max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+    <div class="space-y-6">
 
       <section class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg shadow-black/20">
         <div class="flex items-start justify-between mb-2">
@@ -158,6 +160,9 @@
         <button onclick="submitQuickNote()" class="px-5 py-2 rounded-md bg-brand-teal hover:bg-brand-tealLight text-slate-950 font-bold text-xs tracking-wide transition glow-teal-sm">Submit</button>
         <div id="quicknote-list" class="mt-5 space-y-2 max-h-64 overflow-y-auto pr-1"></div>
       </section>
+
+    </div>
+    <div class="space-y-6">
 
       <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
         <h2 class="text-base font-semibold text-white mb-5">Unggah Berkas</h2>
@@ -215,6 +220,9 @@
           <div id="ledger-records-list"><p class="text-center text-sm text-slate-500 italic py-6">Memuat riwayat...</p></div>
         </div>
       </section>
+
+    </div>
+    </div>
     </div>
 
     <!-- ===== TAB 2: CATATAN REVISI ===== -->
