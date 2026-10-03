@@ -151,6 +151,27 @@
         </div>
       </section>
 
+      <!-- ===== DASHBOARD RINGKASAN ===== -->
+      <section id="dashboard-summary" class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg shadow-black/20">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-semibold text-white">Dashboard TA</h2>
+            <p class="text-xs text-slate-500 mt-1">Ringkasan status dokumen dan progres pengerjaan.</p>
+          </div>
+          <span id="dashboard-last-update" class="text-[10px] text-slate-500 font-mono">Belum ada data</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Total Berkas</p><p id="dash-total" class="text-xl font-bold text-white mt-1">0</p></div>
+          <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Revisi</p><p id="dash-revisi" class="text-xl font-bold text-amber-300 mt-1">0</p></div>
+          <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Selesai</p><p id="dash-selesai" class="text-xl font-bold text-emerald-300 mt-1">0</p></div>
+          <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Bab Terisi</p><p id="dash-bab" class="text-xl font-bold text-brand-teal mt-1">0</p></div>
+        </div>
+        <div class="mt-4">
+          <div class="flex items-center justify-between text-[11px] mb-1.5"><span class="text-slate-400">Penyelesaian dokumen</span><span id="dash-progress-label" class="text-slate-300">0%</span></div>
+          <div class="w-full bg-[#1a2533] rounded-full h-1.5 overflow-hidden"><div id="dash-progress-fill" class="bg-brand-teal h-full rounded-full transition-all duration-500" style="width:0%"></div></div>
+        </div>
+      </section>
+
       <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-base font-semibold text-white">Catatan Bimbingan</h2>
@@ -175,6 +196,20 @@
         </div>
         <div id="quicknote-upload-status" class="text-xs text-slate-400 mt-2"></div>
         <div id="quicknote-list" class="mt-5 space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+      </section>
+
+      <!-- ===== TIMELINE BIMBINGAN ===== -->
+      <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-semibold text-white">Timeline Bimbingan</h2>
+            <p class="text-xs text-slate-500 mt-1">Aktivitas terbaru dari upload dan catatan revisi.</p>
+          </div>
+          <span id="timeline-count" class="text-[10px] text-slate-500 font-mono">0 aktivitas</span>
+        </div>
+        <div id="activity-timeline" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+          <p class="text-center text-xs text-slate-500 italic py-5">Belum ada aktivitas.</p>
+        </div>
       </section>
 
     </div>
@@ -204,6 +239,20 @@
           </select>
           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">Bab / Bagian</label>
+            <select id="file-bab-select" class="w-full bg-white text-slate-800 text-sm font-medium rounded-md px-3.5 py-2.5 appearance-none focus:outline-none focus:ring-2 focus:ring-brand-teal border-0 cursor-pointer">
+              <option value="Umum">Umum</option><option value="Bab I">Bab I</option><option value="Bab II">Bab II</option><option value="Bab III">Bab III</option><option value="Bab IV">Bab IV</option><option value="Bab V">Bab V</option><option value="Bab VI">Bab VI</option><option value="Lampiran">Lampiran</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">Status</label>
+            <select id="file-status-select" class="w-full bg-white text-slate-800 text-sm font-medium rounded-md px-3.5 py-2.5 appearance-none focus:outline-none focus:ring-2 focus:ring-brand-teal border-0 cursor-pointer">
+              <option value="Draft">Draft</option><option value="Menunggu Review">Menunggu Review</option><option value="Revisi">Revisi</option><option value="Selesai">Selesai</option>
+            </select>
           </div>
         </div>
         <label class="block text-xs font-medium text-slate-400 mb-1.5">Catatan Revisi (opsional)</label>
@@ -462,6 +511,7 @@
   let unsubscribeAdmin = null;
   let hasUnsavedDraft = false;
   let revisionTarget = 5;
+  let userRevisionNotes = [];
   let currentLibraryFolder = null;
   let libraryPath = [{ id: null, name: 'Daftar Pustaka' }];
   let unsubscribeLibrary = null;
@@ -610,6 +660,7 @@
       isAdmin = false;
       adminBtn.classList.add('hidden');
       userFiles = [];
+      userRevisionNotes = [];
       revisionTarget = 5;
       updateProgressBimbingan();
     }
@@ -721,6 +772,8 @@
       const notes = [];
       snapshot.forEach(d => notes.push({ id: d.id, data: d.data() }));
       notes.sort((a,b) => b.data.createdAt - a.data.createdAt);
+      userRevisionNotes = notes;
+      renderActivityTimeline();
       list.innerHTML = notes.map(({ id, data }) => {
         const dt = new Date(data.createdAt);
         const timeStr = `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()} · ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
@@ -822,6 +875,10 @@
 
   function resetUploadForm() {
     document.getElementById('revision-notes').value = '';
+    const bab = document.getElementById('file-bab-select');
+    const status = document.getElementById('file-status-select');
+    if (bab) bab.value = 'Umum';
+    if (status) status.value = 'Draft';
     document.getElementById('file-selector').value = '';
     stagedFiles = [];
     renderStagedFileList();
@@ -852,6 +909,8 @@
     if (!stagedFiles.length) { notifyFeedback('Pilih berkas dulu.', 'error'); return; }
     const notes = document.getElementById('revision-notes').value.trim();
     const category = document.getElementById('file-category-select').value;
+    const bab = document.getElementById('file-bab-select').value;
+    const status = document.getElementById('file-status-select').value;
     const wrap = document.getElementById('progress-bar-wrap');
     const bar = document.getElementById('progress-bar');
     const msg = document.getElementById('upload-msg');
@@ -859,6 +918,11 @@
 
     const total = stagedFiles.length;
     const queue = [...stagedFiles];
+    const versionCounters = {};
+    userFiles.forEach(x => {
+      const n = (x.data.name || '').replace(/\.[^.]+$/, '').trim().toLowerCase();
+      versionCounters[n] = (versionCounters[n] || 0) + 1;
+    });
     let done = 0, failed = 0;
 
     for (const file of queue) {
@@ -869,8 +933,11 @@
         });
         const ext = file.name.split('.').pop().toUpperCase();
         const sizeLabel = (file.size / (1024*1024)).toFixed(1) + ' MB';
+        const baseName = file.name.replace(/\.[^.]+$/, '').trim().toLowerCase();
+        versionCounters[baseName] = (versionCounters[baseName] || 0) + 1;
+        const version = versionCounters[baseName];
         await window.fb.addDoc(window.fb.collection(window.fb.db, 'files'), {
-          owner: currentUser.uid, name: file.name, ext, size: sizeLabel, category,
+          owner: currentUser.uid, name: file.name, ext, size: sizeLabel, category, bab, status, version,
           url: data.secure_url, publicId: data.public_id, note: notes, createdAt: Date.now()
         });
       } catch (e) {
@@ -982,12 +1049,14 @@
     const q = window.fb.query(window.fb.collection(window.fb.db, 'files'), window.fb.where('owner','==',uid));
     unsubscribeLedger = window.fb.onSnapshot(q, (snapshot) => {
       if (!currentUser || currentUser.uid !== uid) return;
-      if (snapshot.empty) { list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Belum ada berkas.</p>'; userFiles = []; updateProgressBimbingan(); return; }
+      if (snapshot.empty) { list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Belum ada berkas.</p>'; userFiles = []; updateProgressBimbingan(); updateDashboardSummary(); renderActivityTimeline(); return; }
       const docs = [];
       snapshot.forEach(d => docs.push({ id: d.id, data: d.data() }));
       docs.sort((a,b) => b.data.createdAt - a.data.createdAt);
       userFiles = docs;
       updateProgressBimbingan();
+      updateDashboardSummary();
+      renderActivityTimeline();
       if (!document.getElementById('tab-content-notes').classList.contains('hidden')) populateNoteFileSelect();
 
       list.innerHTML = '';
@@ -1000,7 +1069,11 @@
         const dlName = buildDownloadName(data.name, data.createdAt);
         const safeName = data.name.replace(/'/g, "\\'");
         const category = data.category || 'utama';
+        const bab = data.bab || 'Umum';
+        const status = data.status || 'Draft';
+        const version = data.version || 1;
         const color = EXT_COLOR[rawExt] || '#8b91a3';
+        const statusClass = status === 'Selesai' ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20' : status === 'Revisi' ? 'text-amber-300 bg-amber-500/10 border-amber-500/20' : status === 'Menunggu Review' ? 'text-blue-300 bg-blue-500/10 border-blue-500/20' : 'text-slate-300 bg-slate-500/10 border-slate-500/20';
         const catBadge = category === 'sampingan'
           ? '<span class="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-semibold border border-blue-500/20">Sampingan</span>'
           : '<span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">Utama</span>';
@@ -1012,6 +1085,8 @@
         card.setAttribute('data-name', data.name);
         card.setAttribute('data-note', (data.note || '').toLowerCase());
         card.setAttribute('data-category', category);
+        card.setAttribute('data-status', status);
+        card.setAttribute('data-bab', bab);
         card.innerHTML = `
           <div class="flex items-start gap-3 min-w-0">
             <div class="p-2.5 rounded-lg shrink-0" style="background:${color}22; color:${color}">${fileIconSvg()}</div>
@@ -1019,14 +1094,22 @@
               <div class="flex items-center gap-2 flex-wrap">
                 <h3 class="text-sm font-semibold text-slate-100 break-words" title="${safeName}">${data.name}</h3>
                 ${catBadge}
+                <span class="text-[10px] px-2 py-0.5 rounded border ${statusClass} font-semibold">${status}</span>
               </div>
-              <p class="text-xs text-slate-400 mt-0.5 break-words whitespace-pre-wrap">${data.note ? 'Catatan: ' + data.note.replace(/</g,'&lt;') : 'Tanpa catatan revisi.'}</p>
+              <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                <span class="text-[10px] px-2 py-0.5 rounded bg-brand-teal/10 text-brand-teal border border-brand-teal/20 font-semibold">${bab}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 font-semibold">v${version}</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1.5 break-words whitespace-pre-wrap">${data.note ? 'Catatan: ' + data.note.replace(/</g,'&lt;') : 'Tanpa catatan revisi.'}</p>
               <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-1.5 font-medium">
                 <span>${data.size || ''}</span><span>•</span><span>Diunggah ${timeStr}</span>
               </div>
             </div>
           </div>
-          <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+          <div class="flex items-center gap-2 self-end sm:self-center shrink-0 flex-wrap justify-end">
+            <select class="text-[11px] bg-[#0f1826] text-slate-300 border border-[#26374c] rounded-md px-2 py-1.5" onchange="updateFileStatus('${id}', this.value)">
+              ${['Draft','Menunggu Review','Revisi','Selesai'].map(st => `<option value="${st}" ${status === st ? 'selected' : ''}>${st}</option>`).join('')}
+            </select>
             <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
             <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
             <button class="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Hapus Berkas" onclick="confirmDeleteLedgerRecord('${id}', '${safeName}')">
@@ -1040,6 +1123,45 @@
       if (countLabel) countLabel.textContent = docs.length + ' berkas total';
       filterLedgerRecords();
     }, (err) => { list.innerHTML = '<p class="text-sm text-rose-400">Gagal memuat: ' + err.message + '</p>'; });
+  }
+
+  function updateDashboardSummary() {
+    const total = userFiles.length;
+    const revisi = userFiles.filter(x => (x.data.status || 'Draft') === 'Revisi').length;
+    const selesai = userFiles.filter(x => (x.data.status || 'Draft') === 'Selesai').length;
+    const babSet = new Set(userFiles.map(x => x.data.bab || 'Umum').filter(b => b !== 'Umum'));
+    const pct = total ? Math.round((selesai / total) * 100) : 0;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set('dash-total', total); set('dash-revisi', revisi); set('dash-selesai', selesai); set('dash-bab', babSet.size);
+    set('dash-progress-label', pct + '%');
+    const fill = document.getElementById('dash-progress-fill'); if (fill) fill.style.width = pct + '%';
+    const last = userFiles[0]?.data?.createdAt;
+    set('dashboard-last-update', last ? new Date(last).toLocaleDateString('id-ID') : 'Belum ada data');
+  }
+
+  async function updateFileStatus(id, status) {
+    if (!currentUser) return;
+    try {
+      await window.fb.updateDoc(window.fb.doc(window.fb.db, 'files', id), { status, statusUpdatedAt: Date.now() });
+      notifyFeedback('Status berkas diperbarui.', 'success');
+    } catch (e) { notifyFeedback('Gagal memperbarui status: ' + e.message, 'error'); }
+  }
+
+  function renderActivityTimeline() {
+    const el = document.getElementById('activity-timeline');
+    const countEl = document.getElementById('timeline-count');
+    if (!el) return;
+    const activities = [];
+    userFiles.slice(0, 20).forEach(({data}) => activities.push({time:data.createdAt, icon:'📄', title:'Berkas diunggah', text:data.name, meta:`${data.bab || 'Umum'} · v${data.version || 1} · ${data.status || 'Draft'}`}));
+    userRevisionNotes.slice(0, 20).forEach(({data}) => activities.push({time:data.createdAt, icon:'📝', title:'Catatan revisi', text:data.text, meta:data.fileName || 'Tanpa berkas'}));
+    activities.sort((a,b)=>b.time-a.time);
+    if (countEl) countEl.textContent = activities.length + ' aktivitas';
+    if (!activities.length) { el.innerHTML = '<p class="text-center text-xs text-slate-500 italic py-5">Belum ada aktivitas.</p>'; return; }
+    el.innerHTML = activities.slice(0, 12).map(a => {
+      const d = new Date(a.time);
+      const t = `${d.getDate()} ${MONTHS_ID[d.getMonth()]} ${d.getFullYear()} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      return `<div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-brand-teal/10 border border-brand-teal/20 flex items-center justify-center shrink-0">${a.icon}</div><div class="min-w-0 flex-1"><div class="flex items-center justify-between gap-2"><p class="text-xs font-semibold text-slate-200">${a.title}</p><span class="text-[10px] text-slate-600 font-mono shrink-0">${t}</span></div><p class="text-xs text-slate-400 mt-0.5 break-words">${String(a.text).replace(/</g,'&lt;')}</p><p class="text-[10px] text-slate-600 mt-0.5">${String(a.meta).replace(/</g,'&lt;')}</p></div></div>`;
+    }).join('');
   }
 
   function setFileFilter(ext, chipEl) {
@@ -1477,7 +1599,7 @@
         if (snapshot.size > 0) { badge.textContent = snapshot.size; badge.classList.remove('hidden'); }
         else { badge.classList.add('hidden'); }
       }
-      if (snapshot.empty) { list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Belum ada catatan revisi.</p>'; return; }
+      if (snapshot.empty) { userRevisionNotes = []; renderActivityTimeline(); list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Belum ada catatan revisi.</p>'; return; }
       const notes = [];
       snapshot.forEach(d => notes.push({ id: d.id, data: d.data() }));
       notes.sort((a,b) => b.data.createdAt - a.data.createdAt);
@@ -1595,7 +1717,7 @@
     signOut, onAuthStateChanged, sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
-    getFirestore, collection, addDoc, doc, setDoc, getDoc,
+    getFirestore, collection, addDoc, doc, setDoc, getDoc, updateDoc,
     query, where, onSnapshot, deleteDoc
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
@@ -1618,7 +1740,7 @@
   window.fb = {
     auth, db,
     createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail,
-    collection, addDoc, doc, setDoc, getDoc, query, where, onSnapshot, deleteDoc,
+    collection, addDoc, doc, setDoc, getDoc, updateDoc, query, where, onSnapshot, deleteDoc,
     CLOUD_NAME, UPLOAD_PRESET
   };
 
