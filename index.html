@@ -801,6 +801,13 @@
     const wrap = document.getElementById('side-admin-wrap');
     if (wrap && mainAdmin) wrap.classList.toggle('hidden', mainAdmin.classList.contains('hidden'));
   }
+
+  // Module-scope functions are not visible to inline onclick handlers.
+  // Keep the existing app architecture, but expose the sidebar entry points.
+  window.navigateWorkspace = navigateWorkspace;
+  window.toggleSyncTASidebar = toggleSyncTASidebar;
+  window.closeSyncTASidebar = closeSyncTASidebar;
+  window.setSideActive = setSideActive;
   // ---------- Class helpers ----------
   const TAB_ACTIVE = 'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-brand-teal text-slate-950 shadow-sm transition';
   const TAB_INACTIVE = 'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-[#161f30] border border-transparent hover:border-[#25324c] transition';
@@ -1404,9 +1411,19 @@
 
     const q = window.fb.query(window.fb.collection(window.fb.db, 'files'), window.fb.where('owner','==',uid));
     let firstSnapshotReceived = false;
+    // Keep the existing Firestore query/data model; this only gives the user
+    // a clear timeout diagnostic if Firestore never returns a snapshot.
+    const ledgerWatchdog = setTimeout(() => {
+      if (!firstSnapshotReceived && connection) {
+        connection.textContent = 'Firestore belum merespons';
+        connection.className = 'text-[10px] text-amber-300';
+      }
+    }, 10000);
 
     const renderDocs = (snapshot) => {
       if (!currentUser || currentUser.uid !== uid) return;
+      firstSnapshotReceived = true;
+      clearTimeout(ledgerWatchdog);
       const docs = [];
       snapshot.forEach(d => docs.push({ id:d.id, data:d.data() || {} }));
       docs.sort((a,b) => Number(b.data.createdAt || 0) - Number(a.data.createdAt || 0));
@@ -1488,6 +1505,7 @@
       firstSnapshotReceived = true;
       renderDocs(snapshot);
     }, (err) => {
+      clearTimeout(ledgerWatchdog);
       if (connection) { connection.textContent = 'Firestore error'; connection.className = 'text-[10px] text-rose-300'; }
       userFiles = [];
       const code = err && err.code ? err.code : 'unknown';
