@@ -153,6 +153,46 @@
   }
 </style>
 
+
+<style id="syncta-v7-hard-layout">
+  /* v7 owns workspace visibility with inline display values. */
+  #workspace-progress-column,
+  #workspace-documents-column { min-width:0; }
+
+  #workspace-progress-column.v7-hide,
+  #workspace-documents-column.v7-hide,
+  [data-workspace-section].v7-hide {
+    display:none !important;
+  }
+
+  #workspace-upload-grid.v7-dashboard,
+  #workspace-upload-grid.v7-progress {
+    grid-template-columns:minmax(0,1fr) !important;
+  }
+
+  #workspace-upload-grid.v7-documents {
+    grid-template-columns:minmax(0,1fr) !important;
+  }
+
+  #workspace-upload-grid.v7-documents #workspace-documents-column {
+    max-width:1100px;
+    width:100%;
+    margin:0 auto;
+  }
+
+  #workspace-upload-grid.v7-progress #workspace-progress-column {
+    max-width:1000px;
+    width:100%;
+    margin:0 auto;
+  }
+
+  #workspace-upload-grid.v7-dashboard #workspace-progress-column {
+    max-width:1000px;
+    width:100%;
+    margin:0 auto;
+  }
+</style>
+
 </head>
 <body class="bg-brand-dark text-slate-200 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-teal selection:text-slate-900">
 
@@ -714,51 +754,68 @@
 
   function setWorkspaceHeader(view) {
     const meta = WORKSPACE_META[view] || WORKSPACE_META.dashboard;
-    const t = document.getElementById('workspace-page-title');
-    const sub = document.getElementById('workspace-page-subtitle');
-    if (t) t.textContent = meta.title;
-    if (sub) sub.textContent = meta.subtitle;
+    const title = document.getElementById('workspace-page-title');
+    const subtitle = document.getElementById('workspace-page-subtitle');
+    if (title) title.textContent = meta.title;
+    if (subtitle) subtitle.textContent = meta.subtitle;
   }
 
-  function showWorkspaceElement(el, show) {
+  function v7Show(el, show) {
     if (!el) return;
-    el.classList.toggle('workspace-v5-hidden', !show);
+    el.classList.toggle('v7-hide', !show);
   }
 
   function setWorkspaceCards(group) {
-    const uploadGrid = document.getElementById('workspace-upload-grid');
+    const grid = document.getElementById('workspace-upload-grid');
     const progressCol = document.getElementById('workspace-progress-column');
     const docsCol = document.getElementById('workspace-documents-column');
-    if (!uploadGrid) return;
+    if (!grid) return;
 
-    // Remove stale v3 visibility flags first so v5 is the single authority.
-    uploadGrid.querySelectorAll('.workspace-hidden').forEach(el => el.classList.remove('workspace-hidden'));
-
-    const sections = uploadGrid.querySelectorAll('[data-workspace-section]');
-    sections.forEach(el => {
-      showWorkspaceElement(el, el.getAttribute('data-workspace-section') === group);
+    // Clear every older workspace visibility class first.
+    grid.classList.remove('v7-dashboard','v7-progress','v7-documents');
+    grid.querySelectorAll('.workspace-v5-hidden,.workspace-hidden').forEach(el => {
+      el.classList.remove('workspace-v5-hidden','workspace-hidden');
     });
 
-    const isDocuments = group === 'documents';
-    const isProgress = group === 'progress';
-    const isDashboard = group === 'dashboard';
+    const sections = Array.from(grid.querySelectorAll('[data-workspace-section]'));
 
-    showWorkspaceElement(progressCol, isProgress || isDashboard);
-    showWorkspaceElement(docsCol, isDocuments);
+    // Hard reset: hide every section, then show only the requested group.
+    sections.forEach(el => v7Show(el, false));
 
-    // Dashboard: only dashboard-summary.
-    // Progress: progress-related cards only.
-    // Documents: upload + ledger only.
-    if (isDashboard || isProgress) {
-      if (docsCol) docsCol.classList.add('workspace-v5-hidden');
+    if (group === 'dashboard') {
+      grid.classList.add('v7-dashboard');
+      v7Show(progressCol, true);
+      v7Show(docsCol, false);
+      const dashboard = document.getElementById('dashboard-summary');
+      v7Show(dashboard, true);
+    } else if (group === 'progress') {
+      grid.classList.add('v7-progress');
+      v7Show(progressCol, true);
+      v7Show(docsCol, false);
+      sections.filter(el => el.getAttribute('data-workspace-section') === 'progress')
+        .forEach(el => v7Show(el, true));
+    } else if (group === 'documents') {
+      grid.classList.add('v7-documents');
+      v7Show(progressCol, false);
+      v7Show(docsCol, true);
+      sections.filter(el => el.getAttribute('data-workspace-section') === 'documents')
+        .forEach(el => v7Show(el, true));
     }
-    if (isDocuments) {
-      if (progressCol) progressCol.classList.add('workspace-v5-hidden');
+
+    // Force display after every tab switch; this prevents the old Tailwind
+    // hidden/flex state from winning over the sidebar page state.
+    if (group === 'dashboard') {
+      progressCol.style.display = '';
+      docsCol.style.display = 'none';
+    } else if (group === 'progress') {
+      progressCol.style.display = '';
+      docsCol.style.display = 'none';
+    } else if (group === 'documents') {
+      progressCol.style.display = 'none';
+      docsCol.style.display = '';
     }
 
-    // On dashboard, center the one remaining card.
-    uploadGrid.style.gridTemplateColumns = (isDashboard || isProgress) ? 'minmax(0,1fr)' : '';
-    window.scrollTo({ top:0, behavior:'smooth' });
+    window.scrollTo({top:0, behavior:'smooth'});
   }
 
   function navigateWorkspace(view) {
@@ -771,6 +828,10 @@
 
     if (meta.group === 'library') {
       switchMainTab('library');
+      // Explicitly reload the library after the parent tab becomes visible.
+      setTimeout(() => {
+        if (currentUser && typeof loadLibrary === 'function') loadLibrary(currentUser.uid);
+      }, 0);
       return;
     }
 
@@ -784,15 +845,11 @@
       setTimeout(() => {
         const notes = document.getElementById('tab-content-notes');
         if (notes) notes.scrollIntoView({behavior:'smooth', block:'start'});
-      }, 30);
+      }, 20);
       return;
     }
 
     switchMainTab('upload');
-
-    // switchMainTab changes the parent visibility; v5 then deterministically
-    // controls every dashboard/progress/document child.
-    requestAnimationFrame(() => setWorkspaceCards(meta.group));
     setWorkspaceCards(meta.group);
   }
 
@@ -802,12 +859,34 @@
     if (wrap && mainAdmin) wrap.classList.toggle('hidden', mainAdmin.classList.contains('hidden'));
   }
 
-  // Module-scope functions are not visible to inline onclick handlers.
-  // Keep the existing app architecture, but expose the sidebar entry points.
+  // Inline onclick is unreliable across module scopes in some cached builds.
+  // Bind the sidebar directly as well, so the navigation works even if the
+  // global bridge from an earlier version is stale.
+  function bindSidebarNavigation() {
+    const map = {
+      'side-dashboard':'dashboard',
+      'side-documents':'documents',
+      'side-progress':'progress',
+      'side-bimbingan':'bimbingan',
+      'side-jadwal':'jadwal',
+      'side-library':'library',
+      'side-admin':'admin'
+    };
+    Object.entries(map).forEach(([id, view]) => {
+      const btn = document.getElementById(id);
+      if (!btn || btn.dataset.v7Bound === '1') return;
+      btn.dataset.v7Bound = '1';
+      btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        navigateWorkspace(view);
+      });
+    });
+  }
+
   window.navigateWorkspace = navigateWorkspace;
   window.toggleSyncTASidebar = toggleSyncTASidebar;
   window.closeSyncTASidebar = closeSyncTASidebar;
-  window.setSideActive = setSideActive;
   // ---------- Class helpers ----------
   const TAB_ACTIVE = 'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-brand-teal text-slate-950 shadow-sm transition';
   const TAB_INACTIVE = 'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-[#161f30] border border-transparent hover:border-[#25324c] transition';
@@ -950,6 +1029,7 @@
       headerName.textContent = user.email;
       const sidebarUser = document.getElementById('sidebar-user-name');
       if (sidebarUser) sidebarUser.textContent = user.email;
+      bindSidebarNavigation();
       navigateWorkspace('dashboard');
       setTimeout(() => setWorkspaceCards('dashboard'), 0);
       loadLedger(user.uid);
@@ -992,6 +1072,12 @@
 
   // Guard against stale/cached page state (e.g. browser back-forward cache)
   // showing a previous logged-in session's DOM after the user is actually logged out.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindSidebarNavigation, {once:true});
+  } else {
+    bindSidebarNavigation();
+  }
+
   window.addEventListener('pageshow', (event) => {
     if (event.persisted && window.fb && window.fb.auth) {
       window.onAuthChanged(window.fb.auth.currentUser || null);
@@ -1411,6 +1497,21 @@
 
     const q = window.fb.query(window.fb.collection(window.fb.db, 'files'), window.fb.where('owner','==',uid));
     let firstSnapshotReceived = false;
+    const ledgerFallbackTimer = setTimeout(async () => {
+      if (firstSnapshotReceived || !currentUser || currentUser.uid !== uid) return;
+      try {
+        const fallbackSnap = await window.fb.getDocs(q);
+        renderDocs(fallbackSnap);
+      } catch (fallbackErr) {
+        if (connection) {
+          connection.textContent = 'Firestore error';
+          connection.className = 'text-[10px] text-rose-300';
+        }
+        list.innerHTML = '<div class="rounded-lg border border-rose-900/50 bg-rose-950/20 p-4"><p class="text-sm font-semibold text-rose-300">Riwayat gagal dimuat.</p><p class="text-[11px] text-rose-300/80 mt-1 break-words">' +
+          String(fallbackErr?.message || 'Tidak dapat membaca koleksi files.').replace(/</g,'&lt;') +
+          '</p></div>';
+      }
+    }, 8000);
     // Keep the existing Firestore query/data model; this only gives the user
     // a clear timeout diagnostic if Firestore never returns a snapshot.
     const ledgerWatchdog = setTimeout(() => {
@@ -1424,6 +1525,7 @@
       if (!currentUser || currentUser.uid !== uid) return;
       firstSnapshotReceived = true;
       clearTimeout(ledgerWatchdog);
+      clearTimeout(ledgerFallbackTimer);
       const docs = [];
       snapshot.forEach(d => docs.push({ id:d.id, data:d.data() || {} }));
       docs.sort((a,b) => Number(b.data.createdAt || 0) - Number(a.data.createdAt || 0));
@@ -1506,6 +1608,7 @@
       renderDocs(snapshot);
     }, (err) => {
       clearTimeout(ledgerWatchdog);
+      clearTimeout(ledgerFallbackTimer);
       if (connection) { connection.textContent = 'Firestore error'; connection.className = 'text-[10px] text-rose-300'; }
       userFiles = [];
       const code = err && err.code ? err.code : 'unknown';
@@ -1865,31 +1968,48 @@
     const searchInput = document.getElementById('library-search-input');
     if (searchInput) searchInput.value = '';
     renderLibraryBreadcrumb();
-    document.getElementById('library-status-text').textContent = 'Memuat repositori...';
+    const statusEl = document.getElementById('library-status-text');
+    if (statusEl) statusEl.textContent = 'Memuat repositori...';
     if (unsubscribeLibrary) { unsubscribeLibrary(); unsubscribeLibrary = null; }
+
+    // Read all library records for this user, then treat a missing parentId as
+    // the root folder. This preserves older records that predate parentId.
     const q = window.fb.query(
       window.fb.collection(window.fb.db, 'library'),
-      window.fb.where('owner', '==', uid),
-      window.fb.where('parentId', '==', currentLibraryFolder)
+      window.fb.where('owner', '==', uid)
     );
+
     unsubscribeLibrary = window.fb.onSnapshot(q, (snapshot) => {
       if (!currentUser || currentUser.uid !== uid) return;
-      const items = [];
-      snapshot.forEach(d => items.push({ id: d.id, data: d.data() }));
+      const all = [];
+      snapshot.forEach(d => all.push({ id:d.id, data:d.data() || {} }));
+
+      const folderId = currentLibraryFolder == null ? null : currentLibraryFolder;
+      const items = all.filter(item => {
+        const p = item.data.parentId == null ? null : item.data.parentId;
+        return p === folderId;
+      });
+
       lastLibraryFolders = items.filter(i => i.data.type === 'folder');
       lastLibraryFiles = items.filter(i => i.data.type === 'file');
 
-      document.getElementById('library-summary-badge').textContent =
-        lastLibraryFolders.length + ' Direktori • ' + lastLibraryFiles.length + ' Berkas';
-      document.getElementById('library-status-text').textContent =
-        items.length === 0 ? 'Folder ini masih kosong.' : 'Menampilkan isi folder saat ini.';
-      document.getElementById('library-sidebar-root-count').textContent = lastLibraryFiles.length;
-      document.getElementById('library-sidebar-total').textContent = lastLibraryFiles.length + ' Berkas';
+      const badge = document.getElementById('library-summary-badge');
+      const status = document.getElementById('library-status-text');
+      const rootCount = document.getElementById('library-sidebar-root-count');
+      const total = document.getElementById('library-sidebar-total');
+
+      if (badge) badge.textContent = lastLibraryFolders.length + ' Direktori • ' + lastLibraryFiles.length + ' Berkas';
+      if (status) status.textContent = items.length === 0 ? 'Folder ini masih kosong.' : 'Menampilkan isi folder saat ini.';
+      if (rootCount) rootCount.textContent = lastLibraryFiles.length;
+      if (total) total.textContent = lastLibraryFiles.length + ' Berkas';
 
       renderLibraryFolders();
       renderLibraryFiles();
-    }, (err) => { document.getElementById('library-status-text').textContent = 'Gagal memuat: ' + err.message; });
+    }, (err) => {
+      if (statusEl) statusEl.textContent = 'Gagal memuat: ' + (err?.message || 'Firestore error');
+    });
   }
+
 
   async function deleteLibraryItem(id, type, name) {
     if (!currentUser) { notifyFeedback('Kamu belum login.', 'error'); return; }
