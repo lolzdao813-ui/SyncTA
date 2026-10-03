@@ -1154,7 +1154,7 @@
           : '<span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">Utama</span>';
 
         const card = document.createElement('article');
-        card.className = 'entry p-4 rounded-lg bg-[#16212e] border border-[#223245] flex flex-col sm:flex-row sm:items-start justify-between gap-3 hover:border-slate-600 transition';
+        card.className = 'entry p-4 rounded-lg bg-[#16212e] border border-[#223245] flex flex-col gap-3 hover:border-slate-600 transition';
         card.id = 'file-card-' + id;
         card.setAttribute('data-ext', dataExt);
         card.setAttribute('data-name', data.name);
@@ -1163,11 +1163,11 @@
         card.setAttribute('data-status', status);
         card.setAttribute('data-bab', bab);
         card.innerHTML = `
-          <div class="flex items-start gap-3 min-w-0">
+          <div class="flex items-start gap-3 w-full min-w-0">
             <div class="p-2.5 rounded-lg shrink-0" style="background:${color}22; color:${color}">${fileIconSvg()}</div>
-            <div class="min-w-0">
+            <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 flex-wrap min-w-0">
-                <h3 class="text-sm font-semibold text-slate-100 break-words flex-1 min-w-0" title="${safeName}">${data.name}</h3>
+                <h3 class="text-sm font-semibold text-slate-100 truncate max-w-full" title="${safeName}">${data.name}</h3>
                 ${catBadge}
                 <span class="text-[10px] px-2 py-0.5 rounded border ${statusClass} font-semibold">${status}</span>
               </div>
@@ -1183,7 +1183,7 @@
               </div>
             </div>
           </div>
-          <div class="flex items-center gap-2 self-end sm:self-center shrink-0 flex-wrap justify-end">
+          <div class="w-full flex items-center gap-2 flex-wrap justify-start sm:justify-end border-t border-[#223245] pt-3">
             <select class="text-[11px] bg-[#0f1826] text-slate-300 border border-[#26374c] rounded-md px-2 py-1.5" onchange="updateFileStatus('${id}', this.value)">
               ${['Draft','Menunggu Review','Revisi','Selesai'].map(st => `<option value="${st}" ${status === st ? 'selected' : ''}>${st}</option>`).join('')}
             </select>
@@ -1634,10 +1634,10 @@
         row.setAttribute('data-name', (data.name + ' ' + ownerEmail).toLowerCase());
         row.innerHTML = `
           <div class="flex items-start justify-between gap-3">
-            <div class="flex items-start gap-3 min-w-0">
+            <div class="flex items-start gap-3 w-full min-w-0">
               <div class="p-2.5 rounded-lg shrink-0" style="background:${color}22; color:${color}">${fileIconSvg()}</div>
               <div class="min-w-0">
-                <h3 class="text-sm font-semibold text-slate-100 break-words flex-1 min-w-0" title="${safeName}">${data.name}</h3>
+                <h3 class="text-sm font-semibold text-slate-100 break-words" title="${safeName}">${data.name}</h3>
                 <p class="text-xs text-slate-400 mt-0.5">Pemilik: ${ownerEmail}</p>
                 <p class="text-xs text-slate-500 mt-0.5">${data.note ? 'Catatan: ' + data.note : 'Tanpa catatan revisi.'}</p>
               </div>
