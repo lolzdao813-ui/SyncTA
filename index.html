@@ -48,6 +48,10 @@
   #viewer-preview-area iframe { width: 100%; height: 70vh; border: none; border-radius: 8px; background: #fff; }
   #library-preview-body img { max-width: 100%; max-height: 75vh; display: block; margin: 0 auto; border-radius: 8px; }
   #library-preview-body iframe { width: 100%; height: 70vh; border: none; border-radius: 8px; background: #fff; }
+  @media print {
+    body { background: #fff !important; color: #111827 !important; }
+    .no-print { display: none !important; }
+  }
 </style>
 </head>
 <body class="bg-brand-dark text-slate-200 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-teal selection:text-slate-900">
@@ -151,6 +155,43 @@
         </div>
       </section>
 
+      <!-- ===== DASHBOARD RINGKASAN ===== -->
+      <section id="dashboard-summary" class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg shadow-black/20">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-semibold text-white">Dashboard TA</h2>
+            <p class="text-xs text-slate-500 mt-1">Ringkasan status dokumen dan progres pengerjaan.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="dashboard-last-update" class="text-[10px] text-slate-500 font-mono hidden sm:inline">Belum ada data</span>
+            <button onclick="exportProgressReport()" class="px-3 py-1.5 rounded-md bg-brand-panel hover:bg-slate-800 border border-brand-border text-slate-300 hover:text-white text-[11px] font-semibold transition">Export Laporan</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Total Berkas</p><p id="dash-total" class="text-xl font-bold text-white mt-1">0</p></div>
+          <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Revisi</p><p id="dash-revisi" class="text-xl font-bold text-amber-300 mt-1">0</p></div>
+          <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Selesai</p><p id="dash-selesai" class="text-xl font-bold text-emerald-300 mt-1">0</p></div>
+          <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Bab Terisi</p><p id="dash-bab" class="text-xl font-bold text-brand-teal mt-1">0</p></div>
+        </div>
+        <div class="mt-4">
+          <div class="flex items-center justify-between text-[11px] mb-1.5"><span class="text-slate-400">Penyelesaian dokumen</span><span id="dash-progress-label" class="text-slate-300">0%</span></div>
+          <div class="w-full bg-[#1a2533] rounded-full h-1.5 overflow-hidden"><div id="dash-progress-fill" class="bg-brand-teal h-full rounded-full transition-all duration-500" style="width:0%"></div></div>
+        </div>
+      </section>
+
+      <!-- ===== CHECKLIST TA ===== -->
+      <section class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg shadow-black/20">
+        <div class="flex items-center justify-between mb-4 gap-3">
+          <div>
+            <h2 class="text-base font-semibold text-white">Checklist Progress TA</h2>
+            <p class="text-xs text-slate-500 mt-1">Checklist mengikuti tahapan pada rundown kampus.</p>
+          </div>
+          <span id="checklist-progress-label" class="text-[11px] font-semibold text-brand-teal">0%</span>
+        </div>
+        <div class="w-full bg-[#1a2533] rounded-full h-1.5 overflow-hidden mb-4"><div id="checklist-progress-fill" class="bg-brand-teal h-full rounded-full transition-all" style="width:0%"></div></div>
+        <div id="ta-checklist" class="space-y-2 max-h-[430px] overflow-y-auto pr-1"></div>
+      </section>
+
       <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-base font-semibold text-white">Catatan Bimbingan</h2>
@@ -175,6 +216,20 @@
         </div>
         <div id="quicknote-upload-status" class="text-xs text-slate-400 mt-2"></div>
         <div id="quicknote-list" class="mt-5 space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+      </section>
+
+      <!-- ===== TIMELINE BIMBINGAN ===== -->
+      <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-semibold text-white">Timeline Bimbingan</h2>
+            <p class="text-xs text-slate-500 mt-1">Aktivitas terbaru dari upload dan catatan revisi.</p>
+          </div>
+          <span id="timeline-count" class="text-[10px] text-slate-500 font-mono">0 aktivitas</span>
+        </div>
+        <div id="activity-timeline" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+          <p class="text-center text-xs text-slate-500 italic py-5">Belum ada aktivitas.</p>
+        </div>
       </section>
 
     </div>
@@ -204,6 +259,32 @@
           </select>
           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">Bab / Bagian</label>
+            <select id="file-bab-select" class="w-full bg-white text-slate-800 text-sm font-medium rounded-md px-3.5 py-2.5 appearance-none focus:outline-none focus:ring-2 focus:ring-brand-teal border-0 cursor-pointer">
+              <option value="Umum">Umum</option><option value="Bab I">Bab I</option><option value="Bab II">Bab II</option><option value="Bab III">Bab III</option><option value="Bab IV">Bab IV</option><option value="Bab V">Bab V</option><option value="Bab VI">Bab VI</option><option value="Lampiran">Lampiran</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">Status</label>
+            <select id="file-status-select" class="w-full bg-white text-slate-800 text-sm font-medium rounded-md px-3.5 py-2.5 appearance-none focus:outline-none focus:ring-2 focus:ring-brand-teal border-0 cursor-pointer">
+              <option value="Draft">Draft</option><option value="Menunggu Review">Menunggu Review</option><option value="Revisi">Revisi</option><option value="Selesai">Selesai</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">Deadline Revisi <span class="text-slate-600">(opsional)</span></label>
+            <input type="date" id="file-deadline-input" class="w-full bg-white text-slate-800 text-sm font-medium rounded-md px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-teal border-0">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">Prioritas</label>
+            <select id="file-priority-select" class="w-full bg-white text-slate-800 text-sm font-medium rounded-md px-3.5 py-2.5 appearance-none focus:outline-none focus:ring-2 focus:ring-brand-teal border-0 cursor-pointer">
+              <option value="Rendah">Rendah</option><option value="Sedang" selected>Sedang</option><option value="Tinggi">Tinggi</option>
+            </select>
           </div>
         </div>
         <label class="block text-xs font-medium text-slate-400 mb-1.5">Catatan Revisi (opsional)</label>
@@ -241,21 +322,50 @@
     </div>
     </div>
 
-    <!-- ===== TAB 2: CATATAN REVISI ===== -->
-    <div id="tab-content-notes" class="hidden max-w-2xl mx-auto px-4 py-8 space-y-6">
+    <!-- ===== TAB 2: JADWAL BIMBINGAN DOSPEM ===== -->
+    <div id="tab-content-notes" class="hidden max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <section class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg">
-        <h2 class="text-sm font-semibold text-white mb-4 tracking-wide">Tambah Catatan</h2>
-        <label class="block text-xs text-slate-400 mb-1.5">Tautkan ke berkas (opsional)</label>
-        <select id="note-file-select" class="w-full bg-white text-slate-800 text-xs rounded-md border-0 px-3 py-2.5 mb-4 focus:ring-2 focus:ring-brand-teal outline-none cursor-pointer">
-          <option value="">Tanpa tautan berkas</option>
-        </select>
-        <label class="block text-xs text-slate-400 mb-1.5">Catatan</label>
-        <textarea id="note-text-input" rows="3" placeholder="Tulis catatan revisi, saran pembimbing, atau to-do..." class="w-full bg-white text-slate-900 text-xs rounded-md border-0 p-3 mb-4 placeholder:text-slate-400 focus:ring-2 focus:ring-brand-teal outline-none resize-y"></textarea>
-        <button onclick="addRevisionNote()" class="px-4 py-2 bg-brand-teal hover:bg-brand-tealLight text-slate-950 font-bold text-xs rounded-md transition glow-teal-sm">Simpan Catatan</button>
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h2 class="text-sm font-semibold text-white tracking-wide">Jadwal Bimbingan Dospem</h2>
+            <p class="text-xs text-slate-500 mt-1">Rundown kampus menjadi acuan otomatis untuk tanggal/periode dan agenda bimbingan.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <label class="px-3 py-2 bg-brand-panel hover:bg-slate-800 border border-brand-border text-slate-300 text-xs font-medium rounded-md cursor-pointer transition">
+              Import PDF Rundown
+              <input id="rundown-pdf-input" type="file" accept="application/pdf" class="hidden" onchange="handleRundownPdfSelected(event)">
+            </label>
+            <button onclick="generateRundownSchedule()" class="px-3 py-2 bg-brand-teal hover:bg-brand-tealLight text-slate-950 font-bold text-xs rounded-md transition glow-teal-sm">Generate dari Rundown</button>
+          </div>
+        </div>
+        <div id="rundown-source-status" class="mt-4 p-3 rounded-lg bg-brand-panel border border-brand-border text-xs text-slate-400">
+          <span class="font-semibold text-slate-200">Rundown kampus aktif:</span> Timeline Pengerjaan Proposal Tugas Akhir — 21 September–26 Desember 2026.
+          <span class="block mt-1 text-slate-500">Sumber: Surat No. 009/SP/POL-WDR.I/IDN/IX/2026.</span>
+        </div>
+      </section>
+
+      <section class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg">
+        <div class="flex items-center justify-between mb-4 gap-3">
+          <div><h2 class="text-sm font-semibold text-white tracking-wide">Rundown Kampus</h2><p class="text-[11px] text-slate-500 mt-1">Agenda diambil dari timeline kampus. Tanggal ditampilkan sebagai periode agar tidak mengarang hari bimbingan.</p></div>
+          <span id="rundown-count" class="text-[11px] text-slate-500"></span>
+        </div>
+        <div id="rundown-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </section>
+
+      <section class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg">
+        <div class="flex items-center justify-between mb-4"><div><h2 class="text-sm font-semibold text-white tracking-wide">Jadwal Bimbingan Pribadi</h2><p class="text-[11px] text-slate-500 mt-1">Setelah memilih periode rundown, isi tanggal/jam bimbingan yang benar-benar disepakati dengan dospem.</p></div><span class="text-[11px] text-slate-500">Terbaru di atas</span></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div><label class="block text-xs text-slate-400 mb-1.5">Tanggal</label><input id="schedule-date" type="date" class="w-full bg-white text-slate-800 text-xs rounded-md border-0 px-3 py-2.5 focus:ring-2 focus:ring-brand-teal outline-none"></div>
+          <div><label class="block text-xs text-slate-400 mb-1.5">Jam</label><input id="schedule-time" type="time" class="w-full bg-white text-slate-800 text-xs rounded-md border-0 px-3 py-2.5 focus:ring-2 focus:ring-brand-teal outline-none"></div>
+          <div><label class="block text-xs text-slate-400 mb-1.5">Dosen Pembimbing</label><input id="schedule-dospem" type="text" placeholder="Nama dosen pembimbing" class="w-full bg-white text-slate-900 text-xs rounded-md border-0 px-3 py-2.5 placeholder:text-slate-400 focus:ring-2 focus:ring-brand-teal outline-none"></div>
+          <div><label class="block text-xs text-slate-400 mb-1.5">Tempat / Media</label><input id="schedule-place" type="text" placeholder="Kampus / Meet / dll." class="w-full bg-white text-slate-900 text-xs rounded-md border-0 px-3 py-2.5 placeholder:text-slate-400 focus:ring-2 focus:ring-brand-teal outline-none"></div>
+        </div>
+        <label class="block text-xs text-slate-400 mt-4 mb-1.5">Agenda Bimbingan</label>
+        <textarea id="schedule-note" rows="3" placeholder="Agenda akan terisi dari rundown jika memilih kartu di atas, lalu bisa kamu edit." class="w-full bg-white text-slate-900 text-xs rounded-md border-0 p-3 mb-4 placeholder:text-slate-400 focus:ring-2 focus:ring-brand-teal outline-none resize-y"></textarea>
+        <button onclick="addRevisionNote()" class="px-4 py-2 bg-brand-teal hover:bg-brand-tealLight text-slate-950 font-bold text-xs rounded-md transition glow-teal-sm">Simpan Jadwal</button>
       </section>
       <section class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg">
-        <h2 class="text-sm font-semibold text-white mb-4 tracking-wide">Semua Catatan</h2>
-        <div id="notes-list" class="space-y-3"><p class="text-center text-sm text-slate-500 italic py-6">Memuat catatan...</p></div>
+        <div id="notes-list" class="space-y-3"><p class="text-center text-sm text-slate-500 italic py-6">Memuat jadwal...</p></div>
       </section>
     </div>
 
@@ -462,6 +572,8 @@
   let unsubscribeAdmin = null;
   let hasUnsavedDraft = false;
   let revisionTarget = 5;
+  let userRevisionNotes = [];
+  let userChecklist = {};
   let currentLibraryFolder = null;
   let libraryPath = [{ id: null, name: 'Daftar Pustaka' }];
   let unsubscribeLibrary = null;
@@ -585,6 +697,7 @@
       loadLedger(user.uid);
       loadNotes(user.uid);
       loadQuickNotes(user.uid);
+      loadChecklist(user.uid);
       updateQuickNoteDateLabel();
       resetIdleTimer();
 
@@ -610,6 +723,9 @@
       isAdmin = false;
       adminBtn.classList.add('hidden');
       userFiles = [];
+      userRevisionNotes = [];
+      userChecklist = {};
+      renderChecklist();
       revisionTarget = 5;
       updateProgressBimbingan();
     }
@@ -721,6 +837,8 @@
       const notes = [];
       snapshot.forEach(d => notes.push({ id: d.id, data: d.data() }));
       notes.sort((a,b) => b.data.createdAt - a.data.createdAt);
+      userRevisionNotes = notes;
+      renderActivityTimeline();
       list.innerHTML = notes.map(({ id, data }) => {
         const dt = new Date(data.createdAt);
         const timeStr = `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()} · ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
@@ -822,6 +940,14 @@
 
   function resetUploadForm() {
     document.getElementById('revision-notes').value = '';
+    const bab = document.getElementById('file-bab-select');
+    const status = document.getElementById('file-status-select');
+    const deadline = document.getElementById('file-deadline-input');
+    const priority = document.getElementById('file-priority-select');
+    if (bab) bab.value = 'Umum';
+    if (status) status.value = 'Draft';
+    if (deadline) deadline.value = '';
+    if (priority) priority.value = 'Sedang';
     document.getElementById('file-selector').value = '';
     stagedFiles = [];
     renderStagedFileList();
@@ -852,6 +978,10 @@
     if (!stagedFiles.length) { notifyFeedback('Pilih berkas dulu.', 'error'); return; }
     const notes = document.getElementById('revision-notes').value.trim();
     const category = document.getElementById('file-category-select').value;
+    const bab = document.getElementById('file-bab-select').value;
+    const status = document.getElementById('file-status-select').value;
+    const deadline = document.getElementById('file-deadline-input').value || '';
+    const priority = document.getElementById('file-priority-select').value || 'Sedang';
     const wrap = document.getElementById('progress-bar-wrap');
     const bar = document.getElementById('progress-bar');
     const msg = document.getElementById('upload-msg');
@@ -859,6 +989,11 @@
 
     const total = stagedFiles.length;
     const queue = [...stagedFiles];
+    const versionCounters = {};
+    userFiles.forEach(x => {
+      const n = (x.data.name || '').replace(/\.[^.]+$/, '').trim().toLowerCase();
+      versionCounters[n] = (versionCounters[n] || 0) + 1;
+    });
     let done = 0, failed = 0;
 
     for (const file of queue) {
@@ -869,8 +1004,11 @@
         });
         const ext = file.name.split('.').pop().toUpperCase();
         const sizeLabel = (file.size / (1024*1024)).toFixed(1) + ' MB';
+        const baseName = file.name.replace(/\.[^.]+$/, '').trim().toLowerCase();
+        versionCounters[baseName] = (versionCounters[baseName] || 0) + 1;
+        const version = versionCounters[baseName];
         await window.fb.addDoc(window.fb.collection(window.fb.db, 'files'), {
-          owner: currentUser.uid, name: file.name, ext, size: sizeLabel, category,
+          owner: currentUser.uid, name: file.name, ext, size: sizeLabel, category, bab, status, version, priority, deadline,
           url: data.secure_url, publicId: data.public_id, note: notes, createdAt: Date.now()
         });
       } catch (e) {
@@ -921,7 +1059,7 @@
   window.copyShareLink = async function(url, name) {
     const shareUrl = `${location.origin}${location.pathname}?view=1&u=${encodeURIComponent(url)}&n=${encodeURIComponent(name)}`;
 
-    // Clipboard API hanya tersedia pada secure context (HTTPS/localhost).
+    // Clipboard API: gunakan jika tersedia dan halaman berada di secure context.
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(shareUrl);
@@ -932,29 +1070,26 @@
       // Lanjut ke fallback di bawah.
     }
 
-    // Fallback untuk HTTP/hosting lama/browser yang memblokir Clipboard API.
+    // Fallback untuk browser/hosting yang memblokir navigator.clipboard.
     try {
-      const t = document.createElement('textarea');
-      t.value = shareUrl;
-      t.setAttribute('readonly', '');
-      t.style.position = 'fixed';
-      t.style.left = '-9999px';
-      t.style.top = '0';
-      document.body.appendChild(t);
-      t.focus();
-      t.select();
-      t.setSelectionRange(0, t.value.length);
+      const ta = document.createElement('textarea');
+      ta.value = shareUrl;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      ta.style.top = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
       const copied = document.execCommand('copy');
-      t.remove();
+      ta.remove();
 
-      if (copied) {
-        notifyFeedback('Link pratinjau disalin.', 'success');
-      } else {
-        throw new Error('copy gagal');
-      }
+      if (!copied) throw new Error('copy command gagal');
+      notifyFeedback('Link pratinjau disalin.', 'success');
     } catch (e) {
-      // Jika browser benar-benar menolak akses clipboard, tetap beri link agar bisa disalin manual.
-      window.prompt('Salin link pratinjau ini:', shareUrl);
+      // Jika semua metode clipboard diblokir, jangan gagal diam-diam.
+      window.prompt('Salin link pratinjau berikut:', shareUrl);
     }
   };
 
@@ -1011,12 +1146,14 @@
     const q = window.fb.query(window.fb.collection(window.fb.db, 'files'), window.fb.where('owner','==',uid));
     unsubscribeLedger = window.fb.onSnapshot(q, (snapshot) => {
       if (!currentUser || currentUser.uid !== uid) return;
-      if (snapshot.empty) { list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Belum ada berkas.</p>'; userFiles = []; updateProgressBimbingan(); return; }
+      if (snapshot.empty) { list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Belum ada berkas.</p>'; userFiles = []; updateProgressBimbingan(); updateDashboardSummary(); renderActivityTimeline(); return; }
       const docs = [];
       snapshot.forEach(d => docs.push({ id: d.id, data: d.data() }));
       docs.sort((a,b) => b.data.createdAt - a.data.createdAt);
       userFiles = docs;
       updateProgressBimbingan();
+      updateDashboardSummary();
+      renderActivityTimeline();
       if (!document.getElementById('tab-content-notes').classList.contains('hidden')) populateNoteFileSelect();
 
       list.innerHTML = '';
@@ -1029,33 +1166,57 @@
         const dlName = buildDownloadName(data.name, data.createdAt);
         const safeName = data.name.replace(/'/g, "\\'");
         const category = data.category || 'utama';
+        const bab = data.bab || 'Umum';
+        const status = data.status || 'Draft';
+        const version = data.version || 1;
+        const priority = data.priority || 'Sedang';
+        const deadline = data.deadline || '';
+        const deadlinePassed = deadline && deadline < new Date().toISOString().slice(0,10) && status !== 'Selesai';
+        const priorityClass = priority === 'Tinggi' ? 'text-rose-300 bg-rose-500/10 border-rose-500/20' : priority === 'Rendah' ? 'text-slate-300 bg-slate-500/10 border-slate-500/20' : 'text-amber-300 bg-amber-500/10 border-amber-500/20';
         const color = EXT_COLOR[rawExt] || '#8b91a3';
+        const statusClass = status === 'Selesai' ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20' : status === 'Revisi' ? 'text-amber-300 bg-amber-500/10 border-amber-500/20' : status === 'Menunggu Review' ? 'text-blue-300 bg-blue-500/10 border-blue-500/20' : 'text-slate-300 bg-slate-500/10 border-slate-500/20';
         const catBadge = category === 'sampingan'
           ? '<span class="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-semibold border border-blue-500/20">Sampingan</span>'
           : '<span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">Utama</span>';
 
         const card = document.createElement('article');
-        card.className = 'entry p-4 rounded-lg bg-[#16212e] border border-[#223245] flex flex-col sm:flex-row sm:items-start justify-between gap-3 hover:border-slate-600 transition';
+        card.className = 'entry p-4 rounded-lg bg-[#16212e] border border-[#223245] flex flex-col gap-3 hover:border-slate-600 transition';
         card.id = 'file-card-' + id;
         card.setAttribute('data-ext', dataExt);
         card.setAttribute('data-name', data.name);
         card.setAttribute('data-note', (data.note || '').toLowerCase());
         card.setAttribute('data-category', category);
+        card.setAttribute('data-status', status);
+        card.setAttribute('data-bab', bab);
         card.innerHTML = `
-          <div class="flex items-start gap-3 min-w-0">
+          <div class="flex items-start gap-3 w-full min-w-0">
             <div class="p-2.5 rounded-lg shrink-0" style="background:${color}22; color:${color}">${fileIconSvg()}</div>
-            <div class="min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <h3 class="text-sm font-semibold text-slate-100 break-words" title="${safeName}">${data.name}</h3>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 flex-wrap min-w-0">
+                <h3 class="text-sm font-semibold text-slate-100 truncate max-w-full" title="${safeName}">${data.name}</h3>
                 ${catBadge}
+                <span class="text-[10px] px-2 py-0.5 rounded border ${statusClass} font-semibold">${status}</span>
               </div>
-              <p class="text-xs text-slate-400 mt-0.5 break-words whitespace-pre-wrap">${data.note ? 'Catatan: ' + data.note.replace(/</g,'&lt;') : 'Tanpa catatan revisi.'}</p>
+              <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                <span class="text-[10px] px-2 py-0.5 rounded bg-brand-teal/10 text-brand-teal border border-brand-teal/20 font-semibold">${bab}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 font-semibold">v${version}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded border ${priorityClass} font-semibold">Prioritas ${priority}</span>
+                ${deadline ? `<span class="text-[10px] px-2 py-0.5 rounded ${deadlinePassed ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20'} font-semibold">${deadlinePassed ? 'Lewat' : 'Deadline'} ${deadline}</span>` : ''}
+              </div>
+              <p class="text-xs text-slate-400 mt-1.5 break-words whitespace-pre-wrap">${data.note ? 'Catatan: ' + data.note.replace(/</g,'&lt;') : 'Tanpa catatan revisi.'}</p>
               <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-1.5 font-medium">
                 <span>${data.size || ''}</span><span>•</span><span>Diunggah ${timeStr}</span>
               </div>
             </div>
           </div>
-          <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+          <div class="w-full flex items-center gap-2 flex-wrap justify-start sm:justify-end border-t border-[#223245] pt-3">
+            <select class="text-[11px] bg-[#0f1826] text-slate-300 border border-[#26374c] rounded-md px-2 py-1.5" onchange="updateFileStatus('${id}', this.value)">
+              ${['Draft','Menunggu Review','Revisi','Selesai'].map(st => `<option value="${st}" ${status === st ? 'selected' : ''}>${st}</option>`).join('')}
+            </select>
+            <select class="text-[11px] bg-[#0f1826] text-slate-300 border border-[#26374c] rounded-md px-2 py-1.5" onchange="updateFilePriority('${id}', this.value)">
+              ${['Rendah','Sedang','Tinggi'].map(pr => `<option value="${pr}" ${priority === pr ? 'selected' : ''}>${pr}</option>`).join('')}
+            </select>
+            <button class="px-2.5 py-1.5 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="editFileDeadline('${id}', '${deadline}')">${deadline ? 'Deadline' : 'Set Deadline'}</button>
             <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
             <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
             <button class="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Hapus Berkas" onclick="confirmDeleteLedgerRecord('${id}', '${safeName}')">
@@ -1069,6 +1230,68 @@
       if (countLabel) countLabel.textContent = docs.length + ' berkas total';
       filterLedgerRecords();
     }, (err) => { list.innerHTML = '<p class="text-sm text-rose-400">Gagal memuat: ' + err.message + '</p>'; });
+  }
+
+  function updateDashboardSummary() {
+    const total = userFiles.length;
+    const revisi = userFiles.filter(x => (x.data.status || 'Draft') === 'Revisi').length;
+    const selesai = userFiles.filter(x => (x.data.status || 'Draft') === 'Selesai').length;
+    const babSet = new Set(userFiles.map(x => x.data.bab || 'Umum').filter(b => b !== 'Umum'));
+    const pct = total ? Math.round((selesai / total) * 100) : 0;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set('dash-total', total); set('dash-revisi', revisi); set('dash-selesai', selesai); set('dash-bab', babSet.size);
+    set('dash-progress-label', pct + '%');
+    const fill = document.getElementById('dash-progress-fill'); if (fill) fill.style.width = pct + '%';
+    const last = userFiles[0]?.data?.createdAt;
+    set('dashboard-last-update', last ? new Date(last).toLocaleDateString('id-ID') : 'Belum ada data');
+  }
+
+  async function updateFileStatus(id, status) {
+    if (!currentUser) return;
+    try {
+      await window.fb.updateDoc(window.fb.doc(window.fb.db, 'files', id), { status, statusUpdatedAt: Date.now() });
+      notifyFeedback('Status berkas diperbarui.', 'success');
+    } catch (e) { notifyFeedback('Gagal memperbarui status: ' + e.message, 'error'); }
+  }
+
+  async function updateFilePriority(id, priority) {
+    if (!currentUser) return;
+    try {
+      await window.fb.updateDoc(window.fb.doc(window.fb.db, 'files', id), { priority, priorityUpdatedAt: Date.now() });
+      notifyFeedback('Prioritas diperbarui.', 'success');
+    } catch (e) { notifyFeedback('Gagal memperbarui prioritas: ' + e.message, 'error'); }
+  }
+
+  async function updateFileDeadline(id, deadline) {
+    if (!currentUser) return;
+    try {
+      await window.fb.updateDoc(window.fb.doc(window.fb.db, 'files', id), { deadline: deadline || '', deadlineUpdatedAt: Date.now() });
+      notifyFeedback('Deadline diperbarui.', 'success');
+    } catch (e) { notifyFeedback('Gagal memperbarui deadline: ' + e.message, 'error'); }
+  }
+
+  function editFileDeadline(id, current) {
+    const value = prompt('Deadline revisi (format YYYY-MM-DD). Kosongkan untuk menghapus:', current || '');
+    if (value === null) return;
+    if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) { notifyFeedback('Format deadline harus YYYY-MM-DD.', 'error'); return; }
+    updateFileDeadline(id, value);
+  }
+
+  function renderActivityTimeline() {
+    const el = document.getElementById('activity-timeline');
+    const countEl = document.getElementById('timeline-count');
+    if (!el) return;
+    const activities = [];
+    userFiles.slice(0, 20).forEach(({data}) => activities.push({time:data.createdAt, icon:'📄', title:'Berkas diunggah', text:data.name, meta:`${data.bab || 'Umum'} · v${data.version || 1} · ${data.status || 'Draft'}`}));
+    userRevisionNotes.slice(0, 20).forEach(({data}) => activities.push({time:data.createdAt, icon:'📝', title:'Catatan revisi', text:data.text, meta:data.fileName || 'Tanpa berkas'}));
+    activities.sort((a,b)=>b.time-a.time);
+    if (countEl) countEl.textContent = activities.length + ' aktivitas';
+    if (!activities.length) { el.innerHTML = '<p class="text-center text-xs text-slate-500 italic py-5">Belum ada aktivitas.</p>'; return; }
+    el.innerHTML = activities.slice(0, 12).map(a => {
+      const d = new Date(a.time);
+      const t = `${d.getDate()} ${MONTHS_ID[d.getMonth()]} ${d.getFullYear()} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      return `<div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-brand-teal/10 border border-brand-teal/20 flex items-center justify-center shrink-0">${a.icon}</div><div class="min-w-0 flex-1"><div class="flex items-center justify-between gap-2"><p class="text-xs font-semibold text-slate-200">${a.title}</p><span class="text-[10px] text-slate-600 font-mono shrink-0">${t}</span></div><p class="text-xs text-slate-400 mt-0.5 break-words">${String(a.text).replace(/</g,'&lt;')}</p><p class="text-[10px] text-slate-600 mt-0.5">${String(a.meta).replace(/</g,'&lt;')}</p></div></div>`;
+    }).join('');
   }
 
   function setFileFilter(ext, chipEl) {
@@ -1437,7 +1660,7 @@
         row.setAttribute('data-name', (data.name + ' ' + ownerEmail).toLowerCase());
         row.innerHTML = `
           <div class="flex items-start justify-between gap-3">
-            <div class="flex items-start gap-3 min-w-0">
+            <div class="flex items-start gap-3 w-full min-w-0">
               <div class="p-2.5 rounded-lg shrink-0" style="background:${color}22; color:${color}">${fileIconSvg()}</div>
               <div class="min-w-0">
                 <h3 class="text-sm font-semibold text-slate-100 break-words" title="${safeName}">${data.name}</h3>
@@ -1465,33 +1688,185 @@
     });
   }
 
-  // ---------- Catatan Revisi ----------
-  function populateNoteFileSelect() {
-    const select = document.getElementById('note-file-select');
-    const cur = select.value;
-    select.innerHTML = '<option value="">Tanpa tautan berkas</option>';
-    userFiles.forEach(({ id, data }) => {
-      const opt = document.createElement('option');
-      opt.value = id; opt.textContent = data.name;
-      select.appendChild(opt);
-    });
-    select.value = cur;
+  // ---------- Checklist Progress TA ----------
+  const TA_CHECKLIST = [
+    {id:'bab1', group:'Bab I', items:[
+      ['bab1_latar','Latar belakang'],
+      ['bab1_identifikasi','Identifikasi masalah'],
+      ['bab1_rumusan','Rumusan masalah'],
+      ['bab1_batasan','Batasan masalah'],
+      ['bab1_tujuan','Tujuan penelitian'],
+      ['bab1_manfaat','Manfaat penelitian'],
+      ['bab1_sistematika','Sistematika penulisan']
+    ]},
+    {id:'bab2', group:'Bab II', items:[
+      ['bab2_teori','Landasan teori'],
+      ['bab2_terdahulu','Penelitian terdahulu'],
+      ['bab2_kerangka','Kerangka pemikiran']
+    ]},
+    {id:'bab3', group:'Bab III', items:[
+      ['bab3_metodologi','Metodologi penelitian'],
+      ['bab3_tahapan','Tahapan penelitian'],
+      ['bab3_metode','Metode/perancangan penelitian'],
+      ['bab3_selesai','Bab III selesai']
+    ]},
+    {id:'proposal', group:'Bimbingan & Finalisasi', items:[
+      ['bimbingan_revisi','Konsultasi Bab I–III dan perbaikan berdasarkan bimbingan'],
+      ['finalisasi','Finalisasi proposal dan pemeriksaan kelengkapan'],
+      ['simta','Persetujuan dospem dan pendaftaran SIMTA'],
+      ['persiapan_sidang','Persiapan materi dan pemantapan proposal'],
+      ['sidang','Sidang Proposal Tugas Akhir']
+    ]}
+  ];
+
+  function renderChecklist() {
+    const el = document.getElementById('ta-checklist');
+    if (!el) return;
+    let total = 0, done = 0;
+    el.innerHTML = TA_CHECKLIST.map(group => {
+      const rows = group.items.map(([id,label]) => {
+        total++;
+        const checked = !!userChecklist[id];
+        if (checked) done++;
+        return `<label class="flex items-start gap-3 p-2.5 rounded-lg bg-[#0f1523] border border-[#1e2a3e] hover:border-[#2b3d56] cursor-pointer transition">
+          <input type="checkbox" class="mt-0.5 accent-brand-teal" ${checked ? 'checked' : ''} onchange="toggleChecklist('${id}', this.checked)">
+          <span class="text-xs ${checked ? 'text-slate-500 line-through' : 'text-slate-200'} leading-relaxed">${escapeHtml(label)}</span>
+        </label>`;
+      }).join('');
+      return `<div class="mb-4 last:mb-0"><div class="text-[10px] font-bold text-brand-teal uppercase tracking-wide mb-2">${escapeHtml(group.group)}</div><div class="space-y-1.5">${rows}</div></div>`;
+    }).join('');
+    const pct = total ? Math.round(done / total * 100) : 0;
+    const label = document.getElementById('checklist-progress-label');
+    const fill = document.getElementById('checklist-progress-fill');
+    if (label) label.textContent = `${done}/${total} · ${pct}%`;
+    if (fill) fill.style.width = pct + '%';
   }
 
+  async function loadChecklist(uid) {
+    try {
+      const snap = await window.fb.getDoc(window.fb.doc(window.fb.db, 'users', uid));
+      userChecklist = snap.exists() ? (snap.data().checklistItems || {}) : {};
+    } catch (e) { userChecklist = {}; }
+    renderChecklist();
+  }
+
+  async function toggleChecklist(id, checked) {
+    if (!currentUser) return;
+    userChecklist[id] = checked;
+    renderChecklist();
+    try {
+      await window.fb.setDoc(window.fb.doc(window.fb.db, 'users', currentUser.uid), { checklistItems: userChecklist, checklistUpdatedAt: Date.now() }, { merge: true });
+    } catch (e) {
+      userChecklist[id] = !checked;
+      renderChecklist();
+      notifyFeedback('Gagal menyimpan checklist: ' + e.message, 'error');
+    }
+  }
+
+  // ---------- Export Laporan Bimbingan / Progress ----------
+  function exportProgressReport() {
+    if (!currentUser) { notifyFeedback('Kamu belum login.', 'error'); return; }
+    const esc = (v='') => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const files = [...userFiles].sort((a,b)=>(b.data.createdAt||0)-(a.data.createdAt||0));
+    const schedules = userRevisionNotes.filter(x => x.data.type === 'schedule').sort((a,b)=>(a.data.date||'').localeCompare(b.data.date||''));
+    const checklistRows = TA_CHECKLIST.flatMap(g => g.items.map(([id,label]) => ({group:g.group,label,done:!!userChecklist[id]})));
+    const fileRows = files.map(x => {
+      const d=x.data;
+      return `<tr><td>${esc(d.name)}</td><td>${esc(d.bab||'Umum')}</td><td>v${d.version||1}</td><td>${esc(d.status||'Draft')}</td><td>${esc(d.priority||'Sedang')}</td><td>${esc(d.deadline||'-')}</td></tr>`;
+    }).join('') || '<tr><td colspan="6">Belum ada berkas.</td></tr>';
+    const scheduleRows = schedules.map(x => { const d=x.data; return `<tr><td>${esc(d.date||'-')}</td><td>${esc(d.time||'-')}</td><td>${esc(d.dospem||'-')}</td><td>${esc(d.place||'-')}</td><td>${esc(d.text||'-')}</td></tr>`; }).join('') || '<tr><td colspan="5">Belum ada jadwal bimbingan.</td></tr>';
+    const checklistHtml = checklistRows.map(x => `<tr><td>${esc(x.group)}</td><td>${esc(x.label)}</td><td>${x.done?'Selesai':'Belum selesai'}</td></tr>`).join('');
+    const now = new Date().toLocaleString('id-ID');
+    const w = window.open('', '_blank');
+    if (!w) { notifyFeedback('Popup diblokir browser. Izinkan popup untuk export laporan.', 'error'); return; }
+    w.document.write(`<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Laporan SyncTA</title><style>body{font-family:Arial,sans-serif;color:#111827;padding:32px;font-size:12px}h1{font-size:20px;margin-bottom:4px}h2{font-size:14px;margin:24px 0 8px}p{margin:4px 0;color:#4b5563}table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #d1d5db;padding:7px;text-align:left;vertical-align:top}th{background:#f3f4f6}.meta{margin-bottom:18px}@media print{body{padding:15mm}button{display:none}}</style></head><body>
+      <h1>Laporan Progress Tugas Akhir — SyncTA</h1><div class="meta"><p><b>Email:</b> ${esc(currentUser.email||'-')}</p><p><b>Dibuat:</b> ${esc(now)}</p></div>
+      <h2>Progress Checklist TA</h2><table><thead><tr><th>Tahap</th><th>Item</th><th>Status</th></tr></thead><tbody>${checklistHtml}</tbody></table>
+      <h2>Daftar Berkas</h2><table><thead><tr><th>Berkas</th><th>Bab</th><th>Versi</th><th>Status</th><th>Prioritas</th><th>Deadline</th></tr></thead><tbody>${fileRows}</tbody></table>
+      <h2>Jadwal Bimbingan Dospem</h2><table><thead><tr><th>Tanggal</th><th>Jam</th><th>Dospem</th><th>Tempat/Media</th><th>Agenda</th></tr></thead><tbody>${scheduleRows}</tbody></table>
+      <p style="margin-top:24px">Dokumen ini dibuat dari data yang tersimpan di SyncTA.</p><script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script></body></html>`);
+    w.document.close();
+  }
+
+  // ---------- Rundown Kampus: sumber dari PDF 009/SP/POL-WDR.I/IDN/IX/2026 ----------
+  const CAMPUS_RUNDOWN_2026 = [
+    {week:'1', range:'21–27 September 2026', focus:'Mulai TA + hubungi dosen', target:'Menghubungi dosen pembimbing, konsultasi awal, menentukan judul/topik, dan memulai penyusunan Bab I', agenda:'Konsultasi awal, konfirmasi judul/topik, dan cek arah Bab I.'},
+    {week:'2', range:'28 September–4 Oktober 2026', focus:'Penyusunan Bab I', target:'Penyusunan latar belakang, identifikasi masalah, dan rumusan masalah', agenda:'Bimbingan Bab I: cek latar belakang, identifikasi masalah, dan rumusan masalah.'},
+    {week:'3', range:'5–11 Oktober 2026', focus:'Penyelesaian Bab I', target:'Penyusunan batasan masalah, tujuan penelitian, manfaat penelitian, dan sistematika penulisan → Bab I selesai', agenda:'Finalisasi Bab I: batasan masalah, tujuan, manfaat, dan sistematika penulisan.'},
+    {week:'4', range:'12–18 Oktober 2026', focus:'Penyusunan Bab II', target:'Penyusunan landasan teori dan pengumpulan referensi yang relevan', agenda:'Bimbingan Bab II: landasan teori dan kecukupan referensi relevan.'},
+    {week:'5', range:'19–25 Oktober 2026', focus:'Penyelesaian Bab II', target:'Penyusunan penelitian terdahulu dan kerangka pemikiran → Bab II selesai', agenda:'Finalisasi Bab II: penelitian terdahulu dan kerangka pemikiran.'},
+    {week:'6', range:'26 Oktober–1 November 2026', focus:'Penyusunan Bab III', target:'Penyusunan metodologi dan tahapan penelitian', agenda:'Bimbingan Bab III: metodologi dan tahapan penelitian.'},
+    {week:'7', range:'2–8 November 2026', focus:'Penyelesaian Bab III', target:'Penyusunan metode/perancangan penelitian dan penyelesaian Bab III → Bab III selesai', agenda:'Finalisasi Bab III: metode/perancangan penelitian dan kelengkapan Bab III.'},
+    {week:'8', range:'9–15 November 2026', focus:'Bimbingan dan Revisi Proposal', target:'Pelaksanaan konsultasi Bab I–III dengan dosen pembimbing dan perbaikan berdasarkan hasil bimbingan', agenda:'Konsultasi Bab I–III, catat masukan dospem, dan susun revisi proposal.'},
+    {week:'9', range:'16–22 November 2026', focus:'Finalisasi Proposal', target:'Penyelesaian revisi, penyempurnaan isi, dan pemeriksaan kelengkapan proposal', agenda:'Cek hasil revisi, penyempurnaan isi, dan pemeriksaan kelengkapan proposal.'},
+    {week:'10', range:'23–29 November 2026', focus:'Finalisasi dan Administrasi', target:'Memperoleh persetujuan dosen pembimbing, melengkapi persyaratan administrasi, dan melakukan pendaftaran SIMTA', agenda:'Minta persetujuan dospem, cek administrasi, dan persiapan pendaftaran SIMTA.'},
+    {week:'11', range:'30 November 2026', focus:'Batas Akhir Pendaftaran SIMTA', target:'Seluruh mahasiswa/i telah menyelesaikan pendaftaran SIMTA', agenda:'Pastikan pendaftaran SIMTA sudah selesai sebelum batas akhir.'},
+    {week:'12–14', range:'1–25 Desember 2026', focus:'Persiapan Sidang Proposal (Minggu Tenang)', target:'Persiapan materi presentasi, pemantapan proposal, dan persiapan pelaksanaan Sidang Proposal', agenda:'Review proposal final, siapkan materi presentasi, dan latihan persiapan sidang proposal.'},
+    {week:'15', range:'26 Desember 2026', focus:'Pelaksanaan Sidang Proposal', target:'Pelaksanaan Sidang Proposal Tugas Akhir', agenda:'Pelaksanaan Sidang Proposal Tugas Akhir.'}
+  ];
+
+  function renderCampusRundown() {
+    const list = document.getElementById('rundown-list');
+    const count = document.getElementById('rundown-count');
+    if (!list) return;
+    if (count) count.textContent = CAMPUS_RUNDOWN_2026.length + ' tahap';
+    list.innerHTML = CAMPUS_RUNDOWN_2026.map((r, i) => `<button type="button" onclick="selectRundownItem(${i})" class="text-left bg-[#0f1523] border border-[#1e2a3e] hover:border-brand-teal/50 rounded-lg p-4 transition group">
+      <div class="flex items-center justify-between gap-2"><span class="text-[10px] font-bold text-brand-teal uppercase tracking-wide">Minggu ${r.week}</span><span class="text-[10px] text-slate-500">${r.range}</span></div>
+      <p class="text-xs font-semibold text-white mt-2 group-hover:text-brand-teal transition">${escapeHtml(r.focus)}</p>
+      <p class="text-[11px] text-slate-400 leading-relaxed mt-1">${escapeHtml(r.target)}</p>
+      <p class="text-[11px] text-slate-300 leading-relaxed mt-2"><span class="text-slate-500">Agenda:</span> ${escapeHtml(r.agenda)}</p>
+    </button>`).join('');
+  }
+
+  function selectRundownItem(index) {
+    const r = CAMPUS_RUNDOWN_2026[index];
+    if (!r) return;
+    const note = document.getElementById('schedule-note');
+    if (note) note.value = `[Minggu ${r.week} · ${r.range}] ${r.agenda}`;
+    const date = document.getElementById('schedule-date');
+    if (date) {
+      const start = r.range.match(/(\d{1,2})[–-](\d{1,2}) ([A-Za-z]+) (\d{4})/);
+      if (start) {
+        const months = {Januari:'01',Februari:'02',Maret:'03',April:'04',Mei:'05',Juni:'06',Juli:'07',Agustus:'08',September:'09',Oktober:'10',November:'11',Desember:'12'};
+        date.value = `${start[4]}-${months[start[3]]}-${String(start[1]).padStart(2,'0')}`;
+      } else {
+        const single = r.range.match(/(\d{1,2}) ([A-Za-z]+) (\d{4})/);
+        if (single) { const months = {Januari:'01',Februari:'02',Maret:'03',April:'04',Mei:'05',Juni:'06',Juli:'07',Agustus:'08',September:'09',Oktober:'10',November:'11',Desember:'12'}; date.value=`${single[3]}-${months[single[2]]}-${String(single[1]).padStart(2,'0')}`; }
+      }
+    }
+    notifyFeedback('Agenda rundown dimasukkan ke form. Tanggal yang terisi adalah awal periode; ubah ke tanggal bimbingan yang benar-benar disepakati.', 'success');
+  }
+
+  function generateRundownSchedule() {
+    renderCampusRundown();
+    document.getElementById('rundown-list')?.scrollIntoView({behavior:'smooth', block:'start'});
+    notifyFeedback('Rundown kampus berhasil dimuat. Klik tahap yang mau dijadikan agenda bimbingan.', 'success');
+  }
+
+  async function handleRundownPdfSelected(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const status = document.getElementById('rundown-source-status');
+    if (status) status.innerHTML = `<span class="font-semibold text-slate-200">PDF dipilih:</span> ${escapeHtml(file.name)}<span class="block mt-1 text-slate-500">Untuk PDF yang berbeda, isi timeline perlu dipetakan ulang sebelum dijadikan sumber otomatis agar sistem tidak mengarang tanggal atau agenda.</span>`;
+    notifyFeedback('PDF rundown dipilih. Untuk saat ini sistem menggunakan rundown kampus yang sudah dipetakan dari PDF 009.', 'success');
+    event.target.value = '';
+  }
+
+  function escapeHtml(v='') { return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+
+  // ---------- Jadwal Bimbingan Dospem ----------
   function addRevisionNote() {
     if (!currentUser) { notifyFeedback('Kamu belum login.', 'error'); return; }
-    const text = document.getElementById('note-text-input').value.trim();
-    if (!text) { notifyFeedback('Isi catatannya dulu.', 'error'); return; }
-    const select = document.getElementById('note-file-select');
-    const fileId = select.value;
-    const fileName = fileId ? select.options[select.selectedIndex].textContent : null;
-
-    window.fb.addDoc(window.fb.collection(window.fb.db, 'revisions'), {
-      owner: currentUser.uid, text, fileId: fileId || null, fileName, createdAt: Date.now()
-    }).then(() => {
-      document.getElementById('note-text-input').value = '';
-      notifyFeedback('Catatan tersimpan.', 'success');
-    }).catch(err => notifyFeedback('Gagal simpan: ' + err.message, 'error'));
+    const date = document.getElementById('schedule-date').value;
+    const time = document.getElementById('schedule-time').value;
+    const dospem = document.getElementById('schedule-dospem').value.trim();
+    const place = document.getElementById('schedule-place').value.trim();
+    const note = document.getElementById('schedule-note').value.trim();
+    if (!date || !time || !dospem) { notifyFeedback('Tanggal, jam, dan dosen pembimbing wajib diisi.', 'error'); return; }
+    const createdAt = Date.now();
+    window.fb.addDoc(window.fb.collection(window.fb.db, 'revisions'), { owner: currentUser.uid, type: 'schedule', date, time, dospem, place, text: note, createdAt })
+      .then(() => { ['schedule-date','schedule-time','schedule-dospem','schedule-place','schedule-note'].forEach(id => document.getElementById(id).value=''); notifyFeedback('Jadwal bimbingan tersimpan.', 'success'); })
+      .catch(err => notifyFeedback('Gagal simpan jadwal: ' + err.message, 'error'));
   }
 
   function loadNotes(uid) {
@@ -1502,51 +1877,15 @@
     unsubscribeNotes = window.fb.onSnapshot(q, (snapshot) => {
       if (!currentUser || currentUser.uid !== uid) return;
       const badge = document.getElementById('notes-count-badge');
-      if (badge) {
-        if (snapshot.size > 0) { badge.textContent = snapshot.size; badge.classList.remove('hidden'); }
-        else { badge.classList.add('hidden'); }
-      }
-      if (snapshot.empty) { list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Belum ada catatan revisi.</p>'; return; }
-      const notes = [];
-      snapshot.forEach(d => notes.push({ id: d.id, data: d.data() }));
-      notes.sort((a,b) => b.data.createdAt - a.data.createdAt);
-
-      list.innerHTML = '';
-      notes.forEach(({ id, data }) => {
-        const dt = new Date(data.createdAt);
-        const timeStr = `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()} · ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
-        const row = document.createElement('article');
-        row.className = 'bg-[#0f1523] border border-[#1e2a3e] rounded-lg p-3.5 space-y-2 hover:border-[#273752] transition';
-        row.innerHTML = `
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] text-slate-400 font-mono tracking-tight">${timeStr}</span>
-            <button class="px-2 py-0.5 text-[11px] text-rose-300 bg-rose-950/30 hover:bg-rose-900/50 border border-rose-900/40 rounded transition" onclick="deleteRevisionNote('${id}')">Hapus</button>
-          </div>
-          <p class="text-xs text-slate-200 leading-relaxed">${data.text}</p>
-          ${data.fileId ? `<button class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-brand-teal hover:underline" onclick="jumpToFile('${data.fileId}')">📄 ${data.fileName}</button>` : ''}
-        `;
-        list.appendChild(row);
-      });
-    }, (err) => { list.innerHTML = '<p class="text-sm text-rose-400">Gagal memuat: ' + err.message + '</p>'; });
+      if (badge) { if (snapshot.size > 0) { badge.textContent = snapshot.size; badge.classList.remove('hidden'); } else badge.classList.add('hidden'); }
+      if (snapshot.empty) { userRevisionNotes=[]; renderActivityTimeline(); list.innerHTML='<p class="text-center text-sm text-slate-500 italic py-6">Belum ada jadwal bimbingan.</p>'; return; }
+      const notes=[]; snapshot.forEach(d=>notes.push({id:d.id,data:d.data()})); notes.sort((a,b)=>b.data.createdAt-a.data.createdAt);
+      userRevisionNotes=notes; renderActivityTimeline();
+      list.innerHTML=notes.map(({id,data})=>{ const dt=new Date(data.createdAt); const displayDate=data.date ? new Date(data.date+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}) : `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()}`; const safe=(v='')=>String(v).replace(/</g,'&lt;').replace(/>/g,'&gt;'); return `<div class="bg-[#0f1523] border border-[#1e2a3e] rounded-lg p-4 hover:border-[#273752] transition"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><span class="text-xs font-semibold text-brand-teal">${safe(displayDate)} · ${safe(data.time||'')}</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-teal/10 text-brand-teal border border-brand-teal/20">Bimbingan</span></div><p class="text-sm text-white font-semibold mt-2">${safe(data.dospem||'Dosen Pembimbing')}</p><p class="text-xs text-slate-400 mt-1">${safe(data.place||'Tempat/media belum diisi')}</p>${data.text?`<p class="text-xs text-slate-300 leading-relaxed mt-2 whitespace-pre-wrap">${safe(data.text)}</p>`:''}</div><button class="shrink-0 px-2 py-1 text-[11px] text-rose-300 bg-rose-950/30 hover:bg-rose-900/50 border border-rose-900/40 rounded transition" onclick="deleteRevisionNote('${id}')">Hapus</button></div></div>`;}).join('');
+    }, err=>{ list.innerHTML='<p class="text-xs text-rose-400">Gagal memuat: '+err.message+'</p>'; });
   }
 
-  function deleteRevisionNote(id) {
-    if (!confirm('Hapus catatan ini?')) return;
-    window.fb.deleteDoc(window.fb.doc(window.fb.db, 'revisions', id))
-      .then(() => notifyFeedback('Catatan dihapus.', 'success'))
-      .catch(err => notifyFeedback('Gagal hapus: ' + err.message, 'error'));
-  }
-
-  function jumpToFile(fileId) {
-    switchMainTab('upload');
-    setTimeout(() => {
-      const card = document.getElementById('file-card-' + fileId);
-      if (!card) { notifyFeedback('Berkas terkait sudah tidak ada.', 'info'); return; }
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      card.style.outline = '2px solid #00e5c9';
-      setTimeout(() => { card.style.outline = 'none'; }, 2000);
-    }, 80);
-  }
+  function deleteRevisionNote(id) { if (!confirm('Hapus jadwal bimbingan ini?')) return; window.fb.deleteDoc(window.fb.doc(window.fb.db,'revisions',id)).then(()=>notifyFeedback('Jadwal dihapus.','success')).catch(err=>notifyFeedback('Gagal hapus: '+err.message,'error')); }
 
   // ---------- Toast ----------
   function notifyFeedback(message, type) {
@@ -1585,6 +1924,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    renderCampusRundown();
     // default chip class
     document.querySelectorAll('#filter-chip-group .chip').forEach(c => {
       c.className = c.getAttribute('data-filter') === 'ALL' ? CHIP_ACTIVE : CHIP_INACTIVE;
@@ -1624,7 +1964,7 @@
     signOut, onAuthStateChanged, sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
-    getFirestore, collection, addDoc, doc, setDoc, getDoc,
+    getFirestore, collection, addDoc, doc, setDoc, getDoc, updateDoc,
     query, where, onSnapshot, deleteDoc
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
@@ -1647,7 +1987,7 @@
   window.fb = {
     auth, db,
     createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail,
-    collection, addDoc, doc, setDoc, getDoc, query, where, onSnapshot, deleteDoc,
+    collection, addDoc, doc, setDoc, getDoc, updateDoc, query, where, onSnapshot, deleteDoc,
     CLOUD_NAME, UPLOAD_PRESET
   };
 
