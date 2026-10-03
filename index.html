@@ -1718,8 +1718,8 @@
 
   async function loadChecklist(uid) {
     try {
-      const snap = await window.fb.getDoc(window.fb.doc(window.fb.db, 'checklists', uid));
-      userChecklist = snap.exists() ? (snap.data().items || {}) : {};
+      const snap = await window.fb.getDoc(window.fb.doc(window.fb.db, 'users', uid));
+      userChecklist = snap.exists() ? (snap.data().checklistItems || {}) : {};
     } catch (e) { userChecklist = {}; }
     renderChecklist();
   }
@@ -1729,7 +1729,7 @@
     userChecklist[id] = checked;
     renderChecklist();
     try {
-      await window.fb.setDoc(window.fb.doc(window.fb.db, 'checklists', currentUser.uid), { owner: currentUser.uid, items: userChecklist, updatedAt: Date.now() }, { merge: true });
+      await window.fb.setDoc(window.fb.doc(window.fb.db, 'users', currentUser.uid), { checklistItems: userChecklist, checklistUpdatedAt: Date.now() }, { merge: true });
     } catch (e) {
       userChecklist[id] = !checked;
       renderChecklist();
