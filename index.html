@@ -154,42 +154,23 @@
 </style>
 
 
-<style id="syncta-v7-hard-layout">
-  /* v7 owns workspace visibility with inline display values. */
-  #workspace-progress-column,
-  #workspace-documents-column { min-width:0; }
 
-  #workspace-progress-column.v7-hide,
-  #workspace-documents-column.v7-hide,
-  [data-workspace-section].v7-hide {
+<style id="syncta-v9-final-layout">
+  #workspace-upload-grid.v9-single {
+    grid-template-columns:minmax(0,1fr) !important;
+  }
+  #workspace-progress-column.v9-hidden,
+  #workspace-documents-column.v9-hidden,
+  #workspace-progress-column [data-v9-hidden="1"],
+  #workspace-documents-column [data-v9-hidden="1"] {
     display:none !important;
   }
-
-  #workspace-upload-grid.v7-dashboard,
-  #workspace-upload-grid.v7-progress {
-    grid-template-columns:minmax(0,1fr) !important;
-  }
-
-  #workspace-upload-grid.v7-documents {
-    grid-template-columns:minmax(0,1fr) !important;
-  }
-
-  #workspace-upload-grid.v7-documents #workspace-documents-column {
+  #workspace-upload-grid.v9-single #workspace-progress-column,
+  #workspace-upload-grid.v9-single #workspace-documents-column {
+    width:100%;
     max-width:1100px;
-    width:100%;
-    margin:0 auto;
-  }
-
-  #workspace-upload-grid.v7-progress #workspace-progress-column {
-    max-width:1000px;
-    width:100%;
-    margin:0 auto;
-  }
-
-  #workspace-upload-grid.v7-dashboard #workspace-progress-column {
-    max-width:1000px;
-    width:100%;
-    margin:0 auto;
+    margin-left:auto;
+    margin-right:auto;
   }
 </style>
 
@@ -304,6 +285,7 @@
         <div id="workspace-page-title" class="workspace-title">Dashboard</div>
         <div id="workspace-page-subtitle" class="workspace-subtitle">Ringkasan status tugas akhir kamu.</div>
       </div>
+
     <div id="workspace-upload-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start mt-6">
     <div id="workspace-progress-column" class="space-y-6">
 
@@ -467,7 +449,7 @@
       <section id="ledger-card" data-workspace-section="documents" class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
         <div class="flex items-center justify-between gap-3 mb-1.5">
           <h2 class="text-base font-semibold text-white">Riwayat Unggahan</h2>
-          <span id="ledger-connection-status" class="text-[10px] text-slate-500">Menghubungkan…</span>
+          <span id="ledger-connection-status" class="text-[10px] text-slate-500">Riwayat Cloud tersambung</span>
         </div>
         <input type="text" id="ledger-search-input" oninput="filterLedgerRecords()" placeholder="Cari nama berkas atau catatan..." class="w-full bg-brand-panel border border-brand-border text-slate-200 placeholder:text-slate-500 text-sm rounded-md px-3.5 py-2.5 focus:outline-none focus:border-brand-teal transition mb-4">
         <div id="filter-chip-group" class="flex flex-wrap items-center gap-2 mb-2">
@@ -754,68 +736,65 @@
 
   function setWorkspaceHeader(view) {
     const meta = WORKSPACE_META[view] || WORKSPACE_META.dashboard;
-    const title = document.getElementById('workspace-page-title');
-    const subtitle = document.getElementById('workspace-page-subtitle');
-    if (title) title.textContent = meta.title;
-    if (subtitle) subtitle.textContent = meta.subtitle;
+    const t = document.getElementById('workspace-page-title');
+    const sub = document.getElementById('workspace-page-subtitle');
+    if (t) t.textContent = meta.title;
+    if (sub) sub.textContent = meta.subtitle;
   }
 
-  function v7Show(el, show) {
-    if (!el) return;
-    el.classList.toggle('v7-hide', !show);
+  function hideSection(el) {
+    if (el) el.setAttribute('data-v9-hidden','1');
   }
 
-  function setWorkspaceCards(group) {
+  function showSection(el) {
+    if (el) el.removeAttribute('data-v9-hidden');
+  }
+
+  function setUploadWorkspace(group) {
     const grid = document.getElementById('workspace-upload-grid');
     const progressCol = document.getElementById('workspace-progress-column');
     const docsCol = document.getElementById('workspace-documents-column');
-    if (!grid) return;
 
-    // Clear every older workspace visibility class first.
-    grid.classList.remove('v7-dashboard','v7-progress','v7-documents');
-    grid.querySelectorAll('.workspace-v5-hidden,.workspace-hidden').forEach(el => {
-      el.classList.remove('workspace-v5-hidden','workspace-hidden');
-    });
+    if (!grid || !progressCol || !docsCol) return;
 
-    const sections = Array.from(grid.querySelectorAll('[data-workspace-section]'));
+    // Reset all v9 state and any previous v7/v8 state on children.
+    grid.classList.remove('v9-single');
+    progressCol.classList.remove('v9-hidden');
+    docsCol.classList.remove('v9-hidden');
+    grid.querySelectorAll('[data-v9-hidden="1"]').forEach(el => el.removeAttribute('data-v9-hidden'));
+    grid.querySelectorAll('.workspace-v5-hidden,.workspace-hidden,.workspace-v5-hidden').forEach(el => el.classList.remove('workspace-v5-hidden','workspace-hidden'));
 
-    // Hard reset: hide every section, then show only the requested group.
-    sections.forEach(el => v7Show(el, false));
+    const progressCards = [
+      document.getElementById('progress-bimbingan-card'),
+      document.getElementById('checklist-card'),
+      document.getElementById('quicknote-card'),
+      document.getElementById('timeline-card')
+    ];
+    const dashboardCard = document.getElementById('dashboard-summary');
+    const documentCards = [
+      document.getElementById('upload-card'),
+      document.getElementById('ledger-card')
+    ];
+
+    // Hide all cards, then reveal only the requested workspace.
+    [dashboardCard, ...progressCards, ...documentCards].forEach(hideSection);
 
     if (group === 'dashboard') {
-      grid.classList.add('v7-dashboard');
-      v7Show(progressCol, true);
-      v7Show(docsCol, false);
-      const dashboard = document.getElementById('dashboard-summary');
-      v7Show(dashboard, true);
+      grid.classList.add('v9-single');
+      progressCol.classList.remove('v9-hidden');
+      docsCol.classList.add('v9-hidden');
+      showSection(dashboardCard);
     } else if (group === 'progress') {
-      grid.classList.add('v7-progress');
-      v7Show(progressCol, true);
-      v7Show(docsCol, false);
-      sections.filter(el => el.getAttribute('data-workspace-section') === 'progress')
-        .forEach(el => v7Show(el, true));
+      grid.classList.add('v9-single');
+      progressCol.classList.remove('v9-hidden');
+      docsCol.classList.add('v9-hidden');
+      progressCards.forEach(showSection);
     } else if (group === 'documents') {
-      grid.classList.add('v7-documents');
-      v7Show(progressCol, false);
-      v7Show(docsCol, true);
-      sections.filter(el => el.getAttribute('data-workspace-section') === 'documents')
-        .forEach(el => v7Show(el, true));
+      grid.classList.add('v9-single');
+      progressCol.classList.add('v9-hidden');
+      docsCol.classList.remove('v9-hidden');
+      documentCards.forEach(showSection);
     }
-
-    // Force display after every tab switch; this prevents the old Tailwind
-    // hidden/flex state from winning over the sidebar page state.
-    if (group === 'dashboard') {
-      progressCol.style.display = '';
-      docsCol.style.display = 'none';
-    } else if (group === 'progress') {
-      progressCol.style.display = '';
-      docsCol.style.display = 'none';
-    } else if (group === 'documents') {
-      progressCol.style.display = 'none';
-      docsCol.style.display = '';
-    }
-
-    window.scrollTo({top:0, behavior:'smooth'});
   }
 
   function navigateWorkspace(view) {
@@ -828,40 +807,22 @@
 
     if (meta.group === 'library') {
       switchMainTab('library');
-      // Explicitly reload the library after the parent tab becomes visible.
-      setTimeout(() => {
-        if (currentUser && typeof loadLibrary === 'function') loadLibrary(currentUser.uid);
-      }, 0);
       return;
     }
-
     if (meta.group === 'admin') {
       switchMainTab('admin');
       return;
     }
-
     if (meta.group === 'notes') {
       switchMainTab('notes');
-      setTimeout(() => {
-        const notes = document.getElementById('tab-content-notes');
-        if (notes) notes.scrollIntoView({behavior:'smooth', block:'start'});
-      }, 20);
       return;
     }
 
     switchMainTab('upload');
-    setWorkspaceCards(meta.group);
+    setUploadWorkspace(meta.group);
+    window.scrollTo({ top:0, behavior:'smooth' });
   }
 
-  function syncAdminSidebarVisibility() {
-    const mainAdmin = document.getElementById('maintab-admin-btn');
-    const wrap = document.getElementById('side-admin-wrap');
-    if (wrap && mainAdmin) wrap.classList.toggle('hidden', mainAdmin.classList.contains('hidden'));
-  }
-
-  // Inline onclick is unreliable across module scopes in some cached builds.
-  // Bind the sidebar directly as well, so the navigation works even if the
-  // global bridge from an earlier version is stale.
   function bindSidebarNavigation() {
     const map = {
       'side-dashboard':'dashboard',
@@ -872,13 +833,14 @@
       'side-library':'library',
       'side-admin':'admin'
     };
+
     Object.entries(map).forEach(([id, view]) => {
       const btn = document.getElementById(id);
-      if (!btn || btn.dataset.v7Bound === '1') return;
-      btn.dataset.v7Bound = '1';
-      btn.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
+      if (!btn || btn.dataset.v9Bound === '1') return;
+      btn.dataset.v9Bound = '1';
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         navigateWorkspace(view);
       });
     });
@@ -1031,7 +993,6 @@
       if (sidebarUser) sidebarUser.textContent = user.email;
       bindSidebarNavigation();
       navigateWorkspace('dashboard');
-      setTimeout(() => setWorkspaceCards('dashboard'), 0);
       loadLedger(user.uid);
       loadNotes(user.uid);
       loadQuickNotes(user.uid);
@@ -1488,71 +1449,28 @@
     if (!currentUser || currentUser.uid !== uid) return;
     if (unsubscribeLedger) { unsubscribeLedger(); unsubscribeLedger = null; }
     const list = document.getElementById('ledger-records-list');
-    const countLabel = document.getElementById('ledger-count-label');
-    const connection = document.getElementById('ledger-connection-status');
-    if (!list) return;
-    if (connection) { connection.textContent = 'Menghubungkan ke Firestore…'; connection.className = 'text-[10px] text-amber-300'; }
-    list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Menghubungkan ke riwayat...</p>';
-    if (countLabel) countLabel.textContent = '';
-
     const q = window.fb.query(window.fb.collection(window.fb.db, 'files'), window.fb.where('owner','==',uid));
-    let firstSnapshotReceived = false;
-    const ledgerFallbackTimer = setTimeout(async () => {
-      if (firstSnapshotReceived || !currentUser || currentUser.uid !== uid) return;
-      try {
-        const fallbackSnap = await window.fb.getDocs(q);
-        renderDocs(fallbackSnap);
-      } catch (fallbackErr) {
-        if (connection) {
-          connection.textContent = 'Firestore error';
-          connection.className = 'text-[10px] text-rose-300';
-        }
-        list.innerHTML = '<div class="rounded-lg border border-rose-900/50 bg-rose-950/20 p-4"><p class="text-sm font-semibold text-rose-300">Riwayat gagal dimuat.</p><p class="text-[11px] text-rose-300/80 mt-1 break-words">' +
-          String(fallbackErr?.message || 'Tidak dapat membaca koleksi files.').replace(/</g,'&lt;') +
-          '</p></div>';
-      }
-    }, 8000);
-    // Keep the existing Firestore query/data model; this only gives the user
-    // a clear timeout diagnostic if Firestore never returns a snapshot.
-    const ledgerWatchdog = setTimeout(() => {
-      if (!firstSnapshotReceived && connection) {
-        connection.textContent = 'Firestore belum merespons';
-        connection.className = 'text-[10px] text-amber-300';
-      }
-    }, 10000);
-
-    const renderDocs = (snapshot) => {
+    unsubscribeLedger = window.fb.onSnapshot(q, (snapshot) => {
       if (!currentUser || currentUser.uid !== uid) return;
-      firstSnapshotReceived = true;
-      clearTimeout(ledgerWatchdog);
-      clearTimeout(ledgerFallbackTimer);
+      if (snapshot.empty) { list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Belum ada berkas.</p>'; userFiles = []; updateProgressBimbingan(); updateDashboardSummary(); renderActivityTimeline(); return; }
       const docs = [];
-      snapshot.forEach(d => docs.push({ id:d.id, data:d.data() || {} }));
-      docs.sort((a,b) => Number(b.data.createdAt || 0) - Number(a.data.createdAt || 0));
-      if (connection) { connection.textContent = 'Firestore · realtime'; connection.className = 'text-[10px] text-emerald-300'; }
+      snapshot.forEach(d => docs.push({ id: d.id, data: d.data() }));
+      docs.sort((a,b) => b.data.createdAt - a.data.createdAt);
       userFiles = docs;
       updateProgressBimbingan();
       updateDashboardSummary();
       renderActivityTimeline();
-      if (!document.getElementById('tab-content-notes')?.classList.contains('hidden')) populateNoteFileSelect();
-
-      if (!docs.length) {
-        list.innerHTML = '<div class="text-center py-8"><p class="text-sm text-slate-400">Belum ada berkas di riwayat.</p><p class="text-[11px] text-slate-600 mt-1">Berkas yang diunggah ke menu Dokumen &amp; Upload akan muncul di sini.</p></div>';
-        if (countLabel) countLabel.textContent = '0 berkas total';
-        return;
-      }
+      if (!document.getElementById('tab-content-notes').classList.contains('hidden')) populateNoteFileSelect();
 
       list.innerHTML = '';
       docs.forEach(({ id, data }) => {
-        const name = data.name || 'Berkas tanpa nama';
-        const rawExt = data.ext || name.split('.').pop().toUpperCase();
-        const isImg = ['PNG','JPG','JPEG','GIF','WEBP'].includes(rawExt);
+        const rawExt = data.ext || data.name.split('.').pop().toUpperCase();
+        const isImg = ['PNG','JPG','JPEG'].includes(rawExt);
         const dataExt = isImg ? 'IMG' : rawExt;
-        const createdAt = Number(data.createdAt || 0);
-        const dt = createdAt ? new Date(createdAt) : null;
-        const timeStr = dt && !isNaN(dt) ? `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()} · ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}` : 'Tanggal tidak tersedia';
-        const dlName = buildDownloadName(name, createdAt || Date.now());
-        const safeName = name.replace(/'/g, "\\'");
+        const dt = new Date(data.createdAt);
+        const timeStr = `${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()} · ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+        const dlName = buildDownloadName(data.name, data.createdAt);
+        const safeName = data.name.replace(/'/g, "\\'");
         const category = data.category || 'utama';
         const bab = data.bab || 'Umum';
         const status = data.status || 'Draft';
@@ -1563,70 +1481,61 @@
         const priorityClass = priority === 'Tinggi' ? 'text-rose-300 bg-rose-500/10 border-rose-500/20' : priority === 'Rendah' ? 'text-slate-300 bg-slate-500/10 border-slate-500/20' : 'text-amber-300 bg-amber-500/10 border-amber-500/20';
         const color = EXT_COLOR[rawExt] || '#8b91a3';
         const statusClass = status === 'Selesai' ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20' : status === 'Revisi' ? 'text-amber-300 bg-amber-500/10 border-amber-500/20' : status === 'Menunggu Review' ? 'text-blue-300 bg-blue-500/10 border-blue-500/20' : 'text-slate-300 bg-slate-500/10 border-slate-500/20';
-        const catBadge = category === 'sampingan' ? '<span class="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-semibold border border-blue-500/20">Sampingan</span>' : '<span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">Utama</span>';
+        const catBadge = category === 'sampingan'
+          ? '<span class="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-semibold border border-blue-500/20">Sampingan</span>'
+          : '<span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">Utama</span>';
+
         const card = document.createElement('article');
         card.className = 'entry p-4 rounded-lg bg-[#16212e] border border-[#223245] flex flex-col gap-3 hover:border-slate-600 transition';
         card.id = 'file-card-' + id;
-        card.setAttribute('data-ext', dataExt); card.setAttribute('data-name', name); card.setAttribute('data-note', (data.note || '').toLowerCase());
-        card.setAttribute('data-category', category); card.setAttribute('data-status', status); card.setAttribute('data-bab', bab);
+        card.setAttribute('data-ext', dataExt);
+        card.setAttribute('data-name', data.name);
+        card.setAttribute('data-note', (data.note || '').toLowerCase());
+        card.setAttribute('data-category', category);
+        card.setAttribute('data-status', status);
+        card.setAttribute('data-bab', bab);
         card.innerHTML = `
           <div class="flex items-start gap-3 w-full min-w-0">
             <div class="p-2.5 rounded-lg shrink-0" style="background:${color}22; color:${color}">${fileIconSvg()}</div>
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 flex-wrap min-w-0">
-                <h3 class="text-sm font-semibold text-slate-100 truncate max-w-full" title="${String(name).replace(/"/g,'&quot;')}">${String(name).replace(/</g,'&lt;')}</h3>
+                <h3 class="text-sm font-semibold text-slate-100 truncate max-w-full" title="${safeName}">${data.name}</h3>
                 ${catBadge}
-                <span class="text-[10px] px-2 py-0.5 rounded border ${statusClass}">${status}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded border ${statusClass} font-semibold">${status}</span>
               </div>
-              <div class="flex items-center gap-2 flex-wrap text-[10px] text-slate-500 mt-1.5">
-                <span>${bab}</span><span>·</span><span>v${version}</span><span>·</span><span>${timeStr}</span>
+              <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                <span class="text-[10px] px-2 py-0.5 rounded bg-brand-teal/10 text-brand-teal border border-brand-teal/20 font-semibold">${bab}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 font-semibold">v${version}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded border ${priorityClass} font-semibold">Prioritas ${priority}</span>
+                ${deadline ? `<span class="text-[10px] px-2 py-0.5 rounded ${deadlinePassed ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20'} font-semibold">${deadlinePassed ? 'Lewat' : 'Deadline'} ${deadline}</span>` : ''}
               </div>
-              <div class="flex items-center gap-2 flex-wrap mt-2">
-                <span class="text-[10px] px-2 py-0.5 rounded border ${priorityClass}">Prioritas ${priority}</span>
-                ${deadline ? `<span class="text-[10px] px-2 py-0.5 rounded border ${deadlinePassed ? 'text-rose-300 bg-rose-500/10 border-rose-500/20' : 'text-slate-300 bg-slate-500/10 border-slate-500/20'}">Deadline ${deadline}</span>` : ''}
+              <p class="text-xs text-slate-400 mt-1.5 break-words whitespace-pre-wrap">${data.note ? 'Catatan: ' + data.note.replace(/</g,'&lt;') : 'Tanpa catatan revisi.'}</p>
+              <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-1.5 font-medium">
+                <span>${data.size || ''}</span><span>•</span><span>Diunggah ${timeStr}</span>
               </div>
-              ${data.note ? `<p class="text-[11px] text-slate-400 mt-2 leading-relaxed">${String(data.note).replace(/</g,'&lt;')}</p>` : ''}
             </div>
           </div>
-          <div class="flex items-center justify-between gap-2 pt-1 border-t border-[#223245]">
-            <span class="text-[10px] text-slate-500">${data.size || ''}</span>
-            <div class="flex items-center gap-1.5">
-              <button onclick="openFilePreview('${String(data.url || '').replace(/'/g,"\\'")}','${safeName}')" class="px-2.5 py-1.5 rounded-md bg-brand-panel hover:bg-slate-800 text-slate-300 border border-brand-border text-[10px] font-semibold transition">Preview</button>
-              <button onclick="window.downloadFile('${String(data.url || '').replace(/'/g,"\\'")}','${String(dlName).replace(/'/g,"\\'")}')" class="px-2.5 py-1.5 rounded-md bg-brand-panel hover:bg-slate-800 text-slate-300 border border-brand-border text-[10px] font-semibold transition">Unduh</button>
-              <button onclick="window.copyShareLink('${String(data.url || '').replace(/'/g,"\\'")}','${safeName}')" class="px-2.5 py-1.5 rounded-md bg-brand-panel hover:bg-slate-800 text-slate-300 border border-brand-border text-[10px] font-semibold transition">Bagikan</button>
-              <button onclick="confirmDeleteLedgerRecord('${id}','${safeName}')" class="px-2.5 py-1.5 rounded-md bg-rose-950/30 hover:bg-rose-900/50 text-rose-300 border border-rose-900/50 text-[10px] font-semibold transition">Hapus</button>
-            </div>
-          </div>`;
+          <div class="w-full flex items-center gap-2 flex-wrap justify-start sm:justify-end border-t border-[#223245] pt-3">
+            <select class="text-[11px] bg-[#0f1826] text-slate-300 border border-[#26374c] rounded-md px-2 py-1.5" onchange="updateFileStatus('${id}', this.value)">
+              ${['Draft','Menunggu Review','Revisi','Selesai'].map(st => `<option value="${st}" ${status === st ? 'selected' : ''}>${st}</option>`).join('')}
+            </select>
+            <select class="text-[11px] bg-[#0f1826] text-slate-300 border border-[#26374c] rounded-md px-2 py-1.5" onchange="updateFilePriority('${id}', this.value)">
+              ${['Rendah','Sedang','Tinggi'].map(pr => `<option value="${pr}" ${priority === pr ? 'selected' : ''}>${pr}</option>`).join('')}
+            </select>
+            <button class="px-2.5 py-1.5 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="editFileDeadline('${id}', '${deadline}')">${deadline ? 'Deadline' : 'Set Deadline'}</button>
+            <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
+            <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
+            <button class="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Hapus Berkas" onclick="confirmDeleteLedgerRecord('${id}', '${safeName}')">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+            </button>
+          </div>
+        `;
         list.appendChild(card);
       });
+      const countLabel = document.getElementById('ledger-count-label');
       if (countLabel) countLabel.textContent = docs.length + ' berkas total';
       filterLedgerRecords();
-    };
-
-    unsubscribeLedger = window.fb.onSnapshot(q, (snapshot) => {
-      firstSnapshotReceived = true;
-      renderDocs(snapshot);
-    }, (err) => {
-      clearTimeout(ledgerWatchdog);
-      clearTimeout(ledgerFallbackTimer);
-      if (connection) { connection.textContent = 'Firestore error'; connection.className = 'text-[10px] text-rose-300'; }
-      userFiles = [];
-      const code = err && err.code ? err.code : 'unknown';
-      list.innerHTML = `<div class="rounded-lg border border-rose-900/50 bg-rose-950/20 p-4"><p class="text-sm font-semibold text-rose-300">Riwayat gagal dimuat.</p><p class="text-[11px] text-rose-300/80 mt-1 break-words">${String(err?.message || 'Tidak dapat membaca koleksi files.').replace(/</g,'&lt;')}</p><p class="text-[10px] text-slate-500 mt-2">Kode: ${String(code).replace(/</g,'&lt;')}</p></div>`;
-      updateProgressBimbingan(); updateDashboardSummary(); renderActivityTimeline();
-    });
-
-    // Fallback one-shot read: if a realtime listener is slow to initialize, try a direct read.
-    setTimeout(async () => {
-      if (firstSnapshotReceived || !currentUser || currentUser.uid !== uid) return;
-      try {
-        const snap = await window.fb.getDocs(q);
-        if (!firstSnapshotReceived) renderDocs(snap);
-      } catch (err) {
-        if (firstSnapshotReceived) return;
-        list.innerHTML = `<div class="rounded-lg border border-amber-900/50 bg-amber-950/20 p-4"><p class="text-sm font-semibold text-amber-300">Belum berhasil membaca riwayat.</p><p class="text-[11px] text-slate-400 mt-1 break-words">${String(err?.message || 'Firestore belum merespons.').replace(/</g,'&lt;')}</p></div>`;
-      }
-    }, 6000);
+    }, (err) => { list.innerHTML = '<p class="text-sm text-rose-400">Gagal memuat: ' + err.message + '</p>'; });
   }
 
   function updateDashboardSummary() {
@@ -1968,46 +1877,69 @@
     const searchInput = document.getElementById('library-search-input');
     if (searchInput) searchInput.value = '';
     renderLibraryBreadcrumb();
-    const statusEl = document.getElementById('library-status-text');
-    if (statusEl) statusEl.textContent = 'Memuat repositori...';
+    document.getElementById('library-status-text').textContent = 'Memuat repositori...';
     if (unsubscribeLibrary) { unsubscribeLibrary(); unsubscribeLibrary = null; }
-
-    // Read all library records for this user, then treat a missing parentId as
-    // the root folder. This preserves older records that predate parentId.
     const q = window.fb.query(
       window.fb.collection(window.fb.db, 'library'),
-      window.fb.where('owner', '==', uid)
+      window.fb.where('owner', '==', uid),
+      window.fb.where('parentId', '==', currentLibraryFolder)
     );
-
-    unsubscribeLibrary = window.fb.onSnapshot(q, (snapshot) => {
+    let legacyRootFallback = false;
+    unsubscribeLibrary = window.fb.onSnapshot(q, async (snapshot) => {
       if (!currentUser || currentUser.uid !== uid) return;
-      const all = [];
-      snapshot.forEach(d => all.push({ id:d.id, data:d.data() || {} }));
 
-      const folderId = currentLibraryFolder == null ? null : currentLibraryFolder;
-      const items = all.filter(item => {
-        const p = item.data.parentId == null ? null : item.data.parentId;
-        return p === folderId;
-      });
+      // Older library entries may not have parentId. At the root only, retry
+      // using owner-only and filter parentId client-side for backwards compatibility.
+      if (snapshot.empty && currentLibraryFolder === null && !legacyRootFallback) {
+        legacyRootFallback = true;
+        try {
+          const legacyQ = window.fb.query(
+            window.fb.collection(window.fb.db, 'library'),
+            window.fb.where('owner', '==', uid)
+          );
+          const legacySnap = await new Promise((resolve, reject) => {
+            const unsubLegacy = window.fb.onSnapshot(
+              legacyQ,
+              s => { unsubLegacy(); resolve(s); },
+              err => { unsubLegacy(); reject(err); }
+            );
+          });
+          const legacyItems = [];
+          legacySnap.forEach(d => legacyItems.push({id:d.id, data:d.data()}));
+          const rootItems = legacyItems.filter(item =>
+            item.data.parentId == null || item.data.parentId === null
+          );
+          lastLibraryFolders = rootItems.filter(i => i.data.type === 'folder');
+          lastLibraryFiles = rootItems.filter(i => i.data.type === 'file');
+          document.getElementById('library-summary-badge').textContent =
+            lastLibraryFolders.length + ' Direktori • ' + lastLibraryFiles.length + ' Berkas';
+          document.getElementById('library-status-text').textContent =
+            rootItems.length === 0 ? 'Folder ini masih kosong.' : 'Menampilkan isi folder saat ini.';
+          document.getElementById('library-sidebar-root-count').textContent = lastLibraryFiles.length;
+          document.getElementById('library-sidebar-total').textContent = lastLibraryFiles.length + ' Berkas';
+          renderLibraryFolders();
+          renderLibraryFiles();
+          return;
+        } catch (legacyErr) {
+          // Fall through to normal empty-state; do not alter existing data.
+        }
+      }
 
+      const items = [];
+      snapshot.forEach(d => items.push({ id: d.id, data: d.data() }));
       lastLibraryFolders = items.filter(i => i.data.type === 'folder');
       lastLibraryFiles = items.filter(i => i.data.type === 'file');
 
-      const badge = document.getElementById('library-summary-badge');
-      const status = document.getElementById('library-status-text');
-      const rootCount = document.getElementById('library-sidebar-root-count');
-      const total = document.getElementById('library-sidebar-total');
-
-      if (badge) badge.textContent = lastLibraryFolders.length + ' Direktori • ' + lastLibraryFiles.length + ' Berkas';
-      if (status) status.textContent = items.length === 0 ? 'Folder ini masih kosong.' : 'Menampilkan isi folder saat ini.';
-      if (rootCount) rootCount.textContent = lastLibraryFiles.length;
-      if (total) total.textContent = lastLibraryFiles.length + ' Berkas';
+      document.getElementById('library-summary-badge').textContent =
+        lastLibraryFolders.length + ' Direktori • ' + lastLibraryFiles.length + ' Berkas';
+      document.getElementById('library-status-text').textContent =
+        items.length === 0 ? 'Folder ini masih kosong.' : 'Menampilkan isi folder saat ini.';
+      document.getElementById('library-sidebar-root-count').textContent = lastLibraryFiles.length;
+      document.getElementById('library-sidebar-total').textContent = lastLibraryFiles.length + ' Berkas';
 
       renderLibraryFolders();
       renderLibraryFiles();
-    }, (err) => {
-      if (statusEl) statusEl.textContent = 'Gagal memuat: ' + (err?.message || 'Firestore error');
-    });
+    }, (err) => { document.getElementById('library-status-text').textContent = 'Gagal memuat: ' + err.message; });
   }
 
 
