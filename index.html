@@ -1166,8 +1166,8 @@
           <div class="flex items-start gap-3 min-w-0">
             <div class="p-2.5 rounded-lg shrink-0" style="background:${color}22; color:${color}">${fileIconSvg()}</div>
             <div class="min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <h3 class="text-sm font-semibold text-slate-100 break-words" title="${safeName}">${data.name}</h3>
+              <div class="flex items-center gap-2 flex-wrap min-w-0">
+                <h3 class="text-sm font-semibold text-slate-100 break-words flex-1 min-w-0" title="${safeName}">${data.name}</h3>
                 ${catBadge}
                 <span class="text-[10px] px-2 py-0.5 rounded border ${statusClass} font-semibold">${status}</span>
               </div>
@@ -1637,7 +1637,7 @@
             <div class="flex items-start gap-3 min-w-0">
               <div class="p-2.5 rounded-lg shrink-0" style="background:${color}22; color:${color}">${fileIconSvg()}</div>
               <div class="min-w-0">
-                <h3 class="text-sm font-semibold text-slate-100 break-words" title="${safeName}">${data.name}</h3>
+                <h3 class="text-sm font-semibold text-slate-100 break-words flex-1 min-w-0" title="${safeName}">${data.name}</h3>
                 <p class="text-xs text-slate-400 mt-0.5">Pemilik: ${ownerEmail}</p>
                 <p class="text-xs text-slate-500 mt-0.5">${data.note ? 'Catatan: ' + data.note : 'Tanpa catatan revisi.'}</p>
               </div>
