@@ -53,6 +53,55 @@
     .no-print { display: none !important; }
   }
 </style>
+
+<style id="syncta-sidebar-remaster">
+  body { overflow-x:hidden; }
+  #main-app { display:block !important; min-height:100vh; }
+  #main-app > header {
+    position:fixed; top:0; left:0; right:0; height:68px; z-index:80;
+    background:rgba(11,17,30,.94); border-bottom:1px solid #1e293b;
+  }
+  #main-app > header > div { max-width:none !important; height:68px !important; padding-left:24px !important; padding-right:24px !important; }
+  #main-app > header #main-tabs { display:none !important; }
+  #main-app > header .header-menu-btn { display:none; }
+  #syncta-sidebar {
+    position:fixed; left:0; top:68px; bottom:0; width:248px; z-index:70;
+    background:#0b111e; border-right:1px solid #1e293b; padding:18px 12px;
+    overflow-y:auto; transition:transform .25s ease;
+  }
+  #syncta-sidebar .side-label { padding:0 10px; margin:12px 0 7px; font-size:10px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:.12em; }
+  #syncta-sidebar button {
+    width:100%; display:flex; align-items:center; gap:11px; padding:10px 12px;
+    border:1px solid transparent; border-radius:10px; color:#94a3b8; font-size:12px; font-weight:700;
+    text-align:left; transition:.18s; margin-bottom:3px;
+  }
+  #syncta-sidebar button:hover { color:#e2e8f0; background:#121c2d; border-color:#223047; }
+  #syncta-sidebar button.active { color:#06181e; background:#00e5c9; box-shadow:0 0 14px -4px rgba(0,229,201,.5); }
+  #syncta-sidebar svg { width:17px; height:17px; flex:none; }
+  #syncta-sidebar .side-user { margin-top:auto; padding:12px 10px; border-top:1px solid #1e293b; }
+  #syncta-sidebar .side-user-name { font-size:11px; color:#cbd5e1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #syncta-sidebar .side-user-meta { font-size:10px; color:#64748b; margin-top:2px; }
+  #syncta-main { margin-left:248px; padding-top:68px; min-height:calc(100vh - 68px); }
+  #syncta-main > main { min-height:calc(100vh - 68px); }
+  #main-app > footer { margin-left:248px; }
+  #main-app > header .brand-wrap { display:flex; align-items:center; gap:10px; }
+  #main-app > header .brand-wrap .brand-sub { display:block; font-size:9px; color:#64748b; font-weight:600; margin-top:1px; }
+  #syncta-mobile-overlay { display:none; }
+  @media (max-width: 900px) {
+    #main-app > header .header-menu-btn { display:flex; }
+    #syncta-sidebar { transform:translateX(-100%); box-shadow:18px 0 40px rgba(0,0,0,.35); }
+    #syncta-sidebar.open { transform:translateX(0); }
+    #syncta-main { margin-left:0; }
+    #main-app > footer { margin-left:0; }
+    #syncta-mobile-overlay { position:fixed; inset:68px 0 0; z-index:60; background:rgba(0,0,0,.55); }
+    #syncta-mobile-overlay.show { display:block; }
+    #main-app > header > div { padding-left:14px !important; padding-right:14px !important; }
+  }
+  @media (min-width: 901px) {
+    #main-app > header .brand-wrap { margin-left:0; }
+  }
+</style>
+
 </head>
 <body class="bg-brand-dark text-slate-200 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-teal selection:text-slate-900">
 
@@ -81,26 +130,16 @@
   <!-- ===== HEADER ===== -->
   <header class="border-b border-brand-border bg-[#0b111e]/90 backdrop-blur-md sticky top-0 z-40">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3 shrink-0">
+      <div class="brand-wrap">
+        <button class="header-menu-btn w-9 h-9 rounded-lg bg-brand-panel border border-brand-border text-slate-300 items-center justify-center hover:text-white hover:border-brand-teal/50 transition" onclick="toggleSyncTASidebar()" aria-label="Buka menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
+        </button>
         <div class="w-9 h-9 rounded-lg bg-brand-teal flex items-center justify-center font-bold text-slate-950 text-sm glow-teal-sm">TA</div>
-        <span class="text-lg font-bold text-white tracking-wide">SyncTA</span>
+        <div>
+          <span class="text-lg font-bold text-white tracking-wide">SyncTA</span>
+          <span class="brand-sub">Tugas Akhir Workspace</span>
+        </div>
       </div>
-      <nav id="main-tabs" class="hidden items-center gap-2 overflow-x-auto">
-        <button id="maintab-upload-btn" onclick="switchMainTab('upload')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Upload &amp; Riwayat
-        </button>
-        <button id="maintab-notes-btn" onclick="switchMainTab('notes')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Catatan Revisi
-          <span id="notes-count-badge" class="hidden ml-0.5 px-1.5 py-0.2 text-[10px] font-bold bg-slate-950 text-white rounded-full">0</span>
-        </button>
-        <button id="maintab-library-btn" onclick="switchMainTab('library')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 6.25v13M12 6.25C10.83 5.48 9.25 5 7.5 5S4.17 5.48 3 6.25v13C4.17 18.48 5.75 18 7.5 18s3.33.48 4.5 1.25m0-13C13.17 5.48 14.75 5 16.5 5c1.75 0 3.33.48 4.5 1.25v13C19.83 18.48 18.25 18 16.5 18c-1.75 0-3.33.48-4.5 1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Daftar Pustaka
-        </button>
-        <button id="maintab-admin-btn" onclick="switchMainTab('admin')" class="hidden flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">Admin</button>
-      </nav>
       <div class="flex items-center gap-3 shrink-0">
         <span id="header-user-name" class="text-xs text-slate-400 font-mono hidden sm:inline-block">Belum masuk</span>
         <button id="header-logout-btn" onclick="window.fb.signOut(window.fb.auth)" class="hidden px-2.5 py-1 text-xs font-medium text-rose-300 hover:text-rose-100 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-900/50 rounded-md transition">Keluar</button>
@@ -108,7 +147,7 @@
     </div>
   </header>
 
-  <main class="flex-1 w-full">
+  <div id="syncta-main"><main class="flex-1 w-full">
 
     <!-- ===== AUTH CARD ===== -->
     <div id="auth-card" class="max-w-md mx-auto mt-12 mb-12 px-4">
@@ -533,7 +572,7 @@
       </section>
     </div>
 
-  </main>
+  </main></div>
 
   <footer class="border-t border-brand-border bg-[#070b12] py-4 mt-auto text-center text-xs text-slate-500">
     © 2026 SyncTA — Sistem Manajemen Tugas Akhir &amp; Bimbingan.
@@ -555,6 +594,28 @@
 <div class="toast" id="toast-notification"><span id="toast-message"></span></div>
 
 <script>
+
+  // ---------- Sidebar UI (presentation only; existing tab logic remains intact) ----------
+  function setSideActive(key) {
+    document.querySelectorAll('#syncta-sidebar button').forEach(b => b.classList.remove('active'));
+    const el = document.getElementById('side-' + key);
+    if (el) el.classList.add('active');
+    if (window.innerWidth <= 900) {
+      document.getElementById('syncta-sidebar')?.classList.remove('open');
+      document.getElementById('syncta-mobile-overlay')?.classList.remove('show');
+    }
+  }
+  function toggleSyncTASidebar() {
+    document.getElementById('syncta-sidebar')?.classList.toggle('open');
+    document.getElementById('syncta-mobile-overlay')?.classList.toggle('show');
+  }
+  function syncSidebarWithTab(tab) {
+    if (tab === 'library') setSideActive('library');
+    else if (tab === 'notes') setSideActive('bimbingan');
+    else if (tab === 'admin') setSideActive('admin');
+    else setSideActive('dashboard');
+  }
+
   // ---------- Class helpers ----------
   const TAB_ACTIVE = 'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-brand-teal text-slate-950 shadow-sm transition';
   const TAB_INACTIVE = 'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-[#161f30] border border-transparent hover:border-[#25324c] transition';
@@ -610,6 +671,25 @@
   }
   ['mousemove','keydown','click','touchstart','scroll'].forEach(evt => {
     document.addEventListener(evt, resetIdleTimer, { passive: true });
+  });
+
+
+  function syncAdminSidebarVisibility() {
+    const mainAdmin = document.getElementById('maintab-admin-btn');
+    const wrap = document.getElementById('side-admin-wrap');
+    if (wrap && mainAdmin) wrap.classList.toggle('hidden', mainAdmin.classList.contains('hidden'));
+  }
+  const _syncAdminObserver = new MutationObserver(syncAdminSidebarVisibility);
+  window.addEventListener('DOMContentLoaded', () => {
+    syncAdminSidebarVisibility();
+    setSideActive('dashboard');
+    const n = document.getElementById('header-user-name');
+    const sn = document.getElementById('sidebar-user-name');
+    if (n && sn) {
+      const obs = new MutationObserver(() => sn.textContent = n.textContent || 'Belum masuk');
+      obs.observe(n, {childList:true, characterData:true, subtree:true});
+    }
+    _syncAdminObserver.observe(document.getElementById('maintab-admin-btn') || document.body, {attributes:true, attributeFilter:['class']});
   });
 
   // ---------- Auth ----------
@@ -888,6 +968,8 @@
     adminBtn.className = (tab === 'admin' ? TAB_ACTIVE : TAB_INACTIVE) + (isAdmin ? '' : ' hidden');
     if (tab === 'notes') populateNoteFileSelect();
     if (tab === 'library' && currentUser) loadLibrary(currentUser.uid);
+  
+    syncSidebarWithTab(tab);
   }
 
   // ---------- Upload ----------
