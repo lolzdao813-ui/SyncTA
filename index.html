@@ -54,171 +54,47 @@
   }
 </style>
 
-<style id="syncta-sidebar-v2">
-  /* --- Sidebar shell --- */
-  #main-app > header {
-    position:fixed;
-    top:0; left:0; right:0;
-    z-index:80;
+<style id="syncta-sidebar-migration-v2">
+  #main-app > header{position:fixed;top:0;left:0;right:0;z-index:80}
+  #main-app > header #main-tabs{display:none!important}
+  #syncta-sidebar{
+    display:none;position:fixed;top:64px;left:0;bottom:0;width:244px;z-index:70;
+    background:#0b111e;border-right:1px solid #1e293b;padding:16px 12px;overflow-y:auto
   }
-  #main-app > header #main-tabs {
-    display:none !important;
+  #syncta-sidebar.ready{display:block}
+  #syncta-sidebar .sb-label{
+    padding:0 10px;margin:12px 0 7px;color:#64748b;font-size:10px;font-weight:800;
+    line-height:1;text-transform:uppercase;letter-spacing:.12em
   }
-  #syncta-sidebar {
-    position:fixed;
-    top:64px; left:0; bottom:0;
-    width:244px;
-    z-index:70;
-    background:#0b111e;
-    border-right:1px solid #1e293b;
-    padding:16px 12px;
-    overflow-y:auto;
+  #syncta-sidebar .sb-btn{
+    width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:3px;
+    border:1px solid transparent;border-radius:10px;color:#94a3b8;background:transparent;
+    font-size:12px;font-weight:700;text-align:left;cursor:pointer;transition:.18s ease
   }
-  #syncta-sidebar.v2-hidden { display:none !important; }
-  #syncta-sidebar .sb-label {
-    padding:0 10px;
-    margin:12px 0 7px;
-    color:#64748b;
-    font-size:10px;
-    font-weight:800;
-    line-height:1;
-    text-transform:uppercase;
-    letter-spacing:.12em;
+  #syncta-sidebar .sb-btn:hover{color:#e2e8f0;background:#121c2d;border-color:#223047}
+  #syncta-sidebar .sb-btn.active{
+    color:#06181e;background:#00e5c9;box-shadow:0 0 14px -4px rgba(0,229,201,.5)
   }
-  #syncta-sidebar .sb-btn {
-    width:100%;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:10px 12px;
-    margin-bottom:3px;
-    border:1px solid transparent;
-    border-radius:10px;
-    color:#94a3b8;
-    background:transparent;
-    font-size:12px;
-    font-weight:700;
-    text-align:left;
-    cursor:pointer;
-    transition:.18s ease;
+  #syncta-sidebar .sb-btn svg{width:17px;height:17px;flex:none}
+  #syncta-sidebar .sb-user{margin-top:18px;padding:12px 10px 2px;border-top:1px solid #1e293b}
+  #syncta-sidebar .sb-user-name{color:#cbd5e1;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #syncta-sidebar .sb-user-meta{margin-top:2px;color:#64748b;font-size:10px}
+  #syncta-shell{margin-left:244px;padding-top:64px;min-height:calc(100vh - 64px)}
+  #syncta-shell > main{min-height:calc(100vh - 64px)}
+  #syncta-shell + footer{margin-left:244px}
+  @media(max-width:900px){
+    #syncta-sidebar{transform:translateX(-100%);transition:transform .22s ease;box-shadow:18px 0 40px rgba(0,0,0,.35)}
+    #syncta-sidebar.mobile-open{transform:translateX(0)}
+    #syncta-shell{margin-left:0}
+    #syncta-shell + footer{margin-left:0}
+    #syncta-menu-btn{display:flex!important}
+    #syncta-sidebar-overlay{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;z-index:60;background:rgba(0,0,0,.55)}
+    #syncta-sidebar-overlay.show{display:block}
   }
-  #syncta-sidebar .sb-btn:hover {
-    color:#e2e8f0;
-    background:#121c2d;
-    border-color:#223047;
-  }
-  #syncta-sidebar .sb-btn.active {
-    color:#06181e;
-    background:#00e5c9;
-    box-shadow:0 0 14px -4px rgba(0,229,201,.5);
-  }
-  #syncta-sidebar .sb-btn svg {
-    width:17px; height:17px; flex:none;
-  }
-  #syncta-sidebar .sb-user {
-    margin-top:18px;
-    padding:12px 10px 2px;
-    border-top:1px solid #1e293b;
-  }
-  #syncta-sidebar .sb-user-name {
-    color:#cbd5e1;
-    font-size:11px;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-  #syncta-sidebar .sb-user-meta {
-    margin-top:2px;
-    color:#64748b;
-    font-size:10px;
-  }
-
-  /* Keep the original main DOM and just make room for it. */
-  #syncta-main-wrap {
-    margin-left:244px;
-    padding-top:64px;
-    min-height:calc(100vh - 64px);
-  }
-  #syncta-main-wrap > main {
-    min-height:calc(100vh - 64px);
-  }
-  #syncta-main-wrap + footer {
-    margin-left:244px;
-  }
-
-  /* --- Existing Upload & Riwayat cards, grouped by view --- */
-  #tab-content-upload.syncta-v2-dashboard > div:first-child {
-    grid-template-columns:minmax(0,1fr) !important;
-  }
-  #tab-content-upload.syncta-v2-dashboard #syncta-left > :not(#syncta-dashboard) {
-    display:none !important;
-  }
-  #tab-content-upload.syncta-v2-dashboard #syncta-right {
-    display:none !important;
-  }
-
-  #tab-content-upload.syncta-v2-documents > div:first-child {
-    grid-template-columns:minmax(0,1fr) !important;
-  }
-  #tab-content-upload.syncta-v2-documents #syncta-left {
-    display:none !important;
-  }
-
-  #tab-content-upload.syncta-v2-progress > div:first-child {
-    grid-template-columns:minmax(0,1fr) !important;
-  }
-  #tab-content-upload.syncta-v2-progress #syncta-right {
-    display:none !important;
-  }
-  #tab-content-upload.syncta-v2-progress #syncta-dashboard {
-    display:none !important;
-  }
-
-  #tab-content-upload.syncta-v2-dashboard #syncta-left,
-  #tab-content-upload.syncta-v2-documents #syncta-right,
-  #tab-content-upload.syncta-v2-progress #syncta-left {
-    max-width:1100px;
-    width:100%;
-    margin:0 auto;
-  }
-
-  /* --- Existing Notes tab split into two sidebar destinations --- */
-  #tab-content-notes.syncta-v2-bimbingan > section:nth-of-type(3),
-  #tab-content-notes.syncta-v2-bimbingan > section:nth-of-type(4) {
-    display:none !important;
-  }
-  #tab-content-notes.syncta-v2-jadwal > section:nth-of-type(1),
-  #tab-content-notes.syncta-v2-jadwal > section:nth-of-type(2) {
-    display:none !important;
-  }
-
-  @media (max-width:900px) {
-    #syncta-sidebar {
-      transform:translateX(-100%);
-      box-shadow:18px 0 40px rgba(0,0,0,.35);
-      transition:transform .22s ease;
-    }
-    #syncta-sidebar.v2-open { transform:translateX(0); }
-    #syncta-sidebar-overlay {
-      display:none;
-      position:fixed;
-      top:64px; right:0; bottom:0; left:0;
-      z-index:60;
-      background:rgba(0,0,0,.55);
-    }
-    #syncta-sidebar-overlay.v2-show { display:block; }
-    #syncta-main-wrap { margin-left:0; }
-    #syncta-main-wrap + footer { margin-left:0; }
-    #syncta-menu-btn { display:flex !important; }
-  }
-  @media (min-width:901px) {
-    #syncta-menu-btn { display:none !important; }
-  }
-
-  /* Logged out: same original auth screen, without sidebar. */
-  body.syncta-v2-logged-out #syncta-sidebar { display:none !important; }
-  body.syncta-v2-logged-out #syncta-main-wrap { margin-left:0; }
-  body.syncta-v2-logged-out #syncta-main-wrap + footer { margin-left:0; }
+  @media(min-width:901px){#syncta-menu-btn{display:none!important}}
+  body.syncta-sidebar-logged-out #syncta-sidebar{display:none!important}
+  body.syncta-sidebar-logged-out #syncta-shell{margin-left:0}
+  body.syncta-sidebar-logged-out #syncta-shell + footer{margin-left:0}
 </style>
 
 </head>
@@ -280,7 +156,7 @@
   </header>
 
 
-  <aside id="syncta-sidebar" class="v2-hidden" aria-label="Navigasi SyncTA">
+  <aside id="syncta-sidebar" aria-label="Navigasi SyncTA">
     <div class="sb-label">Workspace</div>
     <button type="button" id="sb-dashboard" class="sb-btn" onclick="goSidebar('dashboard')">
       <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 12l9-8 9 8v8a2 2 0 01-2 2h-4v-6H9v6H5a2 2 0 01-2-2v-8z"/></svg>
@@ -314,7 +190,7 @@
     <div id="sb-admin-wrap" class="hidden">
       <div class="sb-label">Sistem</div>
       <button type="button" id="sb-admin" class="sb-btn" onclick="goSidebar('admin')">
-        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1.6-1v.1h-2.6V20a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 008 15a1.7 1.7 0 00-1.6-1H6.3v-2.6h.1A1.7 1.7 0 008 10a1.7 1.7 0 00-.3-1.9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 001.9.3 1.7 1.7 0 001-1.6v-.1h2.6V5a1.7 1.7 0 001 1.6 1.7 1.7 0 001.9-.3l-.1-.1 1.8 1.8-.1.1a1.7 1.7 0 00-.3 1.9 1.7 1.7 0 001.6 1h.1v2.6h-.1a1.7 1.7 0 00-1.6 1.4z"/></svg>
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6v.1h-2.6V20a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1-1.8-1.8.1-.1A1.7 1.7 0 008 15a1.7 1.7 0 00-1.6-1H6.3v-2.6h.1A1.7 1.7 0 008 10a1.7 1.7 0 00-.3-1.9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 001.9.3 1.7 1.7 0 001-1.6v-.1h2.6V5a1.7 1.7 0 001 1.6 1.7 1.7 0 001.9-.3l-.1-.1 1.8 1.8-.1.1a1.7 1.7 0 001.6.9h.1v2.6h-.1a1.7 1.7 0 001.6 1.4z"/></svg>
         <span>Admin</span>
       </button>
     </div>
@@ -326,7 +202,7 @@
   </aside>
   <div id="syncta-sidebar-overlay" onclick="toggleSyncTASidebar()"></div>
 
-  <div id="syncta-main-wrap">
+  <div id="syncta-shell">
   <main class="flex-1 w-full">
 
     <!-- ===== AUTH CARD ===== -->
@@ -776,136 +652,177 @@
 
 <script>
 
-  // ---------- Sidebar migration (UI/navigation only) ----------
+  // ---------- Sidebar migration: UI/navigation only ----------
   let synctaSidebarPrepared = false;
 
   function prepareSynctaSidebar() {
     if (synctaSidebarPrepared) return true;
     const upload = document.getElementById('tab-content-upload');
     if (!upload || !upload.children[0]) return false;
-
     const grid = upload.children[0];
     const left = grid.children[0];
     const right = grid.children[1];
     if (!left || !right) return false;
 
-    grid.classList.add('syncta-upload-grid');
-    left.id = 'syncta-left';
-    right.id = 'syncta-right';
+    left.id = 'syncta-original-left';
+    right.id = 'syncta-original-right';
 
     const leftSections = Array.from(left.querySelectorAll(':scope > section'));
     const rightSections = Array.from(right.querySelectorAll(':scope > section'));
-
     if (leftSections.length >= 5) {
-      leftSections[0].id = 'syncta-progress-card';
-      leftSections[1].id = 'syncta-dashboard';
-      leftSections[2].id = 'syncta-checklist-card';
-      leftSections[3].id = 'syncta-quicknote-card';
-      leftSections[4].id = 'syncta-timeline-card';
+      leftSections[0].id='syncta-progress-card';
+      leftSections[1].id='syncta-dashboard-card';
+      leftSections[2].id='syncta-checklist-card';
+      leftSections[3].id='syncta-quicknote-card';
+      leftSections[4].id='syncta-timeline-card';
     }
     if (rightSections.length >= 2) {
-      rightSections[0].id = 'syncta-upload-card';
-      rightSections[1].id = 'syncta-ledger-card';
+      rightSections[0].id='syncta-upload-card';
+      rightSections[1].id='syncta-ledger-card';
     }
-
-    synctaSidebarPrepared = true;
+    synctaSidebarPrepared=true;
     return true;
   }
 
-  function setSynctaSidebarState(user) {
-    const side = document.getElementById('syncta-sidebar');
-    const userName = document.getElementById('sb-user-name');
-    const body = document.body;
-    if (!side) return;
+  function synctaHide(el){ if(el) el.style.display='none'; }
+  function synctaShow(el){ if(el) el.style.display=''; }
 
-    body.classList.toggle('syncta-v2-logged-out', !user);
-
-    if (user) {
-      side.classList.remove('v2-hidden');
-      if (userName) userName.textContent = user.email || 'Pengguna';
-      prepareSynctaSidebar();
-      const adminBtn = document.getElementById('maintab-admin-btn');
-      const adminWrap = document.getElementById('sb-admin-wrap');
-      if (adminBtn && adminWrap) adminWrap.classList.toggle('hidden', adminBtn.classList.contains('hidden'));
-    } else {
-      side.classList.add('v2-hidden');
-      if (userName) userName.textContent = 'Belum masuk';
-    }
-  }
-
-  function toggleSyncTASidebar() {
-    if (!currentUser) return;
-    const side = document.getElementById('syncta-sidebar');
-    const overlay = document.getElementById('syncta-sidebar-overlay');
-    if (window.innerWidth <= 900) {
-      side?.classList.toggle('v2-open');
-      overlay?.classList.toggle('v2-show');
-    }
-  }
-
-  function closeSyncTASidebar() {
-    document.getElementById('syncta-sidebar')?.classList.remove('v2-open');
-    document.getElementById('syncta-sidebar-overlay')?.classList.remove('v2-show');
-  }
-
-  function setSynctaActive(key) {
-    document.querySelectorAll('#syncta-sidebar .sb-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById('sb-' + key)?.classList.add('active');
-  }
-
-  function goSidebar(key) {
-    if (!currentUser) return;
-
-    prepareSynctaSidebar();
-    setSynctaActive(key);
-    closeSyncTASidebar();
+  function synctaApplyWorkspace(view) {
+    if (!prepareSynctaSidebar()) return false;
 
     const upload = document.getElementById('tab-content-upload');
-    const notes = document.getElementById('tab-content-notes');
+    const left = document.getElementById('syncta-original-left');
+    const right = document.getElementById('syncta-original-right');
 
-    if (key === 'dashboard' || key === 'documents' || key === 'progress') {
-      if (upload) {
-        upload.classList.remove('syncta-v2-dashboard','syncta-v2-documents','syncta-v2-progress');
-        upload.classList.add('syncta-v2-' + key);
-      }
-      switchMainTab('upload');
-      window.scrollTo({top:0, behavior:'smooth'});
-      return;
+    const dashboard = document.getElementById('syncta-dashboard-card');
+    const progress = [
+      document.getElementById('syncta-progress-card'),
+      document.getElementById('syncta-checklist-card'),
+      document.getElementById('syncta-quicknote-card'),
+      document.getElementById('syncta-timeline-card')
+    ];
+    const documents = [
+      document.getElementById('syncta-upload-card'),
+      document.getElementById('syncta-ledger-card')
+    ];
+
+    [dashboard, ...progress, ...documents].forEach(synctaShow);
+
+    if (view === 'dashboard') {
+      progress.forEach(synctaHide);
+      documents.forEach(synctaHide);
+      if (left) left.style.display='';
+      if (right) right.style.display='none';
+    } else if (view === 'documents') {
+      synctaHide(dashboard);
+      progress.forEach(synctaHide);
+      if (left) left.style.display='none';
+      if (right) right.style.display='';
+    } else if (view === 'progress') {
+      synctaHide(dashboard);
+      documents.forEach(synctaHide);
+      if (left) left.style.display='';
+      if (right) right.style.display='none';
     }
+    if (upload) upload.classList.remove('syncta-page-dashboard','syncta-page-documents','syncta-page-progress');
+    if (upload) upload.classList.add('syncta-page-'+view);
+    return true;
+  }
 
-    if (key === 'bimbingan') {
-      notes?.classList.remove('syncta-v2-jadwal');
-      notes?.classList.add('syncta-v2-bimbingan');
-      switchMainTab('notes');
-      window.scrollTo({top:0, behavior:'smooth'});
-      return;
-    }
+  function synctaSetActive(key){
+    document.querySelectorAll('#syncta-sidebar .sb-btn').forEach(btn=>btn.classList.remove('active'));
+    document.getElementById('sb-'+key)?.classList.add('active');
+  }
 
-    if (key === 'jadwal') {
-      notes?.classList.remove('syncta-v2-bimbingan');
-      notes?.classList.add('syncta-v2-jadwal');
-      switchMainTab('notes');
-      window.scrollTo({top:0, behavior:'smooth'});
-      return;
-    }
-
-    if (key === 'library') {
-      switchMainTab('library');
-      return;
-    }
-
-    if (key === 'admin') {
-      switchMainTab('admin');
-      return;
+  function toggleSyncTASidebar(){
+    if(!currentUser) return;
+    const side=document.getElementById('syncta-sidebar');
+    const overlay=document.getElementById('syncta-sidebar-overlay');
+    if(window.innerWidth<=900){
+      side?.classList.toggle('mobile-open');
+      overlay?.classList.toggle('show');
     }
   }
 
-  window.toggleSyncTASidebar = toggleSyncTASidebar;
-  window.goSidebar = goSidebar;
+  function closeSyncTASidebar(){
+    document.getElementById('syncta-sidebar')?.classList.remove('mobile-open');
+    document.getElementById('syncta-sidebar-overlay')?.classList.remove('show');
+  }
 
+  function sidebarAuthSync(user){
+    const side=document.getElementById('syncta-sidebar');
+    const name=document.getElementById('sb-user-name');
+    if(!side) return;
+    document.body.classList.toggle('syncta-sidebar-logged-out',!user);
+    side.classList.toggle('ready',!!user);
+    side.style.display=user?'block':'none';
+    if(name) name.textContent=user?(user.email||'Pengguna'):'Belum masuk';
 
-  document.addEventListener('DOMContentLoaded', () => {
+    const adminBtn=document.getElementById('maintab-admin-btn');
+    const adminWrap=document.getElementById('sb-admin-wrap');
+    if(adminBtn&&adminWrap) adminWrap.classList.toggle('hidden',adminBtn.classList.contains('hidden'));
+
+    if(user){
+      prepareSynctaSidebar();
+      setTimeout(()=>goSidebar('dashboard'),0);
+    }
+  }
+
+  function goSidebar(key){
+    if(!currentUser) return;
     prepareSynctaSidebar();
+    synctaSetActive(key);
+    closeSyncTASidebar();
+
+    if(key==='dashboard'||key==='documents'||key==='progress'){
+      const upload=document.getElementById('tab-content-upload');
+      if(upload) synctaApplyWorkspace(key);
+      switchMainTab('upload');
+      // switchMainTab only controls the original parent tab.
+      // Apply the child-page state again after it finishes.
+      synctaApplyWorkspace(key);
+      window.scrollTo({top:0,behavior:'smooth'});
+      return;
+    }
+
+    if(key==='bimbingan'){
+      const notes=document.getElementById('tab-content-notes');
+      notes?.classList.remove('syncta-page-jadwal');
+      notes?.classList.add('syncta-page-bimbingan');
+      switchMainTab('notes');
+      window.scrollTo({top:0,behavior:'smooth'});
+      return;
+    }
+
+    if(key==='jadwal'){
+      const notes=document.getElementById('tab-content-notes');
+      notes?.classList.remove('syncta-page-bimbingan');
+      notes?.classList.add('syncta-page-jadwal');
+      switchMainTab('notes');
+      window.scrollTo({top:0,behavior:'smooth'});
+      return;
+    }
+
+    if(key==='library'){ switchMainTab('library'); return; }
+    if(key==='admin'){ switchMainTab('admin'); return; }
+  }
+
+  window.goSidebar=goSidebar;
+  window.toggleSyncTASidebar=toggleSyncTASidebar;
+
+  // Existing auth callback remains untouched. This observer only mirrors its
+  // existing auth-card visibility into the new sidebar.
+  document.addEventListener('DOMContentLoaded',()=>{
+    prepareSynctaSidebar();
+    const authCard=document.getElementById('auth-card');
+    if(authCard){
+      const observer=new MutationObserver(()=>{
+        const loggedIn=authCard.style.display==='none';
+        sidebarAuthSync(loggedIn ? currentUser : null);
+      });
+      observer.observe(authCard,{attributes:true,attributeFilter:['style']});
+      sidebarAuthSync(currentUser);
+    }
   });
 
   // ---------- Class helpers ----------
@@ -1082,13 +999,7 @@
       revisionTarget = 5;
       updateProgressBimbingan();
     }
-  
-    setSynctaSidebarState(user);
-    if (user) {
-      // Default destination after login: the original Dashboard card, now surfaced in the sidebar.
-      setTimeout(() => goSidebar('dashboard'), 0);
-    }
-  ;
+  };
 
   // Guard against stale/cached page state (e.g. browser back-forward cache)
   // showing a previous logged-in session's DOM after the user is actually logged out.
