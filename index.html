@@ -48,6 +48,10 @@
   #viewer-preview-area iframe { width: 100%; height: 70vh; border: none; border-radius: 8px; background: #fff; }
   #library-preview-body img { max-width: 100%; max-height: 75vh; display: block; margin: 0 auto; border-radius: 8px; }
   #library-preview-body iframe { width: 100%; height: 70vh; border: none; border-radius: 8px; background: #fff; }
+  @media print {
+    body { background: #fff !important; color: #111827 !important; }
+    .no-print { display: none !important; }
+  }
 </style>
 </head>
 <body class="bg-brand-dark text-slate-200 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-teal selection:text-slate-900">
@@ -158,7 +162,10 @@
             <h2 class="text-base font-semibold text-white">Dashboard TA</h2>
             <p class="text-xs text-slate-500 mt-1">Ringkasan status dokumen dan progres pengerjaan.</p>
           </div>
-          <span id="dashboard-last-update" class="text-[10px] text-slate-500 font-mono">Belum ada data</span>
+          <div class="flex items-center gap-2">
+            <span id="dashboard-last-update" class="text-[10px] text-slate-500 font-mono hidden sm:inline">Belum ada data</span>
+            <button onclick="exportProgressReport()" class="px-3 py-1.5 rounded-md bg-brand-panel hover:bg-slate-800 border border-brand-border text-slate-300 hover:text-white text-[11px] font-semibold transition">Export Laporan</button>
+          </div>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Total Berkas</p><p id="dash-total" class="text-xl font-bold text-white mt-1">0</p></div>
@@ -170,6 +177,19 @@
           <div class="flex items-center justify-between text-[11px] mb-1.5"><span class="text-slate-400">Penyelesaian dokumen</span><span id="dash-progress-label" class="text-slate-300">0%</span></div>
           <div class="w-full bg-[#1a2533] rounded-full h-1.5 overflow-hidden"><div id="dash-progress-fill" class="bg-brand-teal h-full rounded-full transition-all duration-500" style="width:0%"></div></div>
         </div>
+      </section>
+
+      <!-- ===== CHECKLIST TA ===== -->
+      <section class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg shadow-black/20">
+        <div class="flex items-center justify-between mb-4 gap-3">
+          <div>
+            <h2 class="text-base font-semibold text-white">Checklist Progress TA</h2>
+            <p class="text-xs text-slate-500 mt-1">Checklist mengikuti tahapan pada rundown kampus.</p>
+          </div>
+          <span id="checklist-progress-label" class="text-[11px] font-semibold text-brand-teal">0%</span>
+        </div>
+        <div class="w-full bg-[#1a2533] rounded-full h-1.5 overflow-hidden mb-4"><div id="checklist-progress-fill" class="bg-brand-teal h-full rounded-full transition-all" style="width:0%"></div></div>
+        <div id="ta-checklist" class="space-y-2 max-h-[430px] overflow-y-auto pr-1"></div>
       </section>
 
       <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
@@ -252,6 +272,18 @@
             <label class="block text-xs font-medium text-slate-400 mb-1.5">Status</label>
             <select id="file-status-select" class="w-full bg-white text-slate-800 text-sm font-medium rounded-md px-3.5 py-2.5 appearance-none focus:outline-none focus:ring-2 focus:ring-brand-teal border-0 cursor-pointer">
               <option value="Draft">Draft</option><option value="Menunggu Review">Menunggu Review</option><option value="Revisi">Revisi</option><option value="Selesai">Selesai</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">Deadline Revisi <span class="text-slate-600">(opsional)</span></label>
+            <input type="date" id="file-deadline-input" class="w-full bg-white text-slate-800 text-sm font-medium rounded-md px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-teal border-0">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5">Prioritas</label>
+            <select id="file-priority-select" class="w-full bg-white text-slate-800 text-sm font-medium rounded-md px-3.5 py-2.5 appearance-none focus:outline-none focus:ring-2 focus:ring-brand-teal border-0 cursor-pointer">
+              <option value="Rendah">Rendah</option><option value="Sedang" selected>Sedang</option><option value="Tinggi">Tinggi</option>
             </select>
           </div>
         </div>
@@ -541,6 +573,7 @@
   let hasUnsavedDraft = false;
   let revisionTarget = 5;
   let userRevisionNotes = [];
+  let userChecklist = {};
   let currentLibraryFolder = null;
   let libraryPath = [{ id: null, name: 'Daftar Pustaka' }];
   let unsubscribeLibrary = null;
@@ -664,6 +697,7 @@
       loadLedger(user.uid);
       loadNotes(user.uid);
       loadQuickNotes(user.uid);
+      loadChecklist(user.uid);
       updateQuickNoteDateLabel();
       resetIdleTimer();
 
@@ -690,6 +724,8 @@
       adminBtn.classList.add('hidden');
       userFiles = [];
       userRevisionNotes = [];
+      userChecklist = {};
+      renderChecklist();
       revisionTarget = 5;
       updateProgressBimbingan();
     }
@@ -906,8 +942,12 @@
     document.getElementById('revision-notes').value = '';
     const bab = document.getElementById('file-bab-select');
     const status = document.getElementById('file-status-select');
+    const deadline = document.getElementById('file-deadline-input');
+    const priority = document.getElementById('file-priority-select');
     if (bab) bab.value = 'Umum';
     if (status) status.value = 'Draft';
+    if (deadline) deadline.value = '';
+    if (priority) priority.value = 'Sedang';
     document.getElementById('file-selector').value = '';
     stagedFiles = [];
     renderStagedFileList();
@@ -940,6 +980,8 @@
     const category = document.getElementById('file-category-select').value;
     const bab = document.getElementById('file-bab-select').value;
     const status = document.getElementById('file-status-select').value;
+    const deadline = document.getElementById('file-deadline-input').value || '';
+    const priority = document.getElementById('file-priority-select').value || 'Sedang';
     const wrap = document.getElementById('progress-bar-wrap');
     const bar = document.getElementById('progress-bar');
     const msg = document.getElementById('upload-msg');
@@ -966,7 +1008,7 @@
         versionCounters[baseName] = (versionCounters[baseName] || 0) + 1;
         const version = versionCounters[baseName];
         await window.fb.addDoc(window.fb.collection(window.fb.db, 'files'), {
-          owner: currentUser.uid, name: file.name, ext, size: sizeLabel, category, bab, status, version,
+          owner: currentUser.uid, name: file.name, ext, size: sizeLabel, category, bab, status, version, priority, deadline,
           url: data.secure_url, publicId: data.public_id, note: notes, createdAt: Date.now()
         });
       } catch (e) {
@@ -1101,6 +1143,10 @@
         const bab = data.bab || 'Umum';
         const status = data.status || 'Draft';
         const version = data.version || 1;
+        const priority = data.priority || 'Sedang';
+        const deadline = data.deadline || '';
+        const deadlinePassed = deadline && deadline < new Date().toISOString().slice(0,10) && status !== 'Selesai';
+        const priorityClass = priority === 'Tinggi' ? 'text-rose-300 bg-rose-500/10 border-rose-500/20' : priority === 'Rendah' ? 'text-slate-300 bg-slate-500/10 border-slate-500/20' : 'text-amber-300 bg-amber-500/10 border-amber-500/20';
         const color = EXT_COLOR[rawExt] || '#8b91a3';
         const statusClass = status === 'Selesai' ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20' : status === 'Revisi' ? 'text-amber-300 bg-amber-500/10 border-amber-500/20' : status === 'Menunggu Review' ? 'text-blue-300 bg-blue-500/10 border-blue-500/20' : 'text-slate-300 bg-slate-500/10 border-slate-500/20';
         const catBadge = category === 'sampingan'
@@ -1128,6 +1174,8 @@
               <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
                 <span class="text-[10px] px-2 py-0.5 rounded bg-brand-teal/10 text-brand-teal border border-brand-teal/20 font-semibold">${bab}</span>
                 <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 font-semibold">v${version}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded border ${priorityClass} font-semibold">Prioritas ${priority}</span>
+                ${deadline ? `<span class="text-[10px] px-2 py-0.5 rounded ${deadlinePassed ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20'} font-semibold">${deadlinePassed ? 'Lewat' : 'Deadline'} ${deadline}</span>` : ''}
               </div>
               <p class="text-xs text-slate-400 mt-1.5 break-words whitespace-pre-wrap">${data.note ? 'Catatan: ' + data.note.replace(/</g,'&lt;') : 'Tanpa catatan revisi.'}</p>
               <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-1.5 font-medium">
@@ -1139,6 +1187,10 @@
             <select class="text-[11px] bg-[#0f1826] text-slate-300 border border-[#26374c] rounded-md px-2 py-1.5" onchange="updateFileStatus('${id}', this.value)">
               ${['Draft','Menunggu Review','Revisi','Selesai'].map(st => `<option value="${st}" ${status === st ? 'selected' : ''}>${st}</option>`).join('')}
             </select>
+            <select class="text-[11px] bg-[#0f1826] text-slate-300 border border-[#26374c] rounded-md px-2 py-1.5" onchange="updateFilePriority('${id}', this.value)">
+              ${['Rendah','Sedang','Tinggi'].map(pr => `<option value="${pr}" ${priority === pr ? 'selected' : ''}>${pr}</option>`).join('')}
+            </select>
+            <button class="px-2.5 py-1.5 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="editFileDeadline('${id}', '${deadline}')">${deadline ? 'Deadline' : 'Set Deadline'}</button>
             <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
             <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
             <button class="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Hapus Berkas" onclick="confirmDeleteLedgerRecord('${id}', '${safeName}')">
@@ -1174,6 +1226,29 @@
       await window.fb.updateDoc(window.fb.doc(window.fb.db, 'files', id), { status, statusUpdatedAt: Date.now() });
       notifyFeedback('Status berkas diperbarui.', 'success');
     } catch (e) { notifyFeedback('Gagal memperbarui status: ' + e.message, 'error'); }
+  }
+
+  async function updateFilePriority(id, priority) {
+    if (!currentUser) return;
+    try {
+      await window.fb.updateDoc(window.fb.doc(window.fb.db, 'files', id), { priority, priorityUpdatedAt: Date.now() });
+      notifyFeedback('Prioritas diperbarui.', 'success');
+    } catch (e) { notifyFeedback('Gagal memperbarui prioritas: ' + e.message, 'error'); }
+  }
+
+  async function updateFileDeadline(id, deadline) {
+    if (!currentUser) return;
+    try {
+      await window.fb.updateDoc(window.fb.doc(window.fb.db, 'files', id), { deadline: deadline || '', deadlineUpdatedAt: Date.now() });
+      notifyFeedback('Deadline diperbarui.', 'success');
+    } catch (e) { notifyFeedback('Gagal memperbarui deadline: ' + e.message, 'error'); }
+  }
+
+  function editFileDeadline(id, current) {
+    const value = prompt('Deadline revisi (format YYYY-MM-DD). Kosongkan untuk menghapus:', current || '');
+    if (value === null) return;
+    if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) { notifyFeedback('Format deadline harus YYYY-MM-DD.', 'error'); return; }
+    updateFileDeadline(id, value);
   }
 
   function renderActivityTimeline() {
@@ -1585,6 +1660,106 @@
       const name = item.getAttribute('data-name') || '';
       item.classList.toggle('hidden', !name.includes(q));
     });
+  }
+
+  // ---------- Checklist Progress TA ----------
+  const TA_CHECKLIST = [
+    {id:'bab1', group:'Bab I', items:[
+      ['bab1_latar','Latar belakang'],
+      ['bab1_identifikasi','Identifikasi masalah'],
+      ['bab1_rumusan','Rumusan masalah'],
+      ['bab1_batasan','Batasan masalah'],
+      ['bab1_tujuan','Tujuan penelitian'],
+      ['bab1_manfaat','Manfaat penelitian'],
+      ['bab1_sistematika','Sistematika penulisan']
+    ]},
+    {id:'bab2', group:'Bab II', items:[
+      ['bab2_teori','Landasan teori'],
+      ['bab2_terdahulu','Penelitian terdahulu'],
+      ['bab2_kerangka','Kerangka pemikiran']
+    ]},
+    {id:'bab3', group:'Bab III', items:[
+      ['bab3_metodologi','Metodologi penelitian'],
+      ['bab3_tahapan','Tahapan penelitian'],
+      ['bab3_metode','Metode/perancangan penelitian'],
+      ['bab3_selesai','Bab III selesai']
+    ]},
+    {id:'proposal', group:'Bimbingan & Finalisasi', items:[
+      ['bimbingan_revisi','Konsultasi Bab I–III dan perbaikan berdasarkan bimbingan'],
+      ['finalisasi','Finalisasi proposal dan pemeriksaan kelengkapan'],
+      ['simta','Persetujuan dospem dan pendaftaran SIMTA'],
+      ['persiapan_sidang','Persiapan materi dan pemantapan proposal'],
+      ['sidang','Sidang Proposal Tugas Akhir']
+    ]}
+  ];
+
+  function renderChecklist() {
+    const el = document.getElementById('ta-checklist');
+    if (!el) return;
+    let total = 0, done = 0;
+    el.innerHTML = TA_CHECKLIST.map(group => {
+      const rows = group.items.map(([id,label]) => {
+        total++;
+        const checked = !!userChecklist[id];
+        if (checked) done++;
+        return `<label class="flex items-start gap-3 p-2.5 rounded-lg bg-[#0f1523] border border-[#1e2a3e] hover:border-[#2b3d56] cursor-pointer transition">
+          <input type="checkbox" class="mt-0.5 accent-brand-teal" ${checked ? 'checked' : ''} onchange="toggleChecklist('${id}', this.checked)">
+          <span class="text-xs ${checked ? 'text-slate-500 line-through' : 'text-slate-200'} leading-relaxed">${escapeHtml(label)}</span>
+        </label>`;
+      }).join('');
+      return `<div class="mb-4 last:mb-0"><div class="text-[10px] font-bold text-brand-teal uppercase tracking-wide mb-2">${escapeHtml(group.group)}</div><div class="space-y-1.5">${rows}</div></div>`;
+    }).join('');
+    const pct = total ? Math.round(done / total * 100) : 0;
+    const label = document.getElementById('checklist-progress-label');
+    const fill = document.getElementById('checklist-progress-fill');
+    if (label) label.textContent = `${done}/${total} · ${pct}%`;
+    if (fill) fill.style.width = pct + '%';
+  }
+
+  async function loadChecklist(uid) {
+    try {
+      const snap = await window.fb.getDoc(window.fb.doc(window.fb.db, 'checklists', uid));
+      userChecklist = snap.exists() ? (snap.data().items || {}) : {};
+    } catch (e) { userChecklist = {}; }
+    renderChecklist();
+  }
+
+  async function toggleChecklist(id, checked) {
+    if (!currentUser) return;
+    userChecklist[id] = checked;
+    renderChecklist();
+    try {
+      await window.fb.setDoc(window.fb.doc(window.fb.db, 'checklists', currentUser.uid), { owner: currentUser.uid, items: userChecklist, updatedAt: Date.now() }, { merge: true });
+    } catch (e) {
+      userChecklist[id] = !checked;
+      renderChecklist();
+      notifyFeedback('Gagal menyimpan checklist: ' + e.message, 'error');
+    }
+  }
+
+  // ---------- Export Laporan Bimbingan / Progress ----------
+  function exportProgressReport() {
+    if (!currentUser) { notifyFeedback('Kamu belum login.', 'error'); return; }
+    const esc = (v='') => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const files = [...userFiles].sort((a,b)=>(b.data.createdAt||0)-(a.data.createdAt||0));
+    const schedules = userRevisionNotes.filter(x => x.data.type === 'schedule').sort((a,b)=>(a.data.date||'').localeCompare(b.data.date||''));
+    const checklistRows = TA_CHECKLIST.flatMap(g => g.items.map(([id,label]) => ({group:g.group,label,done:!!userChecklist[id]})));
+    const fileRows = files.map(x => {
+      const d=x.data;
+      return `<tr><td>${esc(d.name)}</td><td>${esc(d.bab||'Umum')}</td><td>v${d.version||1}</td><td>${esc(d.status||'Draft')}</td><td>${esc(d.priority||'Sedang')}</td><td>${esc(d.deadline||'-')}</td></tr>`;
+    }).join('') || '<tr><td colspan="6">Belum ada berkas.</td></tr>';
+    const scheduleRows = schedules.map(x => { const d=x.data; return `<tr><td>${esc(d.date||'-')}</td><td>${esc(d.time||'-')}</td><td>${esc(d.dospem||'-')}</td><td>${esc(d.place||'-')}</td><td>${esc(d.text||'-')}</td></tr>`; }).join('') || '<tr><td colspan="5">Belum ada jadwal bimbingan.</td></tr>';
+    const checklistHtml = checklistRows.map(x => `<tr><td>${esc(x.group)}</td><td>${esc(x.label)}</td><td>${x.done?'Selesai':'Belum selesai'}</td></tr>`).join('');
+    const now = new Date().toLocaleString('id-ID');
+    const w = window.open('', '_blank');
+    if (!w) { notifyFeedback('Popup diblokir browser. Izinkan popup untuk export laporan.', 'error'); return; }
+    w.document.write(`<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Laporan SyncTA</title><style>body{font-family:Arial,sans-serif;color:#111827;padding:32px;font-size:12px}h1{font-size:20px;margin-bottom:4px}h2{font-size:14px;margin:24px 0 8px}p{margin:4px 0;color:#4b5563}table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #d1d5db;padding:7px;text-align:left;vertical-align:top}th{background:#f3f4f6}.meta{margin-bottom:18px}@media print{body{padding:15mm}button{display:none}}</style></head><body>
+      <h1>Laporan Progress Tugas Akhir — SyncTA</h1><div class="meta"><p><b>Email:</b> ${esc(currentUser.email||'-')}</p><p><b>Dibuat:</b> ${esc(now)}</p></div>
+      <h2>Progress Checklist TA</h2><table><thead><tr><th>Tahap</th><th>Item</th><th>Status</th></tr></thead><tbody>${checklistHtml}</tbody></table>
+      <h2>Daftar Berkas</h2><table><thead><tr><th>Berkas</th><th>Bab</th><th>Versi</th><th>Status</th><th>Prioritas</th><th>Deadline</th></tr></thead><tbody>${fileRows}</tbody></table>
+      <h2>Jadwal Bimbingan Dospem</h2><table><thead><tr><th>Tanggal</th><th>Jam</th><th>Dospem</th><th>Tempat/Media</th><th>Agenda</th></tr></thead><tbody>${scheduleRows}</tbody></table>
+      <p style="margin-top:24px">Dokumen ini dibuat dari data yang tersimpan di SyncTA.</p><script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script></body></html>`);
+    w.document.close();
   }
 
   // ---------- Rundown Kampus: sumber dari PDF 009/SP/POL-WDR.I/IDN/IX/2026 ----------
