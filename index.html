@@ -96,6 +96,63 @@
   }
 </style>
 
+
+<style id="syncta-v5-workspace-fix">
+  /* v5: explicit workspace visibility. Inline-safe via a dedicated class. */
+  .workspace-v5-hidden { display:none !important; }
+
+  #workspace-upload-grid {
+    width:100%;
+    align-items:start;
+  }
+
+  #workspace-progress-column,
+  #workspace-documents-column {
+    min-width:0;
+  }
+
+  #workspace-page-head {
+    max-width:1200px;
+    margin:0 auto;
+  }
+
+  #workspace-page-title { line-height:1.15; }
+
+  /* Documents page gets a comfortable two-column layout only for its own content. */
+  #workspace-documents-column {
+    grid-column:1 / -1;
+  }
+
+  #workspace-documents-inner {
+    display:grid;
+    grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+    gap:24px;
+    align-items:start;
+  }
+
+  #workspace-progress-inner {
+    max-width:900px;
+    margin:0 auto;
+    display:grid;
+    gap:18px;
+  }
+
+  #workspace-dashboard-inner {
+    max-width:1000px;
+    margin:0 auto;
+  }
+
+  @media (max-width:900px){
+    #workspace-documents-inner {
+      grid-template-columns:1fr;
+    }
+    #workspace-progress-inner,
+    #workspace-dashboard-inner {
+      max-width:none;
+    }
+  }
+</style>
+
 </head>
 <body class="bg-brand-dark text-slate-200 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-teal selection:text-slate-900">
 
@@ -210,7 +267,7 @@
     <div id="workspace-upload-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start mt-6">
     <div id="workspace-progress-column" class="space-y-6">
 
-      <section class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg shadow-black/20">
+      <section id="progress-bimbingan-card" data-workspace-section="progress" class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg shadow-black/20">
         <div class="flex items-start justify-between mb-2">
           <div>
             <h2 class="text-base font-semibold text-white tracking-wide">Progress Bimbingan</h2>
@@ -248,7 +305,7 @@
       </section>
 
       <!-- ===== CHECKLIST TA ===== -->
-      <section class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg shadow-black/20">
+      <section id="checklist-card" data-workspace-section="progress" class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg shadow-black/20">
         <div class="flex items-center justify-between mb-4 gap-3">
           <div>
             <h2 class="text-base font-semibold text-white">Checklist Progress TA</h2>
@@ -260,7 +317,7 @@
         <div id="ta-checklist" class="space-y-2 max-h-[430px] overflow-y-auto pr-1"></div>
       </section>
 
-      <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
+      <section id="quicknote-card" data-workspace-section="progress" class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-base font-semibold text-white">Catatan Bimbingan</h2>
           <span id="quicknote-date-label" class="text-xs text-slate-400 font-mono"></span>
@@ -287,7 +344,7 @@
       </section>
 
       <!-- ===== TIMELINE BIMBINGAN ===== -->
-      <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
+      <section id="timeline-card" data-workspace-section="progress" class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
         <div class="flex items-center justify-between mb-4">
           <div>
             <h2 class="text-base font-semibold text-white">Timeline Bimbingan</h2>
@@ -301,9 +358,9 @@
       </section>
 
     </div>
-    <div class="space-y-6">
+    <div id="workspace-documents-column" class="space-y-6">
 
-      <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
+      <section id="upload-card" data-workspace-section="documents" class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
         <h2 class="text-base font-semibold text-white mb-5">Unggah Berkas</h2>
         <label class="block text-xs font-medium text-slate-400 mb-1.5">Pilih File</label>
         <div id="upload-dropzone" class="w-full border-2 border-dashed border-brand-border rounded-lg px-4 py-6 mb-4 flex flex-col items-center justify-center text-center gap-2 cursor-pointer transition hover:border-brand-teal/60 hover:bg-brand-teal/5" onclick="document.getElementById('file-selector').click()">
@@ -367,8 +424,11 @@
         <p id="upload-msg" class="text-xs text-slate-400 mt-2"></p>
       </section>
 
-      <section class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
-        <h2 class="text-base font-semibold text-white mb-4">Riwayat Unggahan</h2>
+      <section id="ledger-card" data-workspace-section="documents" class="bg-brand-card border border-brand-border rounded-xl p-6 shadow-lg shadow-black/20">
+        <div class="flex items-center justify-between gap-3 mb-1.5">
+          <h2 class="text-base font-semibold text-white">Riwayat Unggahan</h2>
+          <span id="ledger-connection-status" class="text-[10px] text-slate-500">Menghubungkan…</span>
+        </div>
         <input type="text" id="ledger-search-input" oninput="filterLedgerRecords()" placeholder="Cari nama berkas atau catatan..." class="w-full bg-brand-panel border border-brand-border text-slate-200 placeholder:text-slate-500 text-sm rounded-md px-3.5 py-2.5 focus:outline-none focus:border-brand-teal transition mb-4">
         <div id="filter-chip-group" class="flex flex-wrap items-center gap-2 mb-2">
           <span class="chip active" data-filter="ALL" onclick="setFileFilter('ALL', this)">Semua</span>
@@ -626,13 +686,13 @@
 <script>
   // ---------- Sidebar workspace navigation ----------
   const WORKSPACE_META = {
-    dashboard: {title:'Dashboard', subtitle:'Ringkasan status dokumen dan progres pengerjaan tugas akhir kamu.', group:'dashboard'},
-    documents: {title:'Dokumen & Upload', subtitle:'Kelola file TA, unggah revisi, lihat riwayat, preview, unduh, dan bagikan berkas.', group:'documents'},
-    progress: {title:'Progress TA', subtitle:'Pantau progres bimbingan, checklist tahapan, catatan, dan timeline aktivitas.', group:'progress'},
-    bimbingan: {title:'Bimbingan Dospem', subtitle:'Kelola rundown kampus, agenda, dan catatan bimbingan dosen pembimbing.', group:'notes'},
-    jadwal: {title:'Jadwal Bimbingan', subtitle:'Atur jadwal bimbingan pribadi berdasarkan rundown kampus.', group:'notes'},
-    library: {title:'Daftar Pustaka', subtitle:'Kelola jurnal dan referensi TA di repositori pribadi.', group:'library'},
-    admin: {title:'Admin', subtitle:'Kelola data berkas pengguna dari panel administrasi.', group:'admin'}
+    dashboard: { title:'Dashboard', subtitle:'Ringkasan status dokumen dan progres pengerjaan tugas akhir kamu.', group:'dashboard' },
+    documents: { title:'Dokumen & Upload', subtitle:'Kelola file TA, unggah revisi, lihat seluruh riwayat, preview, unduh, dan bagikan berkas.', group:'documents' },
+    progress: { title:'Progress TA', subtitle:'Pantau progress bimbingan, checklist, catatan, dan timeline aktivitas.', group:'progress' },
+    bimbingan: { title:'Bimbingan Dospem', subtitle:'Kelola rundown kampus dan catatan bimbingan dosen pembimbing.', group:'notes' },
+    jadwal: { title:'Jadwal Bimbingan', subtitle:'Atur jadwal bimbingan pribadi berdasarkan rundown kampus.', group:'notes' },
+    library: { title:'Daftar Pustaka', subtitle:'Kelola jurnal dan referensi TA di repositori pribadi.', group:'library' },
+    admin: { title:'Admin', subtitle:'Kelola data berkas pengguna dari panel administrasi.', group:'admin' }
   };
 
   function setSideActive(key) {
@@ -640,15 +700,18 @@
     const el = document.getElementById('side-' + key);
     if (el) el.classList.add('active');
   }
+
   function toggleSyncTASidebar() {
     if (!currentUser) return;
     document.getElementById('syncta-sidebar')?.classList.toggle('open');
     document.getElementById('syncta-mobile-overlay')?.classList.toggle('show');
   }
+
   function closeSyncTASidebar() {
     document.getElementById('syncta-sidebar')?.classList.remove('open');
     document.getElementById('syncta-mobile-overlay')?.classList.remove('show');
   }
+
   function setWorkspaceHeader(view) {
     const meta = WORKSPACE_META[view] || WORKSPACE_META.dashboard;
     const t = document.getElementById('workspace-page-title');
@@ -656,34 +719,83 @@
     if (t) t.textContent = meta.title;
     if (sub) sub.textContent = meta.subtitle;
   }
-  function setWorkspaceCards(group) {
-    document.querySelectorAll('#workspace-upload-grid [data-workspace-section]').forEach(el => {
-      el.classList.toggle('workspace-hidden', el.getAttribute('data-workspace-section') !== group);
-    });
-    const left = document.getElementById('workspace-progress-column');
-    const right = document.getElementById('workspace-documents-column');
-    const useLeft = group === 'dashboard' || group === 'progress';
-    if (left) left.classList.toggle('workspace-hidden', !useLeft);
-    if (right) right.classList.toggle('workspace-hidden', useLeft);
+
+  function showWorkspaceElement(el, show) {
+    if (!el) return;
+    el.classList.toggle('workspace-v5-hidden', !show);
   }
+
+  function setWorkspaceCards(group) {
+    const uploadGrid = document.getElementById('workspace-upload-grid');
+    const progressCol = document.getElementById('workspace-progress-column');
+    const docsCol = document.getElementById('workspace-documents-column');
+    if (!uploadGrid) return;
+
+    // Remove stale v3 visibility flags first so v5 is the single authority.
+    uploadGrid.querySelectorAll('.workspace-hidden').forEach(el => el.classList.remove('workspace-hidden'));
+
+    const sections = uploadGrid.querySelectorAll('[data-workspace-section]');
+    sections.forEach(el => {
+      showWorkspaceElement(el, el.getAttribute('data-workspace-section') === group);
+    });
+
+    const isDocuments = group === 'documents';
+    const isProgress = group === 'progress';
+    const isDashboard = group === 'dashboard';
+
+    showWorkspaceElement(progressCol, isProgress || isDashboard);
+    showWorkspaceElement(docsCol, isDocuments);
+
+    // Dashboard: only dashboard-summary.
+    // Progress: progress-related cards only.
+    // Documents: upload + ledger only.
+    if (isDashboard || isProgress) {
+      if (docsCol) docsCol.classList.add('workspace-v5-hidden');
+    }
+    if (isDocuments) {
+      if (progressCol) progressCol.classList.add('workspace-v5-hidden');
+    }
+
+    // On dashboard, center the one remaining card.
+    uploadGrid.style.gridTemplateColumns = (isDashboard || isProgress) ? 'minmax(0,1fr)' : '';
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+
   function navigateWorkspace(view) {
     if (!currentUser) return;
+
     const meta = WORKSPACE_META[view] || WORKSPACE_META.dashboard;
     setSideActive(view);
     setWorkspaceHeader(view);
     closeSyncTASidebar();
 
-    if (meta.group === 'library') { switchMainTab('library'); return; }
-    if (meta.group === 'admin') { switchMainTab('admin'); return; }
-    if (meta.group === 'notes') {
-      switchMainTab('notes');
-      setTimeout(() => document.getElementById('tab-content-notes')?.scrollIntoView({behavior:'smooth', block:'start'}), 30);
+    if (meta.group === 'library') {
+      switchMainTab('library');
       return;
     }
+
+    if (meta.group === 'admin') {
+      switchMainTab('admin');
+      return;
+    }
+
+    if (meta.group === 'notes') {
+      switchMainTab('notes');
+      setTimeout(() => {
+        const notes = document.getElementById('tab-content-notes');
+        if (notes) notes.scrollIntoView({behavior:'smooth', block:'start'});
+      }, 30);
+      return;
+    }
+
     switchMainTab('upload');
+
+    // switchMainTab changes the parent visibility; v5 then deterministically
+    // controls every dashboard/progress/document child.
+    requestAnimationFrame(() => setWorkspaceCards(meta.group));
     setWorkspaceCards(meta.group);
-    window.scrollTo({top:0, behavior:'smooth'});
   }
+
   function syncAdminSidebarVisibility() {
     const mainAdmin = document.getElementById('maintab-admin-btn');
     const wrap = document.getElementById('side-admin-wrap');
@@ -832,6 +944,7 @@
       const sidebarUser = document.getElementById('sidebar-user-name');
       if (sidebarUser) sidebarUser.textContent = user.email;
       navigateWorkspace('dashboard');
+      setTimeout(() => setWorkspaceCards('dashboard'), 0);
       loadLedger(user.uid);
       loadNotes(user.uid);
       loadQuickNotes(user.uid);
@@ -1283,7 +1396,9 @@
     if (unsubscribeLedger) { unsubscribeLedger(); unsubscribeLedger = null; }
     const list = document.getElementById('ledger-records-list');
     const countLabel = document.getElementById('ledger-count-label');
+    const connection = document.getElementById('ledger-connection-status');
     if (!list) return;
+    if (connection) { connection.textContent = 'Menghubungkan ke Firestore…'; connection.className = 'text-[10px] text-amber-300'; }
     list.innerHTML = '<p class="text-center text-sm text-slate-500 italic py-6">Menghubungkan ke riwayat...</p>';
     if (countLabel) countLabel.textContent = '';
 
@@ -1295,6 +1410,7 @@
       const docs = [];
       snapshot.forEach(d => docs.push({ id:d.id, data:d.data() || {} }));
       docs.sort((a,b) => Number(b.data.createdAt || 0) - Number(a.data.createdAt || 0));
+      if (connection) { connection.textContent = 'Firestore · realtime'; connection.className = 'text-[10px] text-emerald-300'; }
       userFiles = docs;
       updateProgressBimbingan();
       updateDashboardSummary();
@@ -1372,6 +1488,7 @@
       firstSnapshotReceived = true;
       renderDocs(snapshot);
     }, (err) => {
+      if (connection) { connection.textContent = 'Firestore error'; connection.className = 'text-[10px] text-rose-300'; }
       userFiles = [];
       const code = err && err.code ? err.code : 'unknown';
       list.innerHTML = `<div class="rounded-lg border border-rose-900/50 bg-rose-950/20 p-4"><p class="text-sm font-semibold text-rose-300">Riwayat gagal dimuat.</p><p class="text-[11px] text-rose-300/80 mt-1 break-words">${String(err?.message || 'Tidak dapat membaca koleksi files.').replace(/</g,'&lt;')}</p><p class="text-[10px] text-slate-500 mt-2">Kode: ${String(code).replace(/</g,'&lt;')}</p></div>`;
