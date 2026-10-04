@@ -149,6 +149,14 @@
   }
 </style>
 
+<style id="syncta-documents-refresh">
+#tab-content-upload.syncta-page-documents{max-width:1480px!important;width:100%}
+.syncta-page-documents #syncta-documents-hero{display:block!important}
+.syncta-docs-hero{border:1px solid rgba(45,212,191,.25);border-radius:22px;padding:26px 30px;margin-bottom:24px;background:radial-gradient(circle at 90% 0%,rgba(20,184,166,.18),transparent 40%),linear-gradient(115deg,#122638,#101a2a 75%);box-shadow:0 16px 40px rgba(0,0,0,.12)}
+.syncta-docs-hero-top{display:flex;justify-content:space-between;align-items:start;gap:16px}.syncta-docs-eyebrow{color:#5eead4;letter-spacing:.17em;font-size:10px;font-weight:800}.syncta-docs-hero h1{font-size:clamp(24px,3vw,34px);font-weight:800;color:#fff;margin:8px 0}.syncta-docs-hero p{color:#a9bacb;font-size:13px;max-width:620px;line-height:1.7}.syncta-docs-pill{font-size:11px;color:#99f6e4;background:rgba(20,184,166,.1);border:1px solid rgba(94,234,212,.24);border-radius:999px;padding:8px 12px;white-space:nowrap}.syncta-docs-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.syncta-docs-actions button{border-radius:10px;background:#2dd4bf;color:#082f30;font-weight:800;font-size:12px;padding:11px 17px}.syncta-docs-actions button.secondary{background:rgba(255,255,255,.05);border:1px solid #395064;color:#d9e8f3}.syncta-docs-hints{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;border-top:1px solid rgba(255,255,255,.09);padding-top:16px}.syncta-docs-hints div{display:flex;gap:9px;align-items:center;color:#b9c9d7;font-size:12px;flex:1;min-width:145px}.syncta-docs-hints b{color:#5eead4;font-size:11px}
+.syncta-page-documents > .grid{display:block!important}.syncta-page-documents #syncta-original-right{display:grid!important;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:24px;align-items:start}.syncta-page-documents #syncta-original-right > section{margin:0!important;min-width:0;border-radius:18px!important}.syncta-page-documents #syncta-upload-card,.syncta-page-documents #syncta-ledger-card{scroll-margin-top:100px}.syncta-page-documents #ledger-scroll{max-height:650px}
+@media(max-width:1150px){.syncta-page-documents #syncta-original-right{grid-template-columns:1fr}}@media(max-width:600px){.syncta-docs-hero{padding:20px}.syncta-docs-pill{display:none}.syncta-docs-hints{gap:9px}}
+</style>
 </head>
 <body class="bg-brand-dark text-slate-200 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-teal selection:text-slate-900">
 
@@ -334,6 +342,11 @@
 
     <!-- ===== TAB 1: UPLOAD & RIWAYAT ===== -->
     <div id="tab-content-upload" class="hidden max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <div id="syncta-documents-hero" class="syncta-docs-hero" style="display:none">
+      <div class="syncta-docs-hero-top"><div><span class="syncta-docs-eyebrow">SYNC TA / DOCUMENT WORKSPACE</span><h1>Dokumen &amp; Upload</h1><p>Kelola naskah TA, unggah versi terbaru, dan telusuri riwayat dokumen dalam satu tempat.</p></div><span class="syncta-docs-pill">● Arsip TA</span></div>
+      <div class="syncta-docs-actions"><button type="button" onclick="document.getElementById('syncta-upload-card')?.scrollIntoView({behavior:'smooth',block:'start'})">↑ Unggah Berkas</button><button type="button" class="secondary" onclick="document.getElementById('syncta-ledger-card')?.scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('ledger-search-input')?.focus({preventScroll:true})">⌕ Cari Riwayat</button></div>
+      <div class="syncta-docs-hints"><div><b>01</b><span>Pilih berkas</span></div><div><b>02</b><span>Lengkapi informasi</span></div><div><b>03</b><span>Upload &amp; pantau versi</span></div></div>
+    </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
     <div class="space-y-6">
 
