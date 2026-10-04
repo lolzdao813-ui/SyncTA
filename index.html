@@ -107,6 +107,11 @@
   body.syncta-sidebar-logged-out #syncta-sidebar{display:none!important}
   body.syncta-sidebar-logged-out #syncta-shell{margin-left:0}
   body.syncta-sidebar-logged-out #syncta-shell + footer{margin-left:0}
+  body.syncta-profile-setup #syncta-sidebar{display:none!important}
+  body.syncta-profile-setup #syncta-shell{margin-left:0}
+  body.syncta-profile-setup #syncta-shell + footer{margin-left:0}
+  #profile-setup-card{position:relative;z-index:2}
+  #profile-setup-avatar img{width:100%;height:100%;object-fit:cover}
 
   #tab-content-notes.syncta-page-bimbingan::before {
     content:"Bimbingan Dospem";
@@ -258,9 +263,12 @@
       </button>
     </div>
 
-    <div class="sb-user">
-      <div id="sb-user-name" class="sb-user-name">Belum masuk</div>
-      <div class="sb-user-meta">SyncTA Workspace</div>
+    <div class="sb-user flex items-center gap-2.5">
+      <div id="sb-user-avatar" class="w-8 h-8 rounded-lg bg-brand-panel border border-brand-border text-brand-teal flex items-center justify-center text-[11px] font-extrabold overflow-hidden shrink-0">U</div>
+      <div class="min-w-0">
+        <div id="sb-user-name" class="sb-user-name">Belum masuk</div>
+        <div class="sb-user-meta">SyncTA Workspace</div>
+      </div>
     </div>
   </aside>
   <div id="syncta-sidebar-overlay" onclick="toggleSyncTASidebar()"></div>
@@ -290,7 +298,36 @@
             <input type="text" id="reg-prodi" placeholder="Contoh: Teknik Informatika" class="w-full bg-white text-slate-900 placeholder:text-slate-400 text-sm rounded-md px-3.5 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-brand-teal border-0">
           </div>
           <button type="submit" id="auth-submit-btn" class="w-full py-2.5 rounded-md bg-brand-teal hover:bg-brand-tealLight text-slate-950 font-bold text-sm transition glow-teal-sm">Masuk</button>
+          <div class="flex items-center gap-3 my-4">
+            <div class="h-px flex-1 bg-brand-border"></div>
+            <span class="text-[10px] text-slate-600 font-semibold uppercase tracking-wider">atau</span>
+            <div class="h-px flex-1 bg-brand-border"></div>
+          </div>
+          <button type="button" id="google-login-btn" onclick="handleGoogleLogin()" class="w-full py-2.5 rounded-md bg-white hover:bg-slate-100 text-slate-800 font-bold text-sm transition border border-slate-200 flex items-center justify-center gap-2.5">
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.35 12.27c0-.79-.07-1.55-.2-2.27H12v4.3h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.7 2.91-4.2 2.91-7.42z"/><path fill="#34A853" d="M12 21.75c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.75 9.75 0 0 0 12 21.75z"/><path fill="#FBBC05" d="M6.54 13.83A5.86 5.86 0 0 1 6.24 12c0-.64.11-1.26.3-1.83V7.64H3.3A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.06 1.05 4.36l3.24-2.53z"/><path fill="#EA4335" d="M12 6.14c1.43 0 2.72.49 3.73 1.46l2.8-2.8C16.84 3.15 14.63 2.25 12 2.25a9.75 9.75 0 0 0-8.7 5.39l3.24 2.53C7.31 7.86 9.46 6.14 12 6.14z"/></svg>
+            Masuk dengan Google
+          </button>
           <p id="auth-msg" class="text-xs text-rose-400 mt-3"></p>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== GOOGLE PROFILE SETUP ===== -->
+    <div id="profile-setup-card" class="hidden max-w-md mx-auto mt-12 mb-12 px-4">
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-6 shadow-xl">
+        <div class="text-center mb-6">
+          <div id="profile-setup-avatar" class="w-16 h-16 mx-auto rounded-2xl bg-brand-panel border border-brand-border flex items-center justify-center text-xl font-extrabold text-brand-teal overflow-hidden mb-4">U</div>
+          <h2 class="text-xl font-extrabold text-white">Lengkapi Profil</h2>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">Sebelum masuk ke Dashboard TA, isi NIM dan Program Studi kamu dulu.</p>
+          <p id="profile-setup-email" class="text-[11px] text-slate-500 mt-2"></p>
+        </div>
+        <form id="profile-setup-form" onsubmit="handleProfileSetup(event)">
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">NIM</label>
+          <input type="text" id="profile-nim" placeholder="Contoh: 2104011823" required class="w-full bg-white text-slate-900 placeholder:text-slate-400 text-sm rounded-md px-3.5 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-brand-teal border-0">
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Program Studi</label>
+          <input type="text" id="profile-prodi" placeholder="Contoh: Teknik Informatika" required class="w-full bg-white text-slate-900 placeholder:text-slate-400 text-sm rounded-md px-3.5 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-brand-teal border-0">
+          <button type="submit" id="profile-submit-btn" class="w-full py-2.5 rounded-md bg-brand-teal hover:bg-brand-tealLight text-slate-950 font-bold text-sm transition glow-teal-sm">Lanjut ke Dashboard</button>
+          <p id="profile-msg" class="text-xs text-rose-400 mt-3"></p>
         </form>
       </div>
     </div>
@@ -910,11 +947,13 @@
   function sidebarAuthSync(user){
     const side=document.getElementById('syncta-sidebar');
     const name=document.getElementById('sb-user-name');
+    const avatar=document.getElementById('sb-user-avatar');
     if(!side) return;
     document.body.classList.toggle('syncta-sidebar-logged-out',!user);
     side.classList.toggle('ready',!!user);
     side.style.display=user?'block':'none';
-    if(name) name.textContent=user?(user.email||'Pengguna'):'Belum masuk';
+    if(name) name.textContent=user?(user.displayName||user.email||'Pengguna'):'Belum masuk';
+    setAvatarElement(avatar,user);
 
     const adminBtn=document.getElementById('maintab-admin-btn');
     const adminWrap=document.getElementById('sb-admin-wrap');
@@ -1066,6 +1105,90 @@
       .catch(err => { msg.className = 'text-xs text-rose-400 mt-3'; msg.textContent = 'Gagal kirim: ' + err.message; });
   }
 
+  function setAvatarElement(el, user) {
+    if (!el) return;
+    const photo = user && user.photoURL;
+    const fallback = ((user && (user.displayName || user.email)) || 'U').trim().charAt(0).toUpperCase() || 'U';
+    if (photo) {
+      el.innerHTML = `<img src="${photo.replace(/"/g,'&quot;')}" alt="Avatar" referrerpolicy="no-referrer">`;
+    } else {
+      el.innerHTML = fallback;
+    }
+  }
+
+  function showProfileSetup(user, profile = {}) {
+    document.body.classList.add('syncta-profile-setup');
+    const authCard = document.getElementById('auth-card');
+    const profileCard = document.getElementById('profile-setup-card');
+    const mainTabs = document.getElementById('main-tabs');
+    const profileAvatar = document.getElementById('profile-setup-avatar');
+    const profileEmail = document.getElementById('profile-setup-email');
+    const nim = document.getElementById('profile-nim');
+    const prodi = document.getElementById('profile-prodi');
+    setVisible(authCard, false);
+    setVisible(mainTabs, false);
+    setVisible(profileCard, true, 'block');
+    setAvatarElement(profileAvatar, user);
+    if (profileEmail) profileEmail.textContent = user?.email || '';
+    if (nim) nim.value = profile.nim || '';
+    if (prodi) prodi.value = profile.prodi || '';
+    document.getElementById('profile-msg').textContent = '';
+    document.getElementById('profile-submit-btn').disabled = false;
+  }
+
+  function hideProfileSetup() {
+    document.body.classList.remove('syncta-profile-setup');
+    setVisible(document.getElementById('profile-setup-card'), false);
+  }
+
+  async function handleProfileSetup(event) {
+    event.preventDefault();
+    const msg = document.getElementById('profile-msg');
+    const btn = document.getElementById('profile-submit-btn');
+    const nim = document.getElementById('profile-nim').value.trim();
+    const prodi = document.getElementById('profile-prodi').value.trim();
+    msg.className = 'text-xs text-rose-400 mt-3';
+    msg.textContent = '';
+    if (!currentUser || !window.fb) { msg.textContent = 'Sesi belum siap, coba login lagi.'; return; }
+    if (!nim || !prodi) { msg.textContent = 'NIM dan Program Studi wajib diisi.'; return; }
+    btn.disabled = true;
+    btn.textContent = 'Menyimpan...';
+    try {
+      await window.fb.setDoc(window.fb.doc(window.fb.db, 'users', currentUser.uid), {
+        nim, prodi, email: currentUser.email || '', displayName: currentUser.displayName || '', photoURL: currentUser.photoURL || '',
+        profileCompleted: true, profileUpdatedAt: Date.now()
+      }, { merge: true });
+      hideProfileSetup();
+      activateAuthenticatedWorkspace(currentUser);
+      notifyFeedback('Profil berhasil disimpan.', 'success');
+    } catch (err) {
+      msg.textContent = 'Gagal menyimpan profil: ' + (err.message || err);
+      btn.disabled = false;
+      btn.textContent = 'Lanjut ke Dashboard';
+    }
+  }
+
+  window.handleProfileSetup = handleProfileSetup;
+
+  async function handleGoogleLogin() {
+    const msg = document.getElementById('auth-msg');
+    if (!window.fb) { msg.textContent = 'Koneksi belum siap, coba lagi.'; return; }
+    const btn = document.getElementById('google-login-btn');
+    btn.disabled = true;
+    btn.textContent = 'Menghubungkan ke Google...';
+    msg.className = 'text-xs text-rose-400 mt-3';
+    msg.textContent = '';
+    try {
+      await window.fb.signInWithGoogle();
+    } catch (err) {
+      const code = err?.code || '';
+      msg.textContent = code === 'auth/popup-closed-by-user' ? 'Login Google dibatalkan.' : 'Gagal login Google: ' + (err.message || err);
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.35 12.27c0-.79-.07-1.55-.2-2.27H12v4.3h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.7 2.91-4.2 2.91-7.42z"/><path fill="#34A853" d="M12 21.75c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.75 9.75 0 0 0 12 21.75z"/><path fill="#FBBC05" d="M6.54 13.83A5.86 5.86 0 0 1 6.24 12c0-.64.11-1.26.3-1.83V7.64H3.3A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.06 1.05 4.36l3.24-2.53z"/><path fill="#EA4335" d="M12 6.14c1.43 0 2.72.49 3.73 1.46l2.8-2.8C16.84 3.15 14.63 2.25 12 2.25a9.75 9.75 0 0 0-8.7 5.39l3.24 2.53C7.31 7.86 9.46 6.14 12 6.14z"/></svg> Masuk dengan Google`;
+    }
+  }
+  window.handleGoogleLogin = handleGoogleLogin;
+
   function handleAuthSubmit(event) {
     event.preventDefault();
     const email = document.getElementById('auth-email').value.trim();
@@ -1095,6 +1218,49 @@
     el.style.display = visible ? (displayValue || 'block') : 'none';
   }
 
+  function activateAuthenticatedWorkspace(user) {
+    currentUser = user;
+    hideProfileSetup();
+    const authCard = document.getElementById('auth-card');
+    const mainTabs = document.getElementById('main-tabs');
+    const headerName = document.getElementById('header-user-name');
+    const logoutBtn = document.getElementById('header-logout-btn');
+    const headerAvatar = document.getElementById('header-avatar');
+    const connectionStatus = document.getElementById('header-connection-status');
+    const tabUpload = document.getElementById('tab-content-upload');
+    const tabNotes = document.getElementById('tab-content-notes');
+    const tabLibrary = document.getElementById('tab-content-library');
+    const tabAdmin = document.getElementById('tab-content-admin');
+    const adminBtn = document.getElementById('maintab-admin-btn');
+
+    setVisible(authCard, false);
+    setVisible(mainTabs, true, 'flex');
+    setVisible(logoutBtn, true, 'inline-flex');
+    setVisible(tabUpload, false);
+    setVisible(tabNotes, false);
+    setVisible(tabLibrary, false);
+    setVisible(tabAdmin, false);
+    headerName.textContent = user.displayName || user.email || 'Pengguna';
+    setAvatarElement(headerAvatar, user);
+    if (connectionStatus) connectionStatus.classList.remove('hidden');
+    switchMainTab('upload');
+    loadLedger(user.uid);
+    loadNotes(user.uid);
+    loadQuickNotes(user.uid);
+    loadChecklist(user.uid);
+    updateQuickNoteDateLabel();
+    resetIdleTimer();
+
+    window.fb.getDoc(window.fb.doc(window.fb.db, 'users', user.uid)).then(snap => {
+      if (!currentUser || currentUser.uid !== user.uid) return;
+      isAdmin = snap.exists() && snap.data().role === 'admin';
+      revisionTarget = (snap.exists() && snap.data().revisionTarget) ? snap.data().revisionTarget : 5;
+      adminBtn.classList.toggle('hidden', !isAdmin);
+      if (isAdmin) loadAdminAllFiles();
+      updateProgressBimbingan();
+    }).catch(() => { isAdmin = false; });
+  }
+
   window.onAuthChanged = function(user) {
     currentUser = user;
     const authCard = document.getElementById('auth-card');
@@ -1109,7 +1275,6 @@
     const tabAdmin = document.getElementById('tab-content-admin');
     const adminBtn = document.getElementById('maintab-admin-btn');
 
-    // Reset to fully logged-out visual state first, every time this runs.
     setVisible(authCard, true, 'block');
     setVisible(mainTabs, false);
     setVisible(logoutBtn, false, 'inline-flex');
@@ -1118,34 +1283,11 @@
     setVisible(tabLibrary, false);
     setVisible(tabAdmin, false);
     headerName.textContent = 'Belum masuk';
-    if (headerAvatar) headerAvatar.textContent = 'U';
+    setAvatarElement(headerAvatar, null);
     if (connectionStatus) connectionStatus.classList.add('hidden');
-    setHeaderContext('dashboard');
 
-    if (user) {
-      setVisible(authCard, false);
-      setVisible(mainTabs, true, 'flex');
-      setVisible(logoutBtn, true, 'inline-flex');
-      headerName.textContent = user.email;
-      if (headerAvatar) headerAvatar.textContent = (user.email || 'U').charAt(0).toUpperCase();
-      if (connectionStatus) connectionStatus.classList.remove('hidden');
-      switchMainTab('upload');
-      loadLedger(user.uid);
-      loadNotes(user.uid);
-      loadQuickNotes(user.uid);
-      loadChecklist(user.uid);
-      updateQuickNoteDateLabel();
-      resetIdleTimer();
-
-      window.fb.getDoc(window.fb.doc(window.fb.db, 'users', user.uid)).then(snap => {
-        if (!currentUser || currentUser.uid !== user.uid) return;
-        isAdmin = snap.exists() && snap.data().role === 'admin';
-        revisionTarget = (snap.exists() && snap.data().revisionTarget) ? snap.data().revisionTarget : 5;
-        adminBtn.classList.toggle('hidden', !isAdmin);
-        if (isAdmin) loadAdminAllFiles();
-        updateProgressBimbingan();
-      }).catch(() => { isAdmin = false; });
-    } else {
+    if (!user) {
+      hideProfileSetup();
       if (unsubscribeLedger) { unsubscribeLedger(); unsubscribeLedger = null; }
       if (unsubscribeNotes) { unsubscribeNotes(); unsubscribeNotes = null; }
       if (unsubscribeQuickNotes) { unsubscribeQuickNotes(); unsubscribeQuickNotes = null; }
@@ -1158,13 +1300,29 @@
       if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
       isAdmin = false;
       adminBtn.classList.add('hidden');
-      userFiles = [];
-      userRevisionNotes = [];
-      userChecklist = {};
-      renderChecklist();
-      revisionTarget = 5;
-      updateProgressBimbingan();
+      document.body.classList.remove('syncta-profile-setup');
+      return;
     }
+
+    headerName.textContent = user.displayName || user.email || 'Pengguna';
+    setAvatarElement(headerAvatar, user);
+    if (connectionStatus) connectionStatus.classList.remove('hidden');
+
+    // Google/email account must have NIM + prodi before entering the workspace.
+    window.fb.getDoc(window.fb.doc(window.fb.db, 'users', user.uid)).then(snap => {
+      if (!currentUser || currentUser.uid !== user.uid) return;
+      const profile = snap.exists() ? snap.data() : {};
+      const complete = !!(profile.nim && profile.prodi);
+      if (!complete) {
+        showProfileSetup(user, profile);
+        return;
+      }
+      activateAuthenticatedWorkspace(user);
+    }).catch(err => {
+      showProfileSetup(user, {});
+      const msg = document.getElementById('profile-msg');
+      if (msg) msg.textContent = 'Profil belum bisa dibaca. Coba simpan NIM dan Prodi lagi.';
+    });
   };
 
   // Guard against stale/cached page state (e.g. browser back-forward cache)
@@ -2452,7 +2610,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-    signOut, onAuthStateChanged, sendPasswordResetEmail
+    signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
     getFirestore, collection, addDoc, doc, setDoc, getDoc, updateDoc,
@@ -2474,10 +2632,13 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
+  const signInWithGoogle = () => signInWithPopup(auth, googleProvider);
 
   window.fb = {
     auth, db,
-    createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail,
+    createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithGoogle, signOut, sendPasswordResetEmail,
     collection, addDoc, doc, setDoc, getDoc, updateDoc, query, where, onSnapshot, deleteDoc,
     CLOUD_NAME, UPLOAD_PRESET
   };
