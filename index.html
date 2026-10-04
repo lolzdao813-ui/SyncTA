@@ -126,6 +126,22 @@
     color:#fff;
     margin-bottom:-8px;
   }
+
+  /* Dashboard full-width + denser workspace presentation */
+  #syncta-shell .syncta-dashboard-mode{grid-template-columns:minmax(0,1fr)!important;}
+  #dashboard-summary{overflow:hidden;}
+  .syncta-dashboard-hero{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(0,229,201,.09),rgba(6,182,212,.035) 45%,rgba(15,23,42,.85));border:1px solid rgba(0,229,201,.18);}
+  .syncta-dashboard-hero::after{content:"";position:absolute;width:260px;height:260px;border-radius:9999px;border:1px solid rgba(0,229,201,.08);right:-90px;top:-150px;box-shadow:0 0 80px rgba(0,229,201,.08);}
+  .syncta-mini-panel{background:rgba(10,17,30,.72);border:1px solid #1e293b;border-radius:14px;}
+  .syncta-quick-btn{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border-radius:11px;background:#111c2d;border:1px solid #233149;color:#cbd5e1;font-size:11px;font-weight:700;transition:.18s ease;}
+  .syncta-quick-btn:hover{background:#172438;border-color:rgba(0,229,201,.35);color:#fff;transform:translateY(-1px);}
+  .syncta-dash-stat{background:#0f1826;border:1px solid #223245;border-radius:12px;padding:13px;}
+  .syncta-dash-list{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow:auto;padding-right:2px;}
+  .syncta-dash-item{padding:10px 11px;border:1px solid #1e2a3e;background:#0f1523;border-radius:10px;}
+  .syncta-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;background:#101b2b;border:1px solid #223149;font-size:10px;font-weight:700;color:#94a3b8;}
+  @media(max-width:900px){
+    #syncta-shell .syncta-dashboard-mode{grid-template-columns:1fr!important;}
+  }
 </style>
 
 </head>
@@ -156,12 +172,19 @@
   <!-- ===== HEADER ===== -->
   <header class="border-b border-brand-border bg-[#0b111e]/90 backdrop-blur-md sticky top-0 z-40">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-2.5 shrink-0">
+      <div class="flex items-center gap-3 min-w-0">
         <button id="syncta-menu-btn" type="button" class="hidden w-9 h-9 rounded-lg bg-brand-panel border border-brand-border text-slate-300 items-center justify-center hover:text-white hover:border-brand-teal/50 transition" onclick="toggleSyncTASidebar()" aria-label="Menu">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
         </button>
         <div class="w-9 h-9 rounded-lg bg-brand-teal flex items-center justify-center font-bold text-slate-950 text-sm glow-teal-sm">TA</div>
-        <span class="text-lg font-bold text-white tracking-wide">SyncTA</span>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="text-lg font-bold text-white tracking-wide">SyncTA</span>
+            <span class="hidden sm:inline-block h-4 w-px bg-slate-700"></span>
+            <span id="header-page-title" class="hidden sm:inline-block text-xs font-semibold text-slate-300 truncate">Dashboard</span>
+          </div>
+          <p id="header-page-subtitle" class="hidden md:block text-[10px] text-slate-500 mt-0.5 truncate">Workspace Tugas Akhir</p>
+        </div>
       </div>
       <nav id="main-tabs" class="hidden items-center gap-2 overflow-x-auto">
         <button id="maintab-upload-btn" onclick="switchMainTab('upload')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">
@@ -179,8 +202,17 @@
         </button>
         <button id="maintab-admin-btn" onclick="switchMainTab('admin')" class="hidden flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition">Admin</button>
       </nav>
-      <div class="flex items-center gap-3 shrink-0">
-        <span id="header-user-name" class="text-xs text-slate-400 font-mono hidden sm:inline-block">Belum masuk</span>
+      <div class="flex items-center gap-2.5 shrink-0">
+        <span id="header-connection-status" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-semibold text-emerald-300">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Terhubung
+        </span>
+        <div class="hidden sm:flex items-center gap-2.5 pl-2 border-l border-brand-border">
+          <div id="header-avatar" class="w-8 h-8 rounded-lg bg-brand-panel border border-brand-border text-brand-teal flex items-center justify-center text-xs font-extrabold">U</div>
+          <div class="max-w-[220px]">
+            <span id="header-user-name" class="block text-[11px] text-slate-300 font-semibold truncate">Belum masuk</span>
+            <span class="block text-[9px] text-slate-600 mt-0.5">SyncTA Workspace</span>
+          </div>
+        </div>
         <button id="header-logout-btn" onclick="window.fb.signOut(window.fb.auth)" class="hidden px-2.5 py-1 text-xs font-medium text-rose-300 hover:text-rose-100 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-900/50 rounded-md transition">Keluar</button>
       </div>
     </div>
@@ -282,26 +314,117 @@
       </section>
 
       <!-- ===== DASHBOARD RINGKASAN ===== -->
-      <section id="dashboard-summary" class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg shadow-black/20">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h2 class="text-base font-semibold text-white">Dashboard TA</h2>
-            <p class="text-xs text-slate-500 mt-1">Ringkasan status dokumen dan progres pengerjaan.</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <span id="dashboard-last-update" class="text-[10px] text-slate-500 font-mono hidden sm:inline">Belum ada data</span>
-            <button onclick="exportProgressReport()" class="px-3 py-1.5 rounded-md bg-brand-panel hover:bg-slate-800 border border-brand-border text-slate-300 hover:text-white text-[11px] font-semibold transition">Export Laporan</button>
+      <section id="dashboard-summary" class="bg-brand-card border border-brand-border rounded-2xl p-5 sm:p-6 shadow-lg shadow-black/20">
+        <div class="syncta-dashboard-hero rounded-2xl p-5 sm:p-6 mb-5">
+          <div class="relative z-10 flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="syncta-pill text-brand-teal border-brand-teal/20 bg-brand-teal/5">Dashboard TA</span>
+                <span id="dashboard-current-date" class="syncta-pill">—</span>
+              </div>
+              <p class="text-sm text-slate-400">Selamat datang kembali, <span id="dash-welcome-name" class="text-slate-200 font-semibold">Mahasiswa</span>.</p>
+              <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-white mt-2 max-w-4xl">
+                IMPLEMENTASI MANAGEENGINE OPMANAGER SEBAGAI SISTEM MONITORING JARINGAN UNTUK PEMANTAUAN KINERJA INFRASTRUKTUR JARINGAN SECARA REAL TIME
+              </h1>
+              <div class="flex flex-wrap gap-2 mt-3">
+                <span class="syncta-pill">Tugas Akhir</span>
+                <span class="syncta-pill">ManageEngine OpManager</span>
+                <span class="syncta-pill">SNMP</span>
+                <span class="syncta-pill">Real-time Monitoring</span>
+              </div>
+            </div>
+            <div class="xl:w-72 shrink-0 syncta-mini-panel p-4">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Status Pengerjaan</p>
+                  <p id="dash-overall-status" class="text-sm font-bold text-white mt-1">Belum ada data</p>
+                </div>
+                <span id="dash-overall-icon" class="w-10 h-10 rounded-xl bg-brand-teal/10 border border-brand-teal/20 text-brand-teal flex items-center justify-center text-sm font-extrabold">0%</span>
+              </div>
+              <div class="mt-3 w-full bg-[#162033] rounded-full h-2 overflow-hidden">
+                <div id="dash-overall-fill" class="bg-brand-teal h-full rounded-full transition-all duration-500" style="width:0%"></div>
+              </div>
+              <p id="dash-overall-note" class="text-[10px] text-slate-500 mt-2">Lengkapi status berkas dan checklist untuk memperbarui ringkasan.</p>
+            </div>
           </div>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Total Berkas</p><p id="dash-total" class="text-xl font-bold text-white mt-1">0</p></div>
-          <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Revisi</p><p id="dash-revisi" class="text-xl font-bold text-amber-300 mt-1">0</p></div>
-          <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Selesai</p><p id="dash-selesai" class="text-xl font-bold text-emerald-300 mt-1">0</p></div>
-          <div class="bg-[#0f1826] border border-[#223245] rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase">Bab Terisi</p><p id="dash-bab" class="text-xl font-bold text-brand-teal mt-1">0</p></div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="syncta-dash-stat"><p class="text-[10px] text-slate-500 uppercase font-semibold">Total Berkas</p><p id="dash-total" class="text-2xl font-extrabold text-white mt-1">0</p><p class="text-[10px] text-slate-600 mt-1">Semua unggahan TA</p></div>
+          <div class="syncta-dash-stat"><p class="text-[10px] text-slate-500 uppercase font-semibold">Revisi</p><p id="dash-revisi" class="text-2xl font-extrabold text-amber-300 mt-1">0</p><p class="text-[10px] text-slate-600 mt-1">Perlu ditindaklanjuti</p></div>
+          <div class="syncta-dash-stat"><p class="text-[10px] text-slate-500 uppercase font-semibold">Selesai</p><p id="dash-selesai" class="text-2xl font-extrabold text-emerald-300 mt-1">0</p><p class="text-[10px] text-slate-600 mt-1">Berkas final</p></div>
+          <div class="syncta-dash-stat"><p class="text-[10px] text-slate-500 uppercase font-semibold">Bab Terisi</p><p id="dash-bab" class="text-2xl font-extrabold text-brand-teal mt-1">0</p><p class="text-[10px] text-slate-600 mt-1">Bagian yang sudah ada</p></div>
         </div>
-        <div class="mt-4">
-          <div class="flex items-center justify-between text-[11px] mb-1.5"><span class="text-slate-400">Penyelesaian dokumen</span><span id="dash-progress-label" class="text-slate-300">0%</span></div>
-          <div class="w-full bg-[#1a2533] rounded-full h-1.5 overflow-hidden"><div id="dash-progress-fill" class="bg-brand-teal h-full rounded-full transition-all duration-500" style="width:0%"></div></div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4">
+          <div class="xl:col-span-2 syncta-mini-panel p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="text-sm font-bold text-white">Ringkasan Progress</h2>
+                <p class="text-[11px] text-slate-500 mt-1">Gambaran cepat posisi pengerjaan TA saat ini.</p>
+              </div>
+              <button onclick="goSidebar('progress')" class="text-[10px] font-semibold text-brand-teal hover:text-brand-tealLight">Buka Progress →</button>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <div class="flex items-center justify-between text-[11px] mb-1.5"><span class="text-slate-400">Penyelesaian dokumen</span><span id="dash-progress-label" class="text-slate-200 font-semibold">0%</span></div>
+                <div class="w-full bg-[#162033] rounded-full h-2 overflow-hidden"><div id="dash-progress-fill" class="bg-brand-teal h-full rounded-full transition-all duration-500" style="width:0%"></div></div>
+                <p id="dash-progress-note" class="text-[10px] text-slate-600 mt-2">Berdasarkan status berkas.</p>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-[11px] mb-1.5"><span class="text-slate-400">Checklist TA</span><span id="dash-checklist-label" class="text-slate-200 font-semibold">0%</span></div>
+                <div class="w-full bg-[#162033] rounded-full h-2 overflow-hidden"><div id="dash-checklist-fill" class="bg-cyan-400 h-full rounded-full transition-all duration-500" style="width:0%"></div></div>
+                <p id="dash-checklist-note" class="text-[10px] text-slate-600 mt-2">Tahapan penulisan dan finalisasi.</p>
+              </div>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-3 mt-4">
+              <div class="p-3 rounded-xl bg-[#0f1523] border border-[#1e2a3e]">
+                <p class="text-[10px] uppercase tracking-wider text-slate-600 font-bold">Progress Bimbingan</p>
+                <p id="dash-revision-target" class="text-sm font-bold text-white mt-1">0 dari 5 revisi file utama</p>
+              </div>
+              <div class="p-3 rounded-xl bg-[#0f1523] border border-[#1e2a3e]">
+                <p class="text-[10px] uppercase tracking-wider text-slate-600 font-bold">Deadline Terdekat</p>
+                <p id="dash-next-deadline" class="text-sm font-bold text-white mt-1">Belum ada deadline</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="syncta-mini-panel p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <div><h2 class="text-sm font-bold text-white">Aksi Cepat</h2><p class="text-[11px] text-slate-500 mt-1">Langsung menuju fitur yang sering dipakai.</p></div>
+            </div>
+            <div class="space-y-2">
+              <button class="syncta-quick-btn" onclick="goSidebar('documents')"><span class="w-8 h-8 rounded-lg bg-brand-teal/10 text-brand-teal flex items-center justify-center">↑</span><span>Upload &amp; kelola dokumen</span><span class="ml-auto text-slate-600">→</span></button>
+              <button class="syncta-quick-btn" onclick="goSidebar('progress')"><span class="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-300 flex items-center justify-center">✓</span><span>Update progress TA</span><span class="ml-auto text-slate-600">→</span></button>
+              <button class="syncta-quick-btn" onclick="goSidebar('jadwal')"><span class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-300 flex items-center justify-center">□</span><span>Atur jadwal bimbingan</span><span class="ml-auto text-slate-600">→</span></button>
+              <button class="syncta-quick-btn" onclick="goSidebar('library')"><span class="w-8 h-8 rounded-lg bg-violet-500/10 text-violet-300 flex items-center justify-center">▤</span><span>Buka daftar pustaka</span><span class="ml-auto text-slate-600">→</span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4">
+          <div class="syncta-mini-panel p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <div><h2 class="text-sm font-bold text-white">Berkas Terbaru</h2><p class="text-[11px] text-slate-500 mt-1">Tiga unggahan terakhir dari workspace ini.</p></div>
+              <button onclick="goSidebar('documents')" class="text-[10px] font-semibold text-slate-400 hover:text-white">Lihat semua</button>
+            </div>
+            <div id="dash-recent-files" class="syncta-dash-list"><div class="syncta-dash-item text-[11px] text-slate-600">Belum ada berkas.</div></div>
+          </div>
+          <div class="syncta-mini-panel p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <div><h2 class="text-sm font-bold text-white">Prioritas Berikutnya</h2><p class="text-[11px] text-slate-500 mt-1">Hal yang paling layak dibereskan selanjutnya.</p></div>
+              <span id="dash-priority-badge" class="syncta-pill text-amber-300 border-amber-500/20">—</span>
+            </div>
+            <div id="dash-next-action" class="p-4 rounded-xl bg-[#0f1523] border border-[#1e2a3e]">
+              <p class="text-xs font-semibold text-white">Belum ada data pengerjaan.</p>
+              <p class="text-[11px] text-slate-500 mt-1">Mulai dari upload berkas atau centang checklist pertama.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 pt-4 border-t border-brand-border/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <p class="text-[10px] text-slate-600">Pembaruan data terakhir: <span id="dashboard-last-update" class="text-slate-400 font-mono">Belum ada data</span></p>
+          <button onclick="exportProgressReport()" class="px-3 py-1.5 rounded-md bg-brand-panel hover:bg-slate-800 border border-brand-border text-slate-300 hover:text-white text-[11px] font-semibold transition">Export Laporan</button>
         </div>
       </section>
 
@@ -726,6 +849,7 @@
     const right = document.getElementById('syncta-original-right');
 
     const dashboard = document.getElementById('syncta-dashboard-card');
+    const grid = upload?.children[0];
     const progress = [
       document.getElementById('syncta-progress-card'),
       document.getElementById('syncta-checklist-card'),
@@ -744,7 +868,9 @@
       documents.forEach(synctaHide);
       if (left) left.style.display='';
       if (right) right.style.display='none';
+      grid?.classList.add('syncta-dashboard-mode');
     } else if (view === 'documents') {
+      grid?.classList.remove('syncta-dashboard-mode');
       synctaHide(dashboard);
       progress.forEach(synctaHide);
       if (left) left.style.display='none';
@@ -754,6 +880,7 @@
       documents.forEach(synctaHide);
       if (left) left.style.display='';
       if (right) right.style.display='none';
+      grid?.classList.remove('syncta-dashboard-mode');
     }
     if (upload) upload.classList.remove('syncta-page-dashboard','syncta-page-documents','syncta-page-progress');
     if (upload) upload.classList.add('syncta-page-'+view);
@@ -803,6 +930,7 @@
     if(!currentUser) return;
     prepareSynctaSidebar();
     synctaSetActive(key);
+    setHeaderContext(key);
     closeSyncTASidebar();
 
     if(key==='dashboard'||key==='documents'||key==='progress'){
@@ -973,6 +1101,8 @@
     const mainTabs = document.getElementById('main-tabs');
     const headerName = document.getElementById('header-user-name');
     const logoutBtn = document.getElementById('header-logout-btn');
+    const headerAvatar = document.getElementById('header-avatar');
+    const connectionStatus = document.getElementById('header-connection-status');
     const tabUpload = document.getElementById('tab-content-upload');
     const tabNotes = document.getElementById('tab-content-notes');
     const tabLibrary = document.getElementById('tab-content-library');
@@ -988,12 +1118,17 @@
     setVisible(tabLibrary, false);
     setVisible(tabAdmin, false);
     headerName.textContent = 'Belum masuk';
+    if (headerAvatar) headerAvatar.textContent = 'U';
+    if (connectionStatus) connectionStatus.classList.add('hidden');
+    setHeaderContext('dashboard');
 
     if (user) {
       setVisible(authCard, false);
       setVisible(mainTabs, true, 'flex');
       setVisible(logoutBtn, true, 'inline-flex');
       headerName.textContent = user.email;
+      if (headerAvatar) headerAvatar.textContent = (user.email || 'U').charAt(0).toUpperCase();
+      if (connectionStatus) connectionStatus.classList.remove('hidden');
       switchMainTab('upload');
       loadLedger(user.uid);
       loadNotes(user.uid);
@@ -1507,6 +1642,85 @@
     }, (err) => { list.innerHTML = '<p class="text-sm text-rose-400">Gagal memuat: ' + err.message + '</p>'; });
   }
 
+  function setHeaderContext(key) {
+    const map = {
+      dashboard: ['Dashboard', 'Ringkasan workspace Tugas Akhir'],
+      documents: ['Dokumen & Upload', 'Kelola berkas, versi, status, dan deadline'],
+      progress: ['Progress TA', 'Checklist, catatan, dan timeline pengerjaan'],
+      bimbingan: ['Bimbingan Dospem', 'Rundown kampus dan persiapan agenda bimbingan'],
+      jadwal: ['Jadwal', 'Jadwal bimbingan pribadi dan riwayat'],
+      library: ['Daftar Pustaka', 'Repositori jurnal dan referensi penelitian'],
+      admin: ['Admin', 'Pengelolaan data workspace']
+    };
+    const ctx = map[key] || map.dashboard;
+    const title = document.getElementById('header-page-title');
+    const subtitle = document.getElementById('header-page-subtitle');
+    if (title) title.textContent = ctx[0];
+    if (subtitle) subtitle.textContent = ctx[1];
+  }
+
+  function updateDashboardWidgets() {
+    const setText = (id, value) => { const el=document.getElementById(id); if (el) el.textContent=value; };
+    const setWidth = (id, pct) => { const el=document.getElementById(id); if (el) el.style.width=Math.max(0,Math.min(100,pct))+'%'; };
+    const displayName = currentUser?.email ? currentUser.email.split('@')[0] : 'Mahasiswa';
+    setText('dash-welcome-name', displayName);
+    setText('dashboard-current-date', new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}));
+
+    const total = userFiles.length;
+    const selesai = userFiles.filter(x => (x.data.status || 'Draft') === 'Selesai').length;
+    const revisi = userFiles.filter(x => (x.data.status || 'Draft') === 'Revisi').length;
+    const utama = userFiles.filter(x => (x.data.category || 'utama') === 'utama').length;
+    const docPct = total ? Math.round((selesai / total) * 100) : 0;
+    const checklistItems = typeof TA_CHECKLIST !== 'undefined' ? TA_CHECKLIST.flatMap(g=>g.items) : [];
+    const checklistTotal = checklistItems.length;
+    const checklistDone = checklistItems.filter(([id])=>!!userChecklist[id]).length;
+    const checklistPct = checklistTotal ? Math.round(checklistDone / checklistTotal * 100) : 0;
+    const overallPct = Math.round((docPct * 0.65) + (checklistPct * 0.35));
+
+    setText('dash-overall-status', total ? (overallPct >= 80 ? 'Pengerjaan sangat baik' : overallPct >= 50 ? 'Pengerjaan berjalan' : 'Perlu ditingkatkan') : 'Belum ada data');
+    setText('dash-overall-icon', overallPct + '%');
+    setWidth('dash-overall-fill', overallPct);
+    setText('dash-overall-note', total ? `${selesai} dari ${total} berkas berstatus Selesai · ${checklistDone}/${checklistTotal || 0} checklist selesai.` : 'Mulai dengan mengunggah berkas TA dan mengisi checklist.');
+    setText('dash-progress-note', `${selesai} selesai dari ${total} berkas total.`);
+    setText('dash-checklist-label', `${checklistPct}%`);
+    setWidth('dash-checklist-fill', checklistPct);
+    setText('dash-checklist-note', `${checklistDone} dari ${checklistTotal} item checklist selesai.`);
+    setText('dash-revision-target', `${utama} dari ${revisionTarget} revisi file utama`);
+
+    const deadlines = userFiles.map(x=>({data:x.data})).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x.data.deadline||''))
+      .sort((a,b)=>a.data.deadline.localeCompare(b.data.deadline));
+    if (deadlines.length) {
+      const d = deadlines[0].data;
+      const dt = new Date(d.deadline+'T00:00:00');
+      const days = Math.ceil((dt.setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 86400000);
+      const label = days < 0 ? `Lewat ${Math.abs(days)} hari` : days === 0 ? 'Hari ini' : `${days} hari lagi`;
+      setText('dash-next-deadline', `${d.deadline} · ${label}`);
+    } else setText('dash-next-deadline','Belum ada deadline');
+
+    const recentEl=document.getElementById('dash-recent-files');
+    if (recentEl) {
+      const files=[...userFiles].sort((a,b)=>(b.data.createdAt||0)-(a.data.createdAt||0)).slice(0,3);
+      recentEl.innerHTML=files.length ? files.map(({data})=>{
+        const dt=data.createdAt?new Date(data.createdAt).toLocaleDateString('id-ID',{day:'numeric',month:'short'}):'-';
+        const status=data.status||'Draft';
+        return `<div class="syncta-dash-item"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="text-xs font-semibold text-slate-200 truncate" title="${escapeHtml(data.name||'Berkas')}">${escapeHtml(data.name||'Berkas')}</p><p class="text-[10px] text-slate-600 mt-1">${escapeHtml(data.bab||'Umum')} · ${dt}</p></div><span class="syncta-pill ${status==='Revisi'?'text-amber-300 border-amber-500/20':status==='Selesai'?'text-emerald-300 border-emerald-500/20':'text-slate-400'}">${escapeHtml(status)}</span></div></div>`;
+      }).join('') : '<div class="syncta-dash-item text-[11px] text-slate-600">Belum ada berkas.</div>';
+    }
+
+    const nextAction=document.getElementById('dash-next-action');
+    const badge=document.getElementById('dash-priority-badge');
+    if(nextAction && badge){
+      let title='Semua terlihat aman'; let detail='Pertahankan progres dengan melanjutkan checklist dan pembaruan dokumen.'; let tag='Stabil';
+      const high=userFiles.find(x=>(x.data.priority||'Sedang')==='Tinggi' && (x.data.status||'Draft')!=='Selesai');
+      if(revisi){ title=`Ada ${revisi} berkas yang perlu direvisi`; detail='Prioritaskan berkas berstatus Revisi sebelum menambah dokumen baru.'; tag='Revisi'; }
+      else if(high){ title=`Prioritas tinggi: ${high.data.name||'Berkas TA'}`; detail='Periksa status, deadline, dan catatan revisinya.'; tag='Tinggi'; }
+      else if(!total){ title='Mulai dari upload berkas pertama'; detail='Tambahkan draft atau dokumen utama agar dashboard mulai terisi.'; tag='Mulai'; }
+      else if(checklistPct<100){ title=`Lanjutkan checklist (${checklistDone}/${checklistTotal})`; detail='Buka Progress TA dan selesaikan item yang masih kosong.'; tag='Checklist'; }
+      nextAction.innerHTML=`<p class="text-sm font-bold text-white">${escapeHtml(title)}</p><p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">${escapeHtml(detail)}</p>`;
+      badge.textContent=tag;
+    }
+  }
+
   function updateDashboardSummary() {
     const total = userFiles.length;
     const revisi = userFiles.filter(x => (x.data.status || 'Draft') === 'Revisi').length;
@@ -1519,6 +1733,7 @@
     const fill = document.getElementById('dash-progress-fill'); if (fill) fill.style.width = pct + '%';
     const last = userFiles[0]?.data?.createdAt;
     set('dashboard-last-update', last ? new Date(last).toLocaleDateString('id-ID') : 'Belum ada data');
+    updateDashboardWidgets();
   }
 
   async function updateFileStatus(id, status) {
@@ -2015,6 +2230,7 @@
     const fill = document.getElementById('checklist-progress-fill');
     if (label) label.textContent = `${done}/${total} · ${pct}%`;
     if (fill) fill.style.width = pct + '%';
+    updateDashboardWidgets();
   }
 
   async function loadChecklist(uid) {
