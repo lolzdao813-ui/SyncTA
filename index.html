@@ -135,6 +135,8 @@
 
   /* Dokumen & Upload — dedicated workspace, independent from Dashboard */
   #tab-content-upload.syncta-page-documents{max-width:none!important;width:100%;padding-top:28px;}
+  /* Documents view uses the full workspace width; the original dashboard two-column shell must collapse to one track. */
+  #tab-content-upload.syncta-page-documents > div:first-child{grid-template-columns:minmax(0,1fr)!important;width:100%;}
   #tab-content-upload.syncta-page-documents #syncta-original-left{display:none!important;}
   #tab-content-upload.syncta-page-documents #syncta-original-right{display:grid!important;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:18px;align-items:start;width:100%;}
   #tab-content-upload.syncta-page-documents #syncta-documents-head{grid-column:1/-1;}
