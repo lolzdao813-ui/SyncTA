@@ -154,6 +154,53 @@
   .syncta-doc-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(0,229,201,.08);border:1px solid rgba(0,229,201,.13);color:#00e5c9;font-weight:800;}
   @media(max-width:1050px){#tab-content-upload.syncta-page-documents #syncta-original-right{grid-template-columns:1fr;}#tab-content-upload.syncta-page-documents #syncta-documents-head{grid-column:auto;}}
 
+
+  /* Progress TA — dedicated workspace, independent from Dashboard & Documents */
+  #tab-content-upload.syncta-page-progress{max-width:none!important;width:100%;padding-top:28px;}
+  #tab-content-upload.syncta-page-progress > div:first-child{grid-template-columns:minmax(0,1fr)!important;width:100%;}
+  #tab-content-upload.syncta-page-progress #syncta-original-left{display:grid!important;grid-template-columns:minmax(0,1fr);gap:18px;width:100%;}
+  #tab-content-upload.syncta-page-progress #syncta-original-right{display:none!important;}
+  #tab-content-upload.syncta-page-progress #syncta-progress-head{grid-column:1/-1;}
+  #tab-content-upload.syncta-page-progress #syncta-progress-card,
+  #tab-content-upload.syncta-page-progress #syncta-checklist-card,
+  #tab-content-upload.syncta-page-progress #syncta-quicknote-card,
+  #tab-content-upload.syncta-page-progress #syncta-timeline-card{border-radius:18px;box-shadow:0 16px 45px rgba(0,0,0,.16);}
+  #tab-content-upload.syncta-page-progress #syncta-progress-card{border-color:rgba(0,229,201,.18);background:linear-gradient(135deg,rgba(0,229,201,.055),rgba(15,23,42,.9));}
+  #tab-content-upload.syncta-page-progress #syncta-checklist-card{border-color:#26364d;}
+  #tab-content-upload.syncta-page-progress #syncta-quicknote-card{border-color:#26364d;}
+  #tab-content-upload.syncta-page-progress #syncta-timeline-card{border-color:#26364d;}
+  #tab-content-upload.syncta-page-progress #syncta-checklist-card #ta-checklist{max-height:none;}
+  #tab-content-upload.syncta-page-progress #syncta-quicknote-card,
+  #tab-content-upload.syncta-page-progress #syncta-timeline-card{min-height:300px;}
+  #tab-content-upload.syncta-page-progress #syncta-quicknote-card,
+  #tab-content-upload.syncta-page-progress #syncta-timeline-card{display:flex;flex-direction:column;}
+  #tab-content-upload.syncta-page-progress #syncta-quicknote-card #quicknote-list,
+  #tab-content-upload.syncta-page-progress #syncta-timeline-card #activity-timeline{flex:1;max-height:360px;}
+  .syncta-progress-head{background:linear-gradient(135deg,rgba(0,229,201,.085),rgba(6,182,212,.035) 45%,rgba(15,23,42,.88));border:1px solid rgba(0,229,201,.16);border-radius:18px;padding:22px;position:relative;overflow:hidden;}
+  .syncta-progress-head:after{content:"";position:absolute;width:260px;height:260px;border-radius:9999px;border:1px solid rgba(0,229,201,.08);right:-90px;top:-155px;box-shadow:0 0 80px rgba(0,229,201,.08);}
+  .syncta-progress-head .progress-head-inner{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;}
+  .syncta-progress-stat{display:flex;align-items:center;gap:10px;padding:11px 13px;background:rgba(8,15,27,.62);border:1px solid #223149;border-radius:12px;min-width:150px;}
+  .syncta-progress-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(0,229,201,.08);border:1px solid rgba(0,229,201,.13);color:#00e5c9;font-weight:800;font-size:14px;}
+  .syncta-progress-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:18px;}
+  @media(max-width:1100px){.syncta-progress-grid{grid-template-columns:1fr;}}
+
+
+  /* Progress TA — visual polish v2: keep all existing data/actions intact */
+  #tab-content-upload.syncta-page-progress #syncta-progress-card{padding:22px 24px;}
+  #tab-content-upload.syncta-page-progress #syncta-progress-card .mt-4{margin-top:18px;}
+  #tab-content-upload.syncta-page-progress #syncta-progress-card #progress-fill{box-shadow:0 0 14px rgba(0,229,201,.28);}
+  #tab-content-upload.syncta-page-progress #syncta-checklist-card{padding:22px 24px;}
+  #tab-content-upload.syncta-page-progress #ta-checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;overflow:visible;}
+  #tab-content-upload.syncta-page-progress #ta-checklist>div{margin-bottom:0!important;padding:14px;border:1px solid #1e2a3e;border-radius:14px;background:linear-gradient(180deg,rgba(15,21,35,.72),rgba(10,16,28,.58));}
+  #tab-content-upload.syncta-page-progress #ta-checklist>div>div:first-child{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid #1d293b;}
+  #tab-content-upload.syncta-page-progress #ta-checklist>div>div:first-child:after{content:'TAHAP';font-size:8px;letter-spacing:.12em;color:#526176;font-weight:800;}
+  #tab-content-upload.syncta-page-progress #ta-checklist label{background:#0d1421;border-color:#1b293d;padding:10px;}
+  #tab-content-upload.syncta-page-progress #ta-checklist label:hover{transform:translateY(-1px);background:#101a2a;border-color:#2b3d56;}
+  #tab-content-upload.syncta-page-progress #syncta-quicknote-card,#tab-content-upload.syncta-page-progress #syncta-timeline-card{padding:22px 24px;}
+  #tab-content-upload.syncta-page-progress #syncta-quicknote-card textarea{min-height:108px;}
+  #tab-content-upload.syncta-page-progress #syncta-progress-head .progress-head-inner{align-items:center;}
+  @media(max-width:850px){#tab-content-upload.syncta-page-progress #ta-checklist{grid-template-columns:1fr;}}
+
   /* Dashboard full-width + denser workspace presentation */
   #syncta-shell .syncta-dashboard-mode{grid-template-columns:minmax(0,1fr)!important;}
   #dashboard-summary{overflow:hidden;}
@@ -963,6 +1010,47 @@
       if (left) left.style.display='';
       if (right) right.style.display='none';
       grid?.classList.remove('syncta-dashboard-mode');
+
+      // Dedicated Progress workspace: visual-only enhancement, existing checklist/notes/timeline stay intact.
+      if (left && !document.getElementById('syncta-progress-head')) {
+        const head=document.createElement('div');
+        head.id='syncta-progress-head';
+        head.className='syncta-progress-head';
+        head.innerHTML=`
+          <div class="progress-head-inner">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="syncta-pill text-brand-teal border-brand-teal/20 bg-brand-teal/5">Workspace Progress</span>
+                <span class="syncta-pill">Tugas Akhir</span>
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">Progress TA</h1>
+              <p class="text-xs sm:text-sm text-slate-400 mt-1.5 max-w-2xl">Pantau tahapan pengerjaan, checklist, catatan bimbingan, dan timeline aktivitas TA dari satu tempat.</p>
+            </div>
+            <div class="hidden sm:flex items-center gap-2">
+              <div class="syncta-progress-stat"><span class="syncta-progress-icon">✓</span><div><p class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Checklist</p><p id="syncta-progress-head-checklist" class="text-[11px] text-slate-300 font-semibold">0%</p></div></div>
+              <div class="syncta-progress-stat"><span class="syncta-progress-icon">↗</span><div><p class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Bimbingan</p><p id="syncta-progress-head-revision" class="text-[11px] text-slate-300 font-semibold">0 / 5 revisi</p></div></div>
+            </div>
+          </div>`;
+        left.prepend(head);
+      }
+      const h=document.getElementById('syncta-progress-head-checklist');
+      const r=document.getElementById('syncta-progress-head-revision');
+      const cp=document.getElementById('checklist-progress-label');
+      const rp=document.getElementById('progress-label');
+      if(h && cp) h.textContent=cp.textContent || '0%';
+      if(r && rp) r.textContent=(rp.textContent || '0 dari 5 revisi (file utama)').replace(' dari ',' / ').replace(' revisi (file utama)',' revisi');
+
+      // Put notes and timeline beside each other on wide screens, without changing their existing behavior.
+      const q=document.getElementById('syncta-quicknote-card');
+      const t=document.getElementById('syncta-timeline-card');
+      if(q && t && !document.getElementById('syncta-progress-lower-grid')) {
+        const wrap=document.createElement('div');
+        wrap.id='syncta-progress-lower-grid';
+        wrap.className='syncta-progress-grid';
+        q.parentNode.insertBefore(wrap,q);
+        wrap.appendChild(q);
+        wrap.appendChild(t);
+      }
     }
     if (upload) upload.classList.remove('syncta-page-dashboard','syncta-page-documents','syncta-page-progress');
     if (upload) upload.classList.add('syncta-page-'+view);
@@ -1378,6 +1466,16 @@
     }
   });
 
+
+  function syncProgressWorkspaceHeader(){
+    const h=document.getElementById('syncta-progress-head-checklist');
+    const r=document.getElementById('syncta-progress-head-revision');
+    const cp=document.getElementById('checklist-progress-label');
+    const rp=document.getElementById('progress-label');
+    if(h && cp) h.textContent=cp.textContent || '0%';
+    if(r && rp) r.textContent=(rp.textContent || '0 dari 5 revisi (file utama)').replace(' dari ',' / ').replace(' revisi (file utama)',' revisi');
+  }
+
   function updateProgressBimbingan() {
     const count = userFiles.filter(({ data }) => (data.category || 'utama') === 'utama').length;
     const pct = Math.min(100, Math.round((count / revisionTarget) * 100));
@@ -1385,6 +1483,7 @@
     const fill = document.getElementById('progress-fill');
     if (label) label.textContent = count + ' dari ' + revisionTarget + ' revisi (file utama)';
     if (fill) fill.style.width = pct + '%';
+    syncProgressWorkspaceHeader();
   }
 
   // ---------- Catatan Bimbingan (quick note) ----------
@@ -2434,6 +2533,7 @@
     if (label) label.textContent = `${done}/${total} · ${pct}%`;
     if (fill) fill.style.width = pct + '%';
     updateDashboardWidgets();
+    syncProgressWorkspaceHeader();
   }
 
   async function loadChecklist(uid) {
