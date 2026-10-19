@@ -8,6 +8,7 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
   tailwind.config = {
     darkMode: 'class',
@@ -889,6 +890,10 @@
               <p class="text-xs text-slate-400 mt-1" id="library-status-text">Memuat repositori...</p>
             </div>
             <div class="flex items-center gap-2.5 flex-wrap">
+              <button id="library-download-folder-btn" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-950/50 hover:bg-cyan-900/60 border border-cyan-800/60 text-cyan-200 hover:text-white transition active:scale-95" onclick="downloadLibraryFolderZip()" title="Unduh seluruh isi folder saat ini sebagai satu file ZIP">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 17v3h14v-3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                Download Folder (.ZIP)
+              </button>
               <button class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-[#162032] hover:bg-slate-800 border border-brand-borderLight text-slate-200 hover:text-white transition active:scale-95" onclick="createLibraryFolder()">
                 <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                 + Folder Baru
@@ -2491,6 +2496,87 @@
           <span class="text-slate-200 text-sm font-medium truncate">${data.name}</span>
         </div>`;
     }).join('');
+  }
+
+  // Download semua file pada direktori yang sedang dibuka (termasuk subfolder) sebagai satu ZIP.
+  async function downloadLibraryFolderZip() {
+    if (!currentUser) { notifyFeedback('Silakan login terlebih dahulu.', 'error'); return; }
+    if (typeof JSZip === 'undefined') { notifyFeedback('Komponen ZIP belum termuat. Muat ulang halaman lalu coba lagi.', 'error'); return; }
+
+    const button = document.getElementById('library-download-folder-btn');
+    const originalLabel = button ? button.innerHTML : '';
+    if (button) { button.disabled = true; button.classList.add('opacity-60', 'pointer-events-none'); button.textContent = 'Menyiapkan ZIP...'; }
+
+    try {
+      const zip = new JSZip();
+      const rootName = (libraryPath[libraryPath.length - 1]?.name || 'Daftar-Pustaka')
+        .replace(/[\\/:*?"<>|]+/g, '-').trim() || 'Daftar-Pustaka';
+      const queue = [{ id: currentLibraryFolder, path: '' }];
+      const allFiles = [];
+      const visited = new Set();
+
+      // Baca direktori secara bertahap agar file dalam subfolder ikut dimasukkan.
+      while (queue.length) {
+        const folder = queue.shift();
+        const folderKey = folder.id == null ? '__root__' : String(folder.id);
+        if (visited.has(folderKey)) continue;
+        visited.add(folderKey);
+
+        const q = window.fb.query(
+          window.fb.collection(window.fb.db, 'library'),
+          window.fb.where('owner', '==', currentUser.uid),
+          window.fb.where('parentId', '==', folder.id)
+        );
+        const snapshot = await new Promise((resolve, reject) => {
+          let unsub = null;
+          unsub = window.fb.onSnapshot(q, snap => { if (unsub) unsub(); resolve(snap); }, err => { if (unsub) unsub(); reject(err); });
+        });
+
+        snapshot.forEach(d => {
+          const item = d.data();
+          if (item.type === 'folder') {
+            const safeFolderName = String(item.name || 'Folder').replace(/[\\/:*?"<>|]+/g, '-');
+            queue.push({ id: d.id, path: folder.path ? folder.path + '/' + safeFolderName : safeFolderName });
+          } else if (item.type === 'file' && item.url) {
+            allFiles.push({ data: item, path: folder.path });
+          }
+        });
+      }
+
+      if (!allFiles.length) {
+        notifyFeedback('Folder ini belum memiliki berkas untuk diunduh.', 'info');
+        return;
+      }
+
+      let completed = 0;
+      for (const entry of allFiles) {
+        const response = await fetch(entry.data.url);
+        if (!response.ok) throw new Error('Gagal mengambil ' + (entry.data.name || 'berkas') + ' (HTTP ' + response.status + ').');
+        const blob = await response.blob();
+        const safeFileName = String(entry.data.name || ('berkas-' + (completed + 1)))
+          .replace(/[\\/:*?"<>|]+/g, '-');
+        const zipPath = [entry.path, safeFileName].filter(Boolean).join('/');
+        zip.file(zipPath, blob);
+        completed++;
+        if (button) button.textContent = 'Memproses ' + completed + '/' + allFiles.length + '...';
+      }
+
+      const archive = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 5 } });
+      const objectUrl = URL.createObjectURL(archive);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = rootName + '.zip';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+      notifyFeedback('ZIP berhasil dibuat: ' + allFiles.length + ' berkas.', 'success');
+    } catch (err) {
+      console.error('Download folder ZIP gagal:', err);
+      notifyFeedback('Gagal membuat ZIP. Periksa koneksi/akses berkas lalu coba lagi. ' + (err.message || ''), 'error');
+    } finally {
+      if (button) { button.disabled = false; button.classList.remove('opacity-60', 'pointer-events-none'); button.innerHTML = originalLabel; }
+    }
   }
 
   function loadLibrary(uid) {
