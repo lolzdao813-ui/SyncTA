@@ -1904,19 +1904,48 @@
     return ext ? `${nameNoExt}.${ext}` : nameNoExt;
   }
 
-  window.downloadFile = async function(url, filename) {
+  // Cloudinary: minta browser mengunduh file lewat delivery URL.
+  // Fetch/blob tetap dicoba, tetapi jika CORS menolak, fallback memakai URL fl_attachment.
+  function getAttachmentUrl(url) {
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('gagal ambil file');
+      const u = new URL(url, window.location.href);
+      if (/res\.cloudinary\.com$/i.test(u.hostname) && u.pathname.includes('/upload/')) {
+        if (!u.pathname.includes('/upload/fl_attachment/')) {
+          u.pathname = u.pathname.replace('/upload/', '/upload/fl_attachment/');
+        }
+      }
+      return u.href;
+    } catch (_) { return url; }
+  }
+
+  window.downloadFile = async function(url, filename) {
+    if (!url || typeof url !== 'string') {
+      notifyFeedback('URL berkas tidak tersedia. Coba unggah ulang berkas ini.', 'error');
+      return;
+    }
+    try {
+      const res = await fetch(url, { mode: 'cors' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = blobUrl; a.download = filename;
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+      a.href = blobUrl;
+      a.download = filename || 'berkas';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
     } catch (e) {
-      notifyFeedback('Gagal unduh langsung, dibuka di tab baru.', 'info');
-      window.open(url, '_blank');
+      console.warn('Unduh langsung gagal; memakai tautan lampiran:', e);
+      const a = document.createElement('a');
+      a.href = getAttachmentUrl(url);
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.download = filename || '';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      notifyFeedback('Jika unduhan tidak dimulai, berkas dibuka di tab baru.', 'info');
     }
   };
 
@@ -1935,25 +1964,21 @@
     const ext = (name.split('.').pop() || '').toUpperCase();
     const office = ['DOC','DOCX','PPT','PPTX','XLS','XLSX'];
     const img = ['PNG','JPG','JPEG','GIF','WEBP'];
-    if (img.includes(ext)) return `<img src="${url}" alt="${name}">`;
+    const safeUrl = String(url || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    const safeTitle = String(name || 'Berkas').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    if (!url) return '<p class="text-sm text-rose-300">URL berkas tidak tersedia. Coba unggah ulang berkas ini.</p>';
+    if (img.includes(ext)) return `<img src="${safeUrl}" alt="${safeTitle}" onerror="this.outerHTML='<p class=\'text-sm text-rose-300\'>Gambar gagal dimuat. Periksa URL atau akses Cloudinary.</p>'">`;
     if (ext === 'PDF') {
-      const encoded = encodeURIComponent(url);
       return `
         <div class="w-full h-[70vh] min-h-[520px] flex flex-col bg-[#0b0f17] rounded-lg overflow-hidden">
-          <iframe
-            src="https://docs.google.com/gview?embedded=1&url=${encoded}"
-            class="w-full flex-1 min-h-0 border-0"
-            title="Pratinjau ${name}"
-            loading="eager"
-            allow="fullscreen">
-          </iframe>
+          <iframe src="${safeUrl}#toolbar=1&navpanes=0" class="w-full flex-1 min-h-0 border-0 bg-white" title="Pratinjau ${safeTitle}" loading="eager" allow="fullscreen"></iframe>
           <div class="flex items-center justify-center gap-3 px-4 py-2.5 border-t border-slate-800 bg-[#101722]">
             <span class="text-[11px] text-slate-500">PDF tidak tampil?</span>
-            <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-brand-teal hover:underline">Buka PDF langsung</a>
+            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-brand-teal hover:underline">Buka PDF langsung</a>
           </div>
         </div>`;
     }
-    if (office.includes(ext)) return `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}"></iframe>`;
+    if (office.includes(ext)) return `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}" title="Pratinjau ${safeTitle}" loading="lazy"></iframe>`;
     return '<p class="text-sm text-slate-500 italic">Pratinjau tidak didukung untuk tipe berkas ini. Unduh untuk melihat isinya.</p>';
   }
 
@@ -2072,7 +2097,7 @@
             </select>
             <button class="px-2.5 py-1.5 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="editFileDeadline('${id}', '${deadline}')">${deadline ? 'Deadline' : 'Set Deadline'}</button>
             <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
-            <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
+            <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="copyShareLink(decodeURIComponent('${encodeURIComponent(data.url)}'), decodeURIComponent('${encodeURIComponent(safeName)}'))">Salin Link</button>
             <button class="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Hapus Berkas" onclick="confirmDeleteLedgerRecord('${id}', '${safeName}')">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
             </button>
@@ -2435,14 +2460,14 @@
         return `<tr class="hover:bg-slate-900/40 transition">
             <td class="px-4 py-3 text-slate-200 font-medium flex items-center gap-2">
               <span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>
-              <span class="truncate max-w-[220px] cursor-pointer hover:text-brand-teal transition" title="Klik untuk pratinjau · ${safeName}" onclick="openFilePreview('${data.url}', '${safeName}')">${data.name}</span>
+              <span class="truncate max-w-[220px] cursor-pointer hover:text-brand-teal transition" title="Klik untuk pratinjau · ${safeName}" onclick="openFilePreview(decodeURIComponent('${encodeURIComponent(data.url)}'), decodeURIComponent('${encodeURIComponent(safeName)}'))">${data.name}</span>
             </td>
             <td class="px-4 py-3 text-slate-400">${data.size || ''}</td>
             <td class="px-4 py-3 text-slate-400">${dateStr}</td>
             <td class="px-4 py-3 text-right whitespace-nowrap">
-              <button class="text-slate-300 hover:text-white hover:underline mr-3" onclick="openFilePreview('${data.url}', '${safeName}')">Pratinjau</button>
-              <button class="text-brand-teal hover:underline mr-3" onclick="downloadFile('${data.url}', '${safeName}')">Unduh</button>
-              <button class="text-cyan-400 hover:underline mr-3" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
+              <button class="text-slate-300 hover:text-white hover:underline mr-3" onclick="openFilePreview(decodeURIComponent('${encodeURIComponent(data.url)}'), decodeURIComponent('${encodeURIComponent(safeName)}'))">Pratinjau</button>
+              <button class="text-brand-teal hover:underline mr-3" onclick="downloadFile(decodeURIComponent('${encodeURIComponent(data.url)}'), decodeURIComponent('${encodeURIComponent(safeName)}'))">Unduh</button>
+              <button class="text-cyan-400 hover:underline mr-3" onclick="copyShareLink(decodeURIComponent('${encodeURIComponent(data.url)}'), decodeURIComponent('${encodeURIComponent(safeName)}'))">Salin Link</button>
               <button class="text-red-400 hover:underline" onclick="deleteLibraryItem('${id}','file','${safeName}')">Hapus</button>
             </td>
           </tr>`;
@@ -2452,15 +2477,15 @@
       gridWrap.innerHTML = sorted.map(({ id, data }) => {
         const { rawExt, safeName, dateStr } = libraryFileRowHtml(id, data);
         return `<div class="bg-[#111928] border border-brand-border rounded-xl p-4 flex flex-col gap-2">
-            <div class="flex items-center gap-2 cursor-pointer group" onclick="openFilePreview('${data.url}', '${safeName}')">
+            <div class="flex items-center gap-2 cursor-pointer group" onclick="openFilePreview(decodeURIComponent('${encodeURIComponent(data.url)}'), decodeURIComponent('${encodeURIComponent(safeName)}'))">
               <span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:${EXT_COLOR[rawExt] || '#8b91a3'}"></span>
               <span class="text-slate-200 font-medium text-sm truncate group-hover:text-brand-teal transition" title="Klik untuk pratinjau · ${safeName}">${data.name}</span>
             </div>
             <div class="text-[11px] text-slate-500">${data.size || ''} · ${dateStr}</div>
             <div class="flex items-center gap-3 text-[11px] mt-1 flex-wrap">
-              <button class="text-slate-300 hover:text-white hover:underline" onclick="openFilePreview('${data.url}', '${safeName}')">Pratinjau</button>
-              <button class="text-brand-teal hover:underline" onclick="downloadFile('${data.url}', '${safeName}')">Unduh</button>
-              <button class="text-cyan-400 hover:underline" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
+              <button class="text-slate-300 hover:text-white hover:underline" onclick="openFilePreview(decodeURIComponent('${encodeURIComponent(data.url)}'), decodeURIComponent('${encodeURIComponent(safeName)}'))">Pratinjau</button>
+              <button class="text-brand-teal hover:underline" onclick="downloadFile(decodeURIComponent('${encodeURIComponent(data.url)}'), decodeURIComponent('${encodeURIComponent(safeName)}'))">Unduh</button>
+              <button class="text-cyan-400 hover:underline" onclick="copyShareLink(decodeURIComponent('${encodeURIComponent(data.url)}'), decodeURIComponent('${encodeURIComponent(safeName)}'))">Salin Link</button>
               <button class="text-red-400 hover:underline" onclick="deleteLibraryItem('${id}','file','${safeName}')">Hapus</button>
             </div>
           </div>`;
@@ -2691,7 +2716,7 @@
           </div>
           <div class="flex items-center gap-2 mt-3">
             <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="downloadFile('${data.url}', '${dlName.replace(/'/g,"\\'")}')">Unduh</button>
-            <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="copyShareLink('${data.url}', '${safeName}')">Salin Link</button>
+            <button class="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-[#1a2636] hover:bg-[#233348] border border-[#26374c] transition" onclick="copyShareLink(decodeURIComponent('${encodeURIComponent(data.url)}'), decodeURIComponent('${encodeURIComponent(safeName)}'))">Salin Link</button>
           </div>`;
         list.appendChild(row);
       }
