@@ -2003,7 +2003,84 @@
     document.getElementById('library-preview-body').innerHTML = '';
   }
 
-  function renderSharedViewer() {
+// ====== Analisis perubahan antar versi (backend Python) ======
+const ANALYZE_API_URL = 'http://localhost:5000'; // ganti ke URL Render setelah deploy
+
+function baseNameOf(name) {
+  return (name || '').replace(/\.[^.]+$/, '').trim().toLowerCase();
+}
+
+function findPreviousFile(name, version, excludeId) {
+  const base = baseNameOf(name);
+  const found = userFiles
+    .filter(x => x.id !== excludeId && baseNameOf(x.data.name) === base && (x.data.version || 1) < version)
+    .sort((a, b) => (b.data.version || 1) - (a.data.version || 1))[0];
+  return found ? found.data : null;
+}
+
+async function analyzeChanges(newId, newFile, prevFile) {
+  if (!ANALYZE_API_URL || !prevFile) return;
+  const ref = window.fb.doc(window.fb.db, 'files', newId);
+  try {
+    await window.fb.updateDoc(ref, { analysisStatus: 'processing', analysisError: '' });
+    const token = await window.fb.auth.currentUser.getIdToken();
+    const res = await fetch(ANALYZE_API_URL + '/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({
+        newUrl: newFile.url, newName: newFile.name,
+        prevUrl: prevFile.url, prevName: prevFile.name
+      })
+    });
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(out.error || ('HTTP ' + res.status));
+    await window.fb.updateDoc(ref, {
+      analysisStatus: 'done',
+      changeSummary: out.summary || '',
+      diffStats: out.stats || null,
+      diffLines: out.diff_lines || [],
+      prevVersion: prevFile.version || 1
+    });
+  } catch (e) {
+    console.error('Analisis gagal:', e);
+    window.fb.updateDoc(ref, { analysisStatus: 'error', analysisError: String(e.message || e) })
+      .catch(err => console.error('Gagal menyimpan status error:', err));
+  }
+}
+
+function retryAnalysis(id) {
+  const item = userFiles.find(x => x.id === id);
+  if (!item) return;
+  const prev = findPreviousFile(item.data.name, item.data.version || 1, id);
+  if (!prev) { notifyFeedback('Versi sebelumnya tidak ditemukan.', 'error'); return; }
+  analyzeChanges(id, item.data, prev);
+}
+
+function renderChangeBlock(id, data) {
+  const st = data.analysisStatus;
+  if (!st) return '';
+  if (st === 'processing') {
+      return `<div class="mt-2 p-2.5 rounded-lg bg-brand-teal/5 border border-brand-teal/20 text-[11px] text-brand-teal">Menganalisis perubahan dari versi sebelumnya... <span class="text-slate-500">(kalau lebih dari 2 menit, </span><button class="underline hover:text-white" onclick="retryAnalysis('${id}')">coba lagi</button><span class="text-slate-500">)</span></div>`;}
+  if (st === 'error') {
+    return `<div class="mt-2 p-2.5 rounded-lg bg-rose-500/5 border border-rose-500/20 text-[11px] text-rose-300">Analisis perubahan gagal: ${escapeHtml(data.analysisError || 'tidak diketahui')}. <button class="underline hover:text-white" onclick="retryAnalysis('${id}')">Coba lagi</button></div>`;
+  }
+  const s = data.diffStats || {};
+  const lines = (data.diffLines || []).map(l =>
+    `<span class="block whitespace-pre-wrap break-words px-2 py-0.5 ${l.startsWith('+') ? 'bg-emerald-500/10 text-emerald-300' : 'bg-rose-500/10 text-rose-300'}">${escapeHtml(l)}</span>`
+  ).join('');
+  return `<div class="mt-2 p-3 rounded-lg bg-[#0f1826] border border-[#26374c]">
+    <div class="flex items-center justify-between gap-2 flex-wrap">
+      <span class="text-[11px] font-semibold text-brand-teal">Perubahan dari v${data.prevVersion || '?'}</span>
+      <span class="text-[10px] text-slate-500 font-mono">+${s.added || 0} / -${s.removed || 0} kalimat</span>
+    </div>
+    ${data.changeSummary ? `<p class="text-xs text-slate-300 mt-1.5 whitespace-pre-wrap leading-relaxed">${escapeHtml(data.changeSummary)}</p>` : ''}
+    ${lines ? `<details class="mt-2"><summary class="text-[11px] text-slate-400 cursor-pointer hover:text-white">Lihat detail perubahan</summary><div class="mt-2 max-h-64 overflow-auto font-mono text-[11px] rounded-md">${lines}</div></details>` : ''}
+  </div>`;
+}
+
+function populateNoteFileSelect() {} // placeholder, dulu dipanggil tapi belum pernah ditulis
+  
+function renderSharedViewer() {
     const params = new URLSearchParams(location.search);
     if (params.get('view') !== '1') return;
     const url = params.get('u');
@@ -2083,6 +2160,7 @@
                 ${deadline ? `<span class="text-[10px] px-2 py-0.5 rounded ${deadlinePassed ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20'} font-semibold">${deadlinePassed ? 'Lewat' : 'Deadline'} ${deadline}</span>` : ''}
               </div>
               <p class="text-xs text-slate-400 mt-1.5 break-words whitespace-pre-wrap">${data.note ? 'Catatan: ' + data.note.replace(/</g,'&lt;') : 'Tanpa catatan revisi.'}</p>
+                            ${renderChangeBlock(id, data)}
               <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-1.5 font-medium">
                 <span>${data.size || ''}</span><span>•</span><span>Diunggah ${timeStr}</span>
               </div>
@@ -2372,11 +2450,14 @@
           bar.style.width = (((done + pct / 100) / total) * 100) + '%';
         });
         const ext = file.name.split('.').pop().toUpperCase();
-        await window.fb.addDoc(window.fb.collection(window.fb.db, 'library'), {
-          owner: currentUser.uid, parentId: currentLibraryFolder, type: 'file',
-          name: file.name, ext, url: data.secure_url, publicId: data.public_id,
-          sizeBytes: file.size, size: (file.size / (1024*1024)).toFixed(1) + ' MB', createdAt: Date.now()
-        });
+                const prevFile = findPreviousFile(file.name, version);
+        const newDoc = {
+          owner: currentUser.uid, name: file.name, ext, size: sizeLabel, category, bab, status, version, priority, deadline,
+          url: data.secure_url, publicId: data.public_id, note: notes, createdAt: Date.now()
+        };
+        const ref = await window.fb.addDoc(window.fb.collection(window.fb.db, 'files'), newDoc);
+        if (prevFile) analyzeChanges(ref.id, newDoc, prevFile); // tanpa await, upload tidak menunggu analisis
+        
       } catch (e) {
         failed++;
         notifyFeedback('Gagal unggah "' + file.name + '": ' + e.message, 'error');
