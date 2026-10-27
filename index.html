@@ -2450,14 +2450,18 @@ function renderSharedViewer() {
           bar.style.width = (((done + pct / 100) / total) * 100) + '%';
         });
         const ext = file.name.split('.').pop().toUpperCase();
-                const prevFile = findPreviousFile(file.name, version);
-        const newDoc = {
-          owner: currentUser.uid, name: file.name, ext, size: sizeLabel, category, bab, status, version, priority, deadline,
-          url: data.secure_url, publicId: data.public_id, note: notes, createdAt: Date.now()
-        };
-        const ref = await window.fb.addDoc(window.fb.collection(window.fb.db, 'files'), newDoc);
-        if (prevFile) analyzeChanges(ref.id, newDoc, prevFile); // tanpa await, upload tidak menunggu analisis
-        
+        await window.fb.addDoc(window.fb.collection(window.fb.db, 'library'), {
+          owner: currentUser.uid,
+          parentId: currentLibraryFolder,
+          type: 'file',
+          name: file.name,
+          ext,
+          url: data.secure_url,
+          publicId: data.public_id,
+          sizeBytes: file.size,
+          size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
+          createdAt: Date.now()
+        });
       } catch (e) {
         failed++;
         notifyFeedback('Gagal unggah "' + file.name + '": ' + e.message, 'error');
