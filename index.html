@@ -2447,7 +2447,7 @@ function renderSharedViewer() {
       const normalizedName = file.name.trim().toLocaleLowerCase();
       if (existingNames.has(normalizedName)) {
         const proceed = confirm(
-          'File "' + file.name + '" sudah ada di folder ini.\\n\\nTetap upload file dengan nama yang sama?'
+          'File "' + file.name + '" sudah ada di folder ini.\n\nTetap upload file dengan nama yang sama?'
         );
         if (!proceed) continue;
       }
