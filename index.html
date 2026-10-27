@@ -2437,13 +2437,54 @@ function renderSharedViewer() {
     if (!currentUser) { notifyFeedback('Kamu belum login.', 'error'); return; }
     const files = Array.from(fileList || []);
     if (!files.length) return;
+
+    // Ambil nama file terbaru pada folder aktif agar duplikat terdeteksi sebelum upload.
+    const existingQ = window.fb.query(
+      window.fb.collection(window.fb.db, 'library'),
+      window.fb.where('owner', '==', currentUser.uid),
+      window.fb.where('parentId', '==', currentLibraryFolder)
+    );
+    let existingSnapshot;
+    try {
+      existingSnapshot = await new Promise((resolve, reject) => {
+        let unsub = null;
+        unsub = window.fb.onSnapshot(existingQ, snapshot => {
+          if (unsub) unsub();
+          resolve(snapshot);
+        }, error => {
+          if (unsub) unsub();
+          reject(error);
+        });
+      });
+    } catch (e) {
+      notifyFeedback('Gagal memeriksa nama file: ' + e.message, 'error');
+      return;
+    }
+
+    const existingNames = new Set();
+    existingSnapshot.forEach(doc => {
+      const item = doc.data();
+      if (item.type === 'file' && item.name) existingNames.add(String(item.name).trim().toLocaleLowerCase());
+    });
+
     const wrap = document.getElementById('library-progress-bar-wrap');
     const bar = document.getElementById('library-progress-bar');
     wrap.classList.remove('hidden');
 
     const total = files.length;
-    let done = 0, failed = 0;
+    let done = 0, failed = 0, skipped = 0, uploaded = 0;
     for (const file of files) {
+      const normalizedName = String(file.name).trim().toLocaleLowerCase();
+      if (existingNames.has(normalizedName)) {
+        const shouldUpload = confirm('File "' + file.name + '" sudah ada di folder ini. Tetap unggah sebagai file duplikat?');
+        if (!shouldUpload) {
+          skipped++;
+          done++;
+          bar.style.width = ((done / total) * 100) + '%';
+          continue;
+        }
+      }
+
       notifyFeedback(`Mengunggah ${done + 1} dari ${total}: ${file.name}...`, 'info');
       try {
         const data = await uploadOneFileToCloudinary(file, (pct) => {
@@ -2462,6 +2503,8 @@ function renderSharedViewer() {
           size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
           createdAt: Date.now()
         });
+        existingNames.add(normalizedName);
+        uploaded++;
       } catch (e) {
         failed++;
         notifyFeedback('Gagal unggah "' + file.name + '": ' + e.message, 'error');
@@ -2470,10 +2513,11 @@ function renderSharedViewer() {
       bar.style.width = ((done / total) * 100) + '%';
     }
 
-    if (failed === 0) {
-      notifyFeedback(total > 1 ? total + ' berkas ditambahkan ke Daftar Pustaka.' : 'Berkas ditambahkan ke Daftar Pustaka.', 'success');
+    if (failed === 0 && skipped === 0) {
+      notifyFeedback(uploaded > 1 ? uploaded + ' berkas ditambahkan ke Daftar Pustaka.' : 'Berkas ditambahkan ke Daftar Pustaka.', 'success');
     } else {
-      notifyFeedback(`${total - failed} dari ${total} berkas berhasil diunggah, ${failed} gagal.`, 'error');
+      const summary = uploaded + ' berhasil, ' + skipped + ' dilewati, ' + failed + ' gagal.';
+      notifyFeedback(summary, failed > 0 ? 'error' : 'success');
     }
     wrap.classList.add('hidden');
   }
