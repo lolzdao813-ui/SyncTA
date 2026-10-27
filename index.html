@@ -2437,19 +2437,43 @@ function renderSharedViewer() {
     if (!currentUser) { notifyFeedback('Kamu belum login.', 'error'); return; }
     const files = Array.from(fileList || []);
     if (!files.length) return;
+
+    // Cek duplikat hanya pada folder yang sedang dibuka; nama dibandingkan tanpa membedakan huruf besar/kecil.
+    const existingNames = new Set(
+      lastLibraryFiles.map(item => String(item.data.name || '').trim().toLocaleLowerCase())
+    );
+    const approvedFiles = [];
+    for (const file of files) {
+      const normalizedName = file.name.trim().toLocaleLowerCase();
+      if (existingNames.has(normalizedName)) {
+        const proceed = confirm(
+          'File "' + file.name + '" sudah ada di folder ini.\n\nTetap upload file dengan nama yang sama?'
+        );
+        if (!proceed) continue;
+      }
+      approvedFiles.push(file);
+      // Cegah nama duplikat di dalam satu batch upload yang sama.
+      existingNames.add(normalizedName);
+    }
+
+    if (!approvedFiles.length) {
+      notifyFeedback('Upload dibatalkan. Tidak ada file baru yang diunggah.', 'info');
+      return;
+    }
+
     const wrap = document.getElementById('library-progress-bar-wrap');
     const bar = document.getElementById('library-progress-bar');
     wrap.classList.remove('hidden');
 
-    const total = files.length;
+    const total = approvedFiles.length;
     let done = 0, failed = 0;
-    for (const file of files) {
+    for (const file of approvedFiles) {
       notifyFeedback(`Mengunggah ${done + 1} dari ${total}: ${file.name}...`, 'info');
       try {
         const data = await uploadOneFileToCloudinary(file, (pct) => {
           bar.style.width = (((done + pct / 100) / total) * 100) + '%';
         });
-        const ext = file.name.split('.').pop().toUpperCase();
+        const ext = file.name.includes('.') ? file.name.split('.').pop().toUpperCase() : '';
         await window.fb.addDoc(window.fb.collection(window.fb.db, 'library'), {
           owner: currentUser.uid,
           parentId: currentLibraryFolder,
